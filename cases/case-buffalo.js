@@ -5,14 +5,14 @@
    البرومبتات المقترحة لكل صورة موجودة في ملاحظة آخر الملف.
    ============================================================ */
 
-const IMG_BASE = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/';
+const IMG_BASE_BUFFALO = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/';
 
 const CASE_BUFFALO = {
   id: 'buffalo-case',
   title: 'قضية الجاموسة',
   caseNo: 'CASE 003',
   subtitle: 'قرية كفر أبو صافي، مركز أشمون، المنوفية',
-  coverImg: IMG_BASE + 'buffalo-cover.jpg',
+  coverImg: IMG_BASE_BUFFALO + 'buffalo-cover.jpg',
   difficulty: 'متوسطة',
   estMinutes: 20,
 
@@ -22,7 +22,7 @@ const CASE_BUFFALO = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE + 'buffalo-cover.jpg',
+    heroImg: IMG_BASE_BUFFALO + 'buffalo-cover.jpg',
     heroCaption: 'CASE 003 — كفر أبو صافي، الفجر',
     text1: 'الحاج عبد العال قام الصبح بدري يفوّت على "ست الدار" جاموسته اللي رباها من عجلة، لقى باب الزريبة مفتوح والمكان فاضي. زعقة وحشة عمّت البلد كلها في نص ساعة.',
     text2: 'البلد اتقسمت لحزبين: نص قال "سرقة واضحة"، والنص التاني قال "ده عمل عفريت الجامع القديم اللي مبيسكتش من زمان". العمدة مش عايز الموضوع يكبر، فطلبك تيجي تحقق قبل ما تبقى فتنة حقيقية بين العيل.',
@@ -37,22 +37,22 @@ const CASE_BUFFALO = {
   prologue: [
     {
       scene:'المشهد ١ — الصبح بدري',
-      img: IMG_BASE + 'buffalo-scene1.jpg',
+      img: IMG_BASE_BUFFALO + 'buffalo-scene1.jpg',
       text:'الصبح بدري، الحاج عبد العال قام يفوّت على "ست الدار" جاموسته اللي رباها من عجلة، لقى باب الزريبة مفتوح والمكان فاضي. زعقة وحشة عمّت البلد كلها في نص ساعة.'
     },
     {
       scene:'المشهد ٢ — البلد اتقسمت لحزبين',
-      img: IMG_BASE + 'buffalo-scene2.jpg',
+      img: IMG_BASE_BUFFALO + 'buffalo-scene2.jpg',
       text:'نص البلد قال "سرقة واضحة"، والنص التاني قال "ده عمل عفريت الجامع القديم اللي مبيسكتش من زمان". العمدة مش عايز الموضوع يكبر، فطلبك تيجي تحقق قبل ما تبقى فتنة حقيقية بين العيل.'
     },
     {
       scene:'المشهد ٣ — كل واحد عنده رواية',
-      img: IMG_BASE + 'buffalo-scene3.jpg',
+      img: IMG_BASE_BUFFALO + 'buffalo-scene3.jpg',
       text:'هتلاقي إمام، وبياعة فرن، وسايس توك توك، وجارة بتحب النميمة، وكل واحد فيهم متأكد ١٠٠٪ من كلامه. المشكلة؟ مش كل الروايات ممكن تكون صح في نفس الوقت.'
     },
     {
       scene:'المشهد ٤ — يلا بينا نلاقي "ست الدار"',
-      img: IMG_BASE + 'buffalo-scene4.jpg',
+      img: IMG_BASE_BUFFALO + 'buffalo-scene4.jpg',
       text:'افحص المكان كويس، اسمع البلد، واحكم بالدليل مش بالكلام. العمدة مستنيك في الديوان.'
     },
   ],
@@ -161,37 +161,37 @@ const CASE_BUFFALO = {
   ],
 
   evidence: [
-    { id:'wheel', tag:'من الزريبة', crit:false, title:'أثر عجلة تروسيكل عند بوابة الزريبة الخلفية', img: IMG_BASE + 'buffalo-wheel.jpg',
+    { id:'wheel', tag:'من الزريبة', crit:false, title:'أثر عجلة تروسيكل عند بوابة الزريبة الخلفية', img: IMG_BASE_BUFFALO + 'buffalo-wheel.jpg',
       short:'حد استخدم تروسيكل، مش عربة كارو زي ما البلد فاكرة',
       full:'أثر عجلة غريب على الطينة عند بوابة الزريبة الخلفية، شكله مش زي عجلة عربة كارو عادية — أقرب لتروسيكل نقل. ده بيتفق مع شهادة الشيخ حسبو اللي سمع صوت موتور غريب في نفس المنطقة.',
       unlocked:true, order:1 },
 
-    { id:'lock', tag:'من الزريبة', crit:true, title:'قفل الزريبة مقطوع بكماشة', img: IMG_BASE + 'buffalo-lock.jpg',
+    { id:'lock', tag:'من الزريبة', crit:true, title:'قفل الزريبة مقطوع بكماشة', img: IMG_BASE_BUFFALO + 'buffalo-lock.jpg',
       short:'مقطوع بدقة، مش مكسور بالعافية',
       full:'القفل مقطوع بكماشة بدقة، مش مكسور بالعافية أو بالشلوت زي ما يعمل حد جاي من برة يخبط عادي. اللي عمل كده يعرف يستخدم عدة، ومعاه وصول لأداة زي دي.',
       unlocked:true, order:2 },
 
-    { id:'boot', tag:'من الزريبة', crit:true, title:'بصمة حذاء طينية مقاس 43', img: IMG_BASE + 'buffalo-bootprint.jpg',
+    { id:'boot', tag:'من الزريبة', crit:true, title:'بصمة حذاء طينية مقاس 43', img: IMG_BASE_BUFFALO + 'buffalo-bootprint.jpg',
       short:'جنب القفل مباشرة',
       full:'بصمة حذاء طينية واضحة، مقاس 43 تقريبًا، جهة يمين القفل مباشرة. لازم تتطابق مع جزمة حد من المشتبه فيهم.',
       unlocked:true, order:3 },
 
-    { id:'hair', tag:'من السلك الشائك', crit:false, title:'وبر جاموسة عالق في السلك الشائك', img: IMG_BASE + 'buffalo-hair.jpg',
+    { id:'hair', tag:'من السلك الشائك', crit:false, title:'وبر جاموسة عالق في السلك الشائك', img: IMG_BASE_BUFFALO + 'buffalo-hair.jpg',
       short:'ناحية أرض عم رزق',
       full:'وبر جاموسة عالق في السلك الشائك ناحية أرض عم رزق — الطريق الطبيعي اللي أي جاموسة تعدي منه لبرة البلد. مش لازم يبقى دليل إدانة، ممكن يكون مجرد مصادفة جغرافية.',
       unlocked:true, order:4 },
 
-    { id:'debt', tag:'من الجرن', crit:true, title:'دفتر حسابات فيه دين على حسني', img: IMG_BASE + 'buffalo-debt.jpg',
+    { id:'debt', tag:'من الجرن', crit:true, title:'دفتر حسابات فيه دين على حسني', img: IMG_BASE_BUFFALO + 'buffalo-debt.jpg',
       short:'دين كبير لمعلم الطاولة أبو النجا',
       full:'دفتر حسابات صغير مطوي جوه الجرن، جنب كوم قش، فيه دين كبير على حسني لصالح معلم الطاولة "أبو النجا". دافع مادي واضح لبيع حاجة تتباع بسرعة.',
       unlocked:true, order:5 },
 
-    { id:'boot2', tag:'من الجرن', crit:true, title:'جزمة مقاس 43 ملقاة في الجرن', img: IMG_BASE + 'buffalo-boot2.jpg',
+    { id:'boot2', tag:'من الجرن', crit:true, title:'جزمة مقاس 43 ملقاة في الجرن', img: IMG_BASE_BUFFALO + 'buffalo-boot2.jpg',
       short:'تطابق بصمة الطين عند القفل',
       full:'جزمة مقاس 43 ملقاة في ركن الجرن. المقاس بيطابق بصمة الطين اللي لقيناها جنب قفل الزريبة بالظبط.',
       unlocked:true, order:6 },
 
-    { id:'receipt', tag:'من استجواب أبو دياب', crit:false, title:'إيصال قهوة باسم أبو دياب من بلد تانية', img: IMG_BASE + 'buffalo-receipt.jpg',
+    { id:'receipt', tag:'من استجواب أبو دياب', crit:false, title:'إيصال قهوة باسم أبو دياب من بلد تانية', img: IMG_BASE_BUFFALO + 'buffalo-receipt.jpg',
       short:'بتوقيت ليلة الحادثة بالظبط',
       full:'لما طلبت من أبو دياب يثبت مكانه، طلع إيصال مقهى من بلد تانية بتوقيت الجريمة بالظبط. ده بيتفق مع شهادة أم سعيد اللي شافته هناك.',
       unlocked:true, order:7 },
