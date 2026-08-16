@@ -1,0 +1,833 @@
+/* ============================================================
+   المحرك العام — بيشتغل مع أي قضية متوصفة بنفس الـ schema
+   (شوف cases/case-last-episode.js كنموذج)
+   لا تكتبش قصة أو بيانات هنا؛ الملف ده للمنطق بس.
+   ============================================================ */
+
+const app = {
+  view: 'loading',      // loading | auth | library | case
+  session: null,
+  unlockedIds: [],
+  completedIds: [],
+};
+
+let CASE = null;         // القضية الحالية (object)
+let game = null;         // حالة اللعب داخل القضية الحالية
+
+function freshGameState(){
+  return {
+    screen:'briefing',
+    lastTabIndex:0,
+    collected:new Set(),
+    interrogated:{},
+    audioSolved:false,
+    activeSuspect:null,
+    accSuspect:null,
+    accEvidence:new Set(),
+    ending:null,
+    prologueIdx:0,
+  };
+}
+
+const appRoot = document.getElementById('app');
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+
+async function boot(){
+  const session = await authGetSession();
+  app.session = session;
+  if(session){
+    app.unlockedIds = await listUnlockedCaseIds();
+    app.completedIds = await listCompletedCaseIds();
+    showLibrary();
+  } else {
+    showAuth();
+  }
+}
+
+/* ============================================================
+   AUTH SCREEN
+   ============================================================ */
+
+let authMode = 'signin';
+
+function showAuth(){
+  app.view = 'auth';
+  appRoot.innerHTML = `
+    <div class="auth-wrap">
+      <div class="masthead" style="border:none; margin-bottom:28px; justify-content:center; text-align:center;">
+        <div>
+          <div class="case-no mono">CASE ARCHIVE</div>
+          <h1 class="flicker">أرشيف القضايا</h1>
+        </div>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab ${authMode==='signin'?'active':''}" data-mode="signin">تسجيل الدخول</button>
+        <button class="auth-tab ${authMode==='signup'?'active':''}" data-mode="signup">حساب جديد</button>
+      </div>
+      <div id="authMsgWrap"></div>
+      <div class="auth-field">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="authEmail" placeholder="you@example.com">
+      </div>
+      <div class="auth-field">
+        <label>كلمة السر</label>
+        <input type="password" id="authPassword" placeholder="••••••••">
+      </div>
+      <button class="btn" id="authSubmit" style="width:100%;">${authMode==='signin' ? 'دخول' : 'إنشاء حساب'}</button>
+    </div>
+  `;
+  document.querySelectorAll('.auth-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ authMode = btn.dataset.mode; showAuth(); });
+  });
+  document.getElementById('authSubmit').addEventListener('click', handleAuthSubmit);
+}
+
+async function handleAuthSubmit(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const msgWrap = document.getElementById('authMsgWrap');
+  msgWrap.innerHTML = '';
+  if(!email || !password){
+    msgWrap.innerHTML = `<div class="auth-error">لازم تدخل الإيميل وكلمة السر.</div>`;
+    return;
+  }
+  const submitBtn = document.getElementById('authSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '...جارِ التحقق';
+
+  let result;
+  if(authMode==='signin') result = await authSignIn(email, password);
+  else result = await authSignUp(email, password);
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = authMode==='signin' ? 'دخول' : 'إنشاء حساب';
+
+  if(result.error){
+    msgWrap.innerHTML = `<div class="auth-error">${result.error.message}</div>`;
+    return;
+  }
+  if(authMode==='signup' && !result.data.session){
+    msgWrap.innerHTML = `<div class="auth-msg">اتبعت لينك تأكيد على إيميلك. أكّده وبعدين سجّل دخول.</div>`;
+    return;
+  }
+  app.session = result.data.session;
+  app.unlockedIds = await listUnlockedCaseIds();
+  app.completedIds = await listCompletedCaseIds();
+  showLibrary();
+}
+
+/* ============================================================
+   LIBRARY SCREEN
+   ============================================================ */
+
+function isCaseLocked(caseData){
+  if(caseData.isPremium && !app.unlockedIds.includes(caseData.id)){
+    return { locked:true, reason:'premium' };
+  }
+  if(caseData.seriesId && caseData.seriesOrder > 1){
+    const prev = CASES_REGISTRY.find(c => c.seriesId===caseData.seriesId && c.seriesOrder===caseData.seriesOrder-1);
+    if(prev && !app.completedIds.includes(prev.id)){
+      return { locked:true, reason:'series' };
+    }
+  }
+  return { locked:false };
+}
+
+function showLibrary(){
+  app.view = 'library';
+  const cards = CASES_REGISTRY.map(c=>{
+    const lock = isCaseLocked(c);
+    const badges = [];
+    if(c.isPremium) badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
+    if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
+    const lockOverlay = lock.locked ? `
+      <div class="lib-lock-overlay">
+        <div style="font-size:22px;">🔒</div>
+        ${lock.reason==='premium'
+          ? '<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">نظام الدفع قريبًا</span></div>'
+          : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
+      </div>` : '';
+    return `
+      <div class="lib-card" data-case="${c.id}" data-locked="${lock.locked}">
+        ${badges.join('')}
+        <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
+        <div class="body">
+          <h4>${c.title}</h4>
+          <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>
+        </div>
+        ${lockOverlay}
+      </div>
+    `;
+  }).join('');
+
+  appRoot.innerHTML = `
+    <div class="lib-header">
+      <div>
+        <div class="case-no mono">CASE ARCHIVE</div>
+        <h1 class="flicker" style="font-size:clamp(24px,4vw,32px);">اختار قضيتك</h1>
+      </div>
+      <div style="text-align:left;">
+        <div class="user-email">${app.session ? app.session.user.email : ''}</div>
+        <button class="btn ghost" id="logoutBtn" style="margin-top:6px; font-size:12px; padding:6px 14px;">تسجيل خروج</button>
+      </div>
+    </div>
+    <div class="lib-grid">${cards}</div>
+  `;
+
+  document.querySelectorAll('.lib-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      if(card.dataset.locked === 'true') return; // مقفولة، متعملش حاجة (لسه)
+      const caseData = CASES_REGISTRY.find(c=>c.id === card.dataset.case);
+      enterCase(caseData);
+    });
+  });
+  document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+    await authSignOut();
+    app.session = null;
+    showAuth();
+  });
+}
+
+/* ============================================================
+   ENTER A CASE
+   ============================================================ */
+
+async function enterCase(caseData){
+  CASE = caseData;
+  game = freshGameState();
+
+  const saved = await loadProgress(CASE.id);
+  if(saved){
+    game.collected = new Set(saved.collected || []);
+    game.interrogated = {};
+    Object.entries(saved.interrogated || {}).forEach(([sid, arr])=>{ game.interrogated[sid] = new Set(arr); });
+    game.audioSolved = !!saved.audio_solved;
+    game.ending = saved.ending || null;
+  } else {
+    // أول مرة يلعب القضية دي — سجّلها كمفتوحة (مجانية بشكل افتراضي)
+    if(!CASE.isPremium) await unlockCaseForUser(CASE.id, 'free');
+  }
+
+  showCaseSplash();
+}
+
+function persistProgress(){
+  saveProgress(CASE.id, {
+    collected: [...game.collected],
+    interrogated: Object.fromEntries(Object.entries(game.interrogated).map(([k,v])=>[k,[...v]])),
+    audioSolved: game.audioSolved,
+    ending: game.ending,
+  });
+}
+
+/* ============================================================
+   SPLASH + PROLOGUE
+   ============================================================ */
+
+function showCaseSplash(){
+  app.view = 'case';
+  appRoot.innerHTML = '';
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="splash" class="splash" tabindex="0" role="button" aria-label="اضغط للبدء">
+      <div class="splash-caseno mono">${CASE.caseNo} — ${CASE.subtitle}</div>
+      <h1 class="splash-title flicker">${CASE.title}</h1>
+      <div class="splash-sub mono">قضية جريمة تفاعلية</div>
+      <div class="splash-prompt mono">اضغط في أي مكان للبدء ←</div>
+    </div>
+  `);
+  const splash = document.getElementById('splash');
+  const dismiss = ()=>{
+    splash.classList.add('hide');
+    setTimeout(()=>{ splash.remove(); startPrologue(); }, 500);
+  };
+  splash.addEventListener('click', dismiss);
+  splash.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') dismiss(); });
+}
+
+let prologueSkip = null;
+
+function typeTextSkippable(el, text, speed, onDone){
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i=0, finished=false, timer=null;
+  function finish(){ if(finished) return; finished=true; clearTimeout(timer); el.textContent=text; if(onDone) onDone(); }
+  if(reduced){ finish(); return finish; }
+  (function step(){
+    if(finished) return;
+    if(i<=text.length){ el.textContent=text.slice(0,i); i++; timer=setTimeout(step, speed); }
+    else finish();
+  })();
+  return finish;
+}
+
+function startPrologue(){
+  if(!CASE.prologue || !CASE.prologue.length){ mountGameShell(); return; }
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="prologue" class="prologue" style="display:flex;">
+      <div class="prologue-bg" id="prologueBg"></div>
+      <div class="prologue-content" id="prologueContent">
+        <div class="prologue-scene mono" id="prologueScene"></div>
+        <p class="prologue-text" id="prologueText"></p>
+        <button class="btn prologue-next" id="prologueNext">التالي ←</button>
+      </div>
+      <div class="prologue-progress" id="prologueProgress"></div>
+    </div>
+  `);
+  game.prologueIdx = 0;
+  showPrologueSlide(0);
+  document.getElementById('prologueContent').addEventListener('click', e=>{
+    if(e.target.id==='prologueNext') return;
+    if(prologueSkip) prologueSkip();
+  });
+  document.getElementById('prologueNext').addEventListener('click', ()=>{
+    game.prologueIdx++;
+    if(game.prologueIdx < CASE.prologue.length) showPrologueSlide(game.prologueIdx);
+    else endPrologue();
+  });
+}
+
+function showPrologueSlide(i){
+  const s = CASE.prologue[i];
+  document.getElementById('prologueBg').style.backgroundImage = s.img ? `url('${s.img}')` : 'none';
+  document.getElementById('prologueScene').textContent = s.scene;
+  const nextBtn = document.getElementById('prologueNext');
+  nextBtn.classList.remove('show');
+  nextBtn.textContent = (i === CASE.prologue.length-1) ? 'افتح ملف القضية ←' : 'التالي ←';
+  document.getElementById('prologueProgress').innerHTML =
+    CASE.prologue.map((_,idx)=>`<div class="dot ${idx===i?'active':''}"></div>`).join('');
+  const textEl = document.getElementById('prologueText');
+  prologueSkip = typeTextSkippable(textEl, s.text, 22, ()=>{ nextBtn.classList.add('show'); });
+}
+
+function endPrologue(){
+  const p = document.getElementById('prologue');
+  p.classList.add('hide');
+  setTimeout(()=>{ p.remove(); mountGameShell(); }, 500);
+}
+
+/* ============================================================
+   GAME SHELL (tabs + panel), mounted after splash/prologue
+   ============================================================ */
+
+function mountGameShell(){
+  appRoot.innerHTML = `
+    <div class="masthead">
+      <div>
+        <div class="case-no mono">${CASE.caseNo} — ${CASE.subtitle}</div>
+        <h1 class="flicker">${CASE.title}</h1>
+      </div>
+      <div class="stat-line">
+        <button class="btn ghost" id="backToLibrary" style="font-size:12px; padding:6px 12px;">← الأرشيف</button>
+        <span class="status-dot"></span>
+        <span id="evCount" class="mono">0 / ${CASE.evidence.length}</span> أدلة مجمّعة
+      </div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="panel" id="panelBody"></div>
+  `;
+  document.getElementById('backToLibrary').addEventListener('click', async ()=>{
+    persistProgress();
+    app.unlockedIds = await listUnlockedCaseIds();
+    app.completedIds = await listCompletedCaseIds();
+    showLibrary();
+  });
+  render();
+}
+
+/* ============================================================
+   RENDER ROOT
+   ============================================================ */
+
+const TAB_ORDER = ['briefing','evidence','suspects','audio','accusation','ending'];
+
+function render(){
+  renderTabs();
+  renderPanel();
+  document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
+}
+
+function typeText(el, text, speed, onDone){
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ el.textContent = text; if(onDone) onDone(); return; }
+  let i=0;
+  el.textContent = '';
+  (function step(){
+    if(i<=text.length){ el.textContent = text.slice(0,i); i++; setTimeout(step, speed); }
+    else if(onDone){ onDone(); }
+  })();
+}
+
+function renderTabs(){
+  const tabsEl = document.getElementById('tabs');
+  const audioAvailable = CASE.audioPuzzle && CASE.audioPuzzle.enabled;
+  const audioUnlocked = audioAvailable && game.collected.has(evidenceThatUnlocksAudio());
+  const accUnlocked = game.collected.size >= Math.min(5, CASE.evidence.length);
+  const defs = [
+    {id:'briefing', label:'ملف القضية'},
+    {id:'evidence', label:'لوحة الأدلة'},
+    {id:'suspects', label:'المشتبه بهم'},
+  ];
+  if(audioAvailable) defs.push({id:'audio', label:'تحليل صوتي', locked: !audioUnlocked});
+  defs.push({id:'accusation', label:'الاتهام', locked: !accUnlocked});
+
+  tabsEl.innerHTML = defs.map(d=>{
+    const active = game.screen===d.id ? 'active':'';
+    const disabled = d.locked ? 'disabled' : '';
+    return `<button class="tab ${active}" ${disabled} data-tab="${d.id}">${d.label}</button>`;
+  }).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ game.screen = btn.dataset.tab; render(); });
+  });
+}
+
+function evidenceThatUnlocksAudio(){
+  const ev = CASE.evidence.find(e=>e.unlocksAudio);
+  return ev ? ev.id : null;
+}
+
+function renderPanel(){
+  const el = document.getElementById('panelBody');
+  const newIndex = TAB_ORDER.indexOf(game.screen);
+  el.classList.remove('slide-r','slide-l');
+  void el.offsetWidth;
+  if(newIndex >= 0){
+    el.classList.add(newIndex >= game.lastTabIndex ? 'slide-r' : 'slide-l');
+    game.lastTabIndex = newIndex;
+  }
+  if(game.screen==='briefing') el.innerHTML = briefingHTML();
+  else if(game.screen==='evidence') el.innerHTML = evidenceHTML();
+  else if(game.screen==='suspects') el.innerHTML = suspectsHTML();
+  else if(game.screen==='audio') el.innerHTML = audioHTML();
+  else if(game.screen==='accusation') el.innerHTML = accusationHTML();
+  else if(game.screen==='ending') el.innerHTML = endingHTML();
+
+  attachPanelEvents();
+  if(game.screen==='briefing') runBriefingTypewriter();
+}
+
+/* ============================================================
+   BRIEFING
+   ============================================================ */
+
+function briefingHTML(){
+  return `
+    <div class="hero-banner">
+      <img src="${CASE.briefing.heroImg}" class="photo-tone" alt="${CASE.title}" loading="lazy">
+      <div class="hero-caption mono">${CASE.briefing.heroCaption}</div>
+    </div>
+    <h2>ملخص الواقعة</h2>
+    <p id="briefP1"></p>
+    <p id="briefP2"></p>
+    <div class="divider"></div>
+    <div class="brief-meta">
+      ${CASE.briefing.meta.map(m=>`<div class="item"><div class="label">${m.label}</div><div class="value">${m.value}</div></div>`).join('')}
+    </div>
+    <div class="divider"></div>
+    <h3>مهمتك</h3>
+    <p class="dim">افحص مسرح الجريمة، استجوّب المشتبه بهم، وحلل الأدلة بعناية. الحقيقة غالبًا بتختبي في التفاصيل اللي محدش بيسمعها كويس.</p>
+    <div class="divider"></div>
+    <button class="btn" data-goto="evidence">ابدأ التحقيق ←</button>
+  `;
+}
+
+function runBriefingTypewriter(){
+  const p1 = document.getElementById('briefP1');
+  const p2 = document.getElementById('briefP2');
+  if(!p1||!p2) return;
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(game.briefingTyped || reduced){
+    p1.textContent = CASE.briefing.text1;
+    p2.textContent = CASE.briefing.text2;
+    return;
+  }
+  game.briefingTyped = true;
+  let i=0,j=0;
+  p1.innerHTML = '<span class="type-cursor"></span>';
+  (function step1(){
+    if(i<=CASE.briefing.text1.length){ p1.textContent = CASE.briefing.text1.slice(0,i); i++; setTimeout(step1,14); }
+    else{ p2.innerHTML='<span class="type-cursor"></span>'; step2(); }
+  })();
+  function step2(){
+    if(j<=CASE.briefing.text2.length){ p2.textContent = CASE.briefing.text2.slice(0,j); j++; setTimeout(step2,12); }
+  }
+}
+
+/* ============================================================
+   EVIDENCE
+   ============================================================ */
+
+function evidenceById(id){ return CASE.evidence.find(e=>e.id===id); }
+function suspectById(id){ return CASE.suspects.find(s=>s.id===id); }
+
+function collect(id, opts={}){
+  if(!game.collected.has(id)){
+    game.collected.add(id);
+    if(!opts.silent){
+      const ev = evidenceById(id);
+      if(ev) showToast('دليل جديد: ' + ev.title, ev.crit ? 'danger' : 'amber');
+    }
+    persistProgress();
+  }
+}
+
+function showToast(text, tone){
+  let wrap = document.getElementById('toastWrap');
+  if(!wrap){
+    wrap = document.createElement('div');
+    wrap.id = 'toastWrap';
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (tone==='danger' ? ' danger' : '');
+  t.textContent = text;
+  wrap.appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
+
+function evidenceHTML(){
+  const sorted = [...CASE.evidence].sort((a,b)=>a.order-b.order);
+  const cards = sorted.map(ev=>{
+    if(game.collected.has(ev.id)){
+      const thumb = ev.img ? `<img class="ev-thumb photo-tone" src="${ev.img}" alt="${ev.title}" loading="lazy">` : '';
+      return `<div class="ev-card" data-ev="${ev.id}">
+        ${thumb}
+        <div class="tag ${ev.crit?'crit':''}">${ev.tag}${ev.crit?' · حاسم':''}</div>
+        <h4>${ev.title}</h4>
+        <div class="preview">${ev.short}</div>
+      </div>`;
+    }
+    return `<div class="ev-locked">🔒 دليل غير مكتشف بعد</div>`;
+  }).join('');
+  return `
+    <h2>لوحة الأدلة</h2>
+    <p class="dim">فحص الأدلة بيساعدك تبني الصورة الكاملة. بعض الأدلة بتتكشف من خلال استجواب المشتبه بهم.</p>
+    <div class="divider"></div>
+    <div class="ev-grid">${cards}</div>
+  `;
+}
+
+function openEvidenceModal(id){
+  const ev = evidenceById(id);
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  const modalImg = ev.img ? `<img class="ev-thumb photo-tone" style="height:180px;" src="${ev.img}" alt="${ev.title}" loading="lazy">` : '';
+  overlay.innerHTML = `
+    <div class="modal">
+      ${modalImg}
+      <div class="tag ${ev.crit?'crit':''}" style="color:${ev.crit?'var(--danger)':'var(--signal)'}">${ev.tag}${ev.crit?' · دليل حاسم':''}</div>
+      <h3>${ev.title}</h3>
+      <p>${ev.full}</p>
+      <button class="btn close-btn">إغلاق</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
+}
+
+/* ============================================================
+   SUSPECTS
+   ============================================================ */
+
+function suspectsHTML(){
+  if(game.activeSuspect) return interrogationHTML(game.activeSuspect);
+  const cards = CASE.suspects.map(s=>{
+    const done = game.interrogated[s.id] ? game.interrogated[s.id].size : 0;
+    const total = s.questions.length;
+    return `<div class="sus-card" data-suspect="${s.id}">
+      <img class="avatar-photo photo-tone" src="${s.img}" alt="${s.name}" loading="lazy">
+      <h4>${s.name}</h4>
+      <div class="role">${s.role}</div>
+      ${done>0?`<div class="mono" style="font-size:11px;color:var(--signal);margin-top:10px;">${done}/${total} أسئلة</div>`:''}
+    </div>`;
+  }).join('');
+  return `
+    <h2>المشتبه بهم</h2>
+    <p class="dim">اضغط على أي مشتبه به عشان تبدأ الاستجواب.</p>
+    <div class="divider"></div>
+    <div class="sus-grid">${cards}</div>
+  `;
+}
+
+function interrogationHTML(suspectId){
+  const s = suspectById(suspectId);
+  const answered = game.interrogated[s.id] || new Set();
+  const lines = [...answered].sort((a,b)=>a-b).map(idx=>{
+    const item = s.questions[idx];
+    return `<div class="line q"><div class="who">أنت</div>${item.q}</div>
+            <div class="line a"><div class="who">${s.name}</div>${item.a}</div>`;
+  }).join('');
+  const qButtons = s.questions.map((item,idx)=>{
+    const used = answered.has(idx);
+    return `<button class="q-btn" data-q="${idx}" ${used?'disabled':''}>${item.q}</button>`;
+  }).join('');
+  return `
+    <button class="btn ghost" data-back-suspects style="margin-bottom:16px;">← رجوع للمشتبه بهم</button>
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:6px;">
+      <img class="avatar-photo small photo-tone" src="${s.img}" alt="${s.name}" loading="lazy">
+      <div><h2 style="margin-bottom:2px;">${s.name}</h2><span class="dim" style="font-size:14px;">${s.role}</span></div>
+    </div>
+    <p class="dim">علمة الحضور: ${s.alibi}</p>
+    <div class="divider"></div>
+    <div class="transcript" id="transcript">
+      ${lines || '<p class="dim" style="margin:0;">اسأل أول سؤال عشان تبدأ الاستجواب.</p>'}
+    </div>
+    <div class="q-grid">${qButtons}</div>
+  `;
+}
+
+/* ============================================================
+   AUDIO PUZZLE (generic — driven by CASE.audioPuzzle)
+   ============================================================ */
+
+function buildWave(seed){
+  const base = [];
+  let s = seed || 7;
+  function rnd(){ s = (s*9301+49297)%233280; return s/233280; }
+  for(let i=0;i<90;i++) base.push(Math.round(10+rnd()*60));
+  const cfg = CASE.audioPuzzle;
+  const [srcA, srcB] = cfg.duplicateSourceRange;
+  const [tgtA] = cfg.duplicateTargetRange;
+  for(let i=0;i<(srcB-srcA);i++) base[tgtA+i] = base[srcA+i];
+  return base;
+}
+
+function audioHTML(){
+  const cfg = CASE.audioPuzzle;
+  if(game.audioSolved){
+    return `
+      <h2>تحليل صوتي — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const wave = buildWave();
+  const w=900,h=200,step=w/wave.length;
+  const points = wave.map((v,i)=>`${(i*step).toFixed(1)},${(h-v).toFixed(1)}`).join(' ');
+  return `
+    <h2>تحليل صوتي — أرشيف البث</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="wave-wrap">
+      <div class="wave-beam"></div>
+      <svg viewBox="0 0 ${w} ${h}" id="waveSvg">
+        <polyline points="${points}" fill="none" stroke="var(--signal)" stroke-width="2" opacity="0.9"/>
+        <line x1="0" y1="${h}" x2="${w}" y2="${h}" stroke="var(--line)" stroke-width="1"/>
+      </svg>
+      <div class="wave-hint mono">اضغط في أي مكان على الموجة للتأكيد</div>
+      <div class="wave-feedback" id="waveFeedback"></div>
+    </div>
+  `;
+}
+
+function handleWaveClick(e){
+  const cfg = CASE.audioPuzzle;
+  const svg = document.getElementById('waveSvg');
+  const rect = svg.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width;
+  const t = relX * 90;
+  const feedback = document.getElementById('waveFeedback');
+  if(t >= cfg.matchStart && t <= cfg.matchEnd){
+    feedback.textContent = '✓ ظبطت المقطع. الموجة دي مكررة حرفيًا من دقيقة قبل كده.';
+    feedback.className = 'wave-feedback ok';
+    game.audioSolved = true;
+
+    const wave = buildWave();
+    const w=900,h=200,step=w/wave.length;
+    const [srcA,srcB] = cfg.duplicateSourceRange;
+    const [tgtA,tgtB] = cfg.duplicateTargetRange;
+    const seg1 = wave.slice(srcA,srcB).map((v,i)=>`${((srcA+i)*step).toFixed(1)},${(h-v).toFixed(1)}`).join(' ');
+    const seg2 = wave.slice(tgtA,tgtB).map((v,i)=>`${((tgtA+i)*step).toFixed(1)},${(h-v).toFixed(1)}`).join(' ');
+    const ns = 'http://www.w3.org/2000/svg';
+    [seg1,seg2].forEach(pts=>{
+      const hl = document.createElementNS(ns,'polyline');
+      hl.setAttribute('points', pts);
+      hl.setAttribute('fill','none');
+      hl.setAttribute('stroke','var(--danger)');
+      hl.setAttribute('stroke-width','3');
+      hl.setAttribute('class','wave-match');
+      svg.appendChild(hl);
+    });
+    requestAnimationFrame(()=>svg.querySelectorAll('.wave-match').forEach(el=>el.classList.add('show')));
+
+    triggerFlash('good');
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ لسه مش هنا. جرّب مكان تاني في الموجة.';
+    feedback.className = 'wave-feedback bad';
+  }
+}
+
+function triggerFlash(tone){
+  const f = document.createElement('div');
+  f.className = 'flash ' + tone + ' go';
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(), 900);
+}
+
+/* ============================================================
+   ACCUSATION
+   ============================================================ */
+
+function accusationHTML(){
+  const suspectPicks = CASE.suspects.map(s=>{
+    const sel = game.accSuspect===s.id ? 'selected':'';
+    return `<button class="pick ${sel}" data-pick-suspect="${s.id}">${s.name}</button>`;
+  }).join('');
+  const collectedList = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
+  const evPicks = collectedList.map(ev=>{
+    const sel = game.accEvidence.has(ev.id) ? 'selected':'';
+    return `<button class="pick ev ${sel}" data-pick-ev="${ev.id}">${ev.title}</button>`;
+  }).join('');
+  const canSubmit = game.accSuspect && game.accEvidence.size>0;
+  return `
+    <h2>لحظة الاتهام</h2>
+    <p class="dim">اختار المشتبه به اللي هتتهمه، وابعت الأدلة اللي هتقدمها كإثبات (لغاية 3 أدلة).</p>
+    <div class="divider"></div>
+    <h3>المتهم</h3>
+    <div class="acc-suspects">${suspectPicks}</div>
+    <h3>الأدلة المقدَّمة</h3>
+    <div class="acc-evidence">${evPicks}</div>
+    <button class="btn" id="submitAcc" ${canSubmit?'':'disabled'}>قدّم الاتهام النهائي</button>
+  `;
+}
+
+function computeEnding(){
+  const el = document.getElementById('panelBody');
+  el.classList.remove('slide-r','slide-l');
+  el.innerHTML = `<div class="verdict-loading"><div class="verdict-scan"></div><p class="mono dim" id="verdictText">جارِ مراجعة الأدلة</p></div>`;
+  const vt = document.getElementById('verdictText');
+  let dots=0;
+  const dotTimer = setInterval(()=>{ dots=(dots+1)%4; vt.textContent='جارِ مراجعة الأدلة'+'.'.repeat(dots); }, 260);
+
+  setTimeout(()=>{
+    clearInterval(dotTimer);
+    const correctSuspect = game.accSuspect === CASE.correctSuspectId;
+    const conclusiveSet = new Set(CASE.conclusiveEvidenceIds);
+    const hits = [...game.accEvidence].filter(id=>conclusiveSet.has(id)).length;
+    if(correctSuspect && hits>=2) game.ending='good';
+    else if(correctSuspect) game.ending='partial';
+    else game.ending='bad';
+
+    game.screen='ending';
+    persistProgress();
+    render();
+    triggerFlash(game.ending);
+  }, 1500);
+}
+
+/* ============================================================
+   ENDING
+   ============================================================ */
+
+function endingHTML(){
+  const e = CASE.endings[game.ending];
+  const all = game.collected.size === CASE.evidence.length;
+  const bonus = all ? `<p class="dim" style="margin-top:14px;">جمعت كل الأدلة — تحقيق دقيق بجد.</p>` : '';
+  const wrongName = game.accSuspect ? suspectById(game.accSuspect).name : '—';
+  const paragraphs = e.paragraphs.map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('');
+  const hint = e.hint ? `<p class="dim">${e.hint}</p>` : '';
+  return `
+    <div class="stamp ${game.ending} mono">${e.stamp}</div>
+    <div class="ending-badge ${game.ending} mono">${e.badgeLabel}</div>
+    <div class="ending-title ${game.ending}">${e.title}</div>
+    ${paragraphs}
+    ${hint}
+    ${bonus}
+    <div class="divider"></div>
+    <button class="btn ghost" data-restart>ابدأ القضية دي من الأول</button>
+    <button class="btn" data-back-to-lib style="margin-right:10px;">رجوع للأرشيف</button>
+  `;
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+
+function attachPanelEvents(){
+  document.querySelectorAll('[data-goto]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ game.screen = btn.dataset.goto; render(); });
+  });
+  document.querySelectorAll('[data-ev]').forEach(card=>{
+    card.addEventListener('click', ()=> openEvidenceModal(card.dataset.ev));
+  });
+  document.querySelectorAll('[data-suspect]').forEach(card=>{
+    card.addEventListener('click', ()=>{ game.activeSuspect = card.dataset.suspect; render(); });
+  });
+  const backBtn = document.querySelector('[data-back-suspects]');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ game.activeSuspect=null; render(); });
+
+  document.querySelectorAll('.q-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.q,10);
+      const s = suspectById(game.activeSuspect);
+      if(!game.interrogated[s.id]) game.interrogated[s.id] = new Set();
+      if(game.interrogated[s.id].has(idx)) return;
+      game.interrogated[s.id].add(idx);
+      const item = s.questions[idx];
+      btn.disabled = true;
+
+      const transcript = document.getElementById('transcript');
+      if(transcript){
+        const placeholder = transcript.querySelector('p.dim');
+        if(placeholder) placeholder.remove();
+        const qLine = document.createElement('div');
+        qLine.className='line q';
+        qLine.innerHTML = `<div class="who">أنت</div>${item.q}`;
+        const aLine = document.createElement('div');
+        aLine.className='line a';
+        aLine.innerHTML = `<div class="who">${s.name}</div><span></span>`;
+        transcript.appendChild(qLine);
+        transcript.appendChild(aLine);
+        transcript.scrollTop = transcript.scrollHeight;
+        typeText(aLine.querySelector('span'), item.a, 10, ()=>{ transcript.scrollTop = transcript.scrollHeight; });
+        const scrollTimer = setInterval(()=>{ transcript.scrollTop = transcript.scrollHeight; },120);
+        setTimeout(()=>clearInterval(scrollTimer), item.a.length*10+200);
+      }
+      if(item.unlockId) collect(item.unlockId);
+      persistProgress();
+      renderTabs();
+      document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
+    });
+  });
+
+  const waveSvg = document.getElementById('waveSvg');
+  if(waveSvg) waveSvg.addEventListener('click', handleWaveClick);
+
+  document.querySelectorAll('[data-pick-suspect]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ game.accSuspect = btn.dataset.pickSuspect; render(); game.screen='accusation'; });
+  });
+  document.querySelectorAll('[data-pick-ev]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.pickEv;
+      if(game.accEvidence.has(id)) game.accEvidence.delete(id);
+      else if(game.accEvidence.size<3) game.accEvidence.add(id);
+      render(); game.screen='accusation';
+    });
+  });
+  const submitBtn = document.getElementById('submitAcc');
+  if(submitBtn) submitBtn.addEventListener('click', computeEnding);
+
+  const restartBtn = document.querySelector('[data-restart]');
+  if(restartBtn) restartBtn.addEventListener('click', ()=>{
+    game = freshGameState();
+    persistProgress();
+    render();
+  });
+  const backLibBtn = document.querySelector('[data-back-to-lib]');
+  if(backLibBtn) backLibBtn.addEventListener('click', async ()=>{
+    app.unlockedIds = await listUnlockedCaseIds();
+    app.completedIds = await listCompletedCaseIds();
+    showLibrary();
+  });
+}
+
+/* ============================================================
+   GO
+   ============================================================ */
+
+boot();

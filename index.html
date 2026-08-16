@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أرشيف القضايا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grain"></div>
+<div class="scan"></div>
+<div id="app"></div>
+
+<!-- Supabase client library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Supabase project connection + auth/progress helpers -->
+<script src="supabase-client.js"></script>
+
+<!-- كل قضية ليها ملف بيانات منفصل — ضيف سطر <script> جديد هنا لكل قضية جديدة -->
+<script src="cases/case-last-episode.js"></script>
+
+<!-- سجل القضايا المتاحة: أضف كل قضية جديدة هنا بعد ما تضيف ملفها فوق -->
+<script>
+  const CASES_REGISTRY = [
+    CASE_LAST_EPISODE,
+    // CASE_SOMETHING_ELSE,  <-- كده تضيف قضية جديدة
+  ];
+</script>
+
+<!-- المحرك العام (بيشتغل مع أي قضية في CASES_REGISTRY) -->
+<script src="engine.js"></script>
+</body>
+</html>
