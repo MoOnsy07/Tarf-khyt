@@ -363,7 +363,7 @@ function showPrologueSlide(i){
       bg.classList.remove('fading');
       content.classList.remove('fading');
     });
-  }, 320);
+  }, 420);
 }
 
 function endPrologue(){

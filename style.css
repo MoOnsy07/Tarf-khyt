@@ -227,11 +227,24 @@ body{
 @keyframes promptPulse{ 0%,100%{opacity:.6;} 50%{opacity:1;} }
 
 .prologue{ position:fixed; inset:0; z-index:250; background:var(--void); overflow:hidden; display:flex; align-items:flex-end; justify-content:center; }
-.prologue-bg{ position:absolute; inset:0; background-size:cover; background-position:center; filter: grayscale(.35) contrast(1.15) brightness(.48) saturate(.85) sepia(.1); transition: opacity .35s ease; }
-.prologue-bg.fading{ opacity:0; }
+.prologue-bg{
+  position:absolute; inset:0; background-size:cover; background-position:center;
+  filter: grayscale(.35) contrast(1.15) brightness(.48) saturate(.85) sepia(.1) blur(0px);
+  transform: scale(1);
+  transition: opacity .45s ease, transform .7s ease, filter .55s ease;
+}
+.prologue-bg.fading{
+  opacity:0;
+  transform: scale(1.1);
+  filter: grayscale(.35) contrast(1.15) brightness(.3) saturate(.85) sepia(.1) blur(10px);
+}
 .prologue::before{ content:''; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg, rgba(10,12,18,.25) 0%, rgba(10,12,18,.75) 58%, rgba(10,12,18,.98) 100%); }
-.prologue-content{ position:relative; z-index:2; max-width:620px; padding:40px 26px 30px; text-align:center; cursor:pointer; transition: opacity .3s ease; }
-.prologue-content.fading{ opacity:0; }
+.prologue-content{
+  position:relative; z-index:2; max-width:620px; padding:40px 26px 30px; text-align:center; cursor:pointer;
+  transition: opacity .4s ease, transform .4s ease;
+  transform: translateY(0);
+}
+.prologue-content.fading{ opacity:0; transform: translateY(18px); }
 .prologue-scene{ color:var(--signal); font-size:11px; letter-spacing:.14em; margin-bottom:16px; }
 .prologue-text{ font-size:19px; line-height:2.1; color:var(--ink); min-height:132px; }
 .prologue-next{ margin-top:24px; opacity:0; transition:opacity .4s ease; pointer-events:none; }
