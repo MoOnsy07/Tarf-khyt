@@ -39,29 +39,29 @@ const CASE_DARK_TESTIMONY = {
   prologue: [
     {
       scene:'المشهد ١ — ليلة الخطوبة',
-      img:null,
+      img: IMG_BASE_DARKTEST + 'dark-scene1.jpg',
       text:'قاعة أفراح فخمة، دريس كود إجباري: بدلة سودا للرجالة كلهم. مئات الضيوف، إضاءة خافتة في الحدايق الجانبية بعيد عن مسرح الأفراح.'
     },
     {
       scene:'المشهد ٢ — 11:15 مساءً',
-      img:null,
+      img: IMG_BASE_DARKTEST + 'dark-scene2.jpg',
       text:'دينا بتاخد نفس بعيد عن الزحمة في الجنينة الجانبية. حد بيجي من وراها في العتمة. الموضوع بيحصل بسرعة، ودينا في حالة صدمة.'
     },
     {
       scene:'المشهد ٣ — الشك بيقع غلط',
-      img:null,
+      img: IMG_BASE_DARKTEST + 'dark-scene3.jpg',
       text:'الناس القريبين شافوا عمر واقف في نفس الاتجاه بعدها بدقايق، متضايق من حاجة تانية خالص. الاسم اتقال، والاتهام اتبنى على مصادفة توقيت مش على دليل حقيقي.'
     },
     {
       scene:'المشهد ٤ — مهمتك',
-      img:null,
+      img: IMG_BASE_DARKTEST + 'dark-scene4.jpg',
       text:'شهادة دينا صادقة وحقيقية. المشكلة مش فيها — المشكلة في التسرّع. اسمعها كويس، افحص الأدلة، ووصّل الخيط لصاحبه الحقيقي.'
     },
   ],
 
   suspects: [
     {
-      id:'dina', name:'دينا', role:'صديقة العروسة، الشاهدة الرئيسية', img:null, avatarEmoji:'🕯️',
+      id:'dina', name:'دينا', role:'صديقة العروسة، الشاهدة الرئيسية', img: IMG_BASE_DARKTEST + 'dina.jpg', avatarEmoji:'🕯️',
       accusable:false,
       alibi:'شهادتها هي نقطة البداية في القضية — بتوصف اللي حسّت بيه بدقة، مش بتتهم حد بالاسم.',
       questions:[
@@ -76,7 +76,7 @@ const CASE_DARK_TESTIMONY = {
       ]
     },
     {
-      id:'omar', name:'عمر', role:'صديق العريس، متهم بالخطأ', img:null, avatarEmoji:'🥺',
+      id:'omar', name:'عمر', role:'صديق العريس، متهم بالخطأ', img: IMG_BASE_DARKTEST + 'omar.jpg', avatarEmoji:'🥺',
       alibi:'قال إنه كان في موقف السيارات يساعد سواق يرجّع عربية ضيف وقت الحادثة بالظبط.',
       loseMsg:'اتهام عمر تاني ظلم إضافي فوق اللي عدّى عليه. الأدلة كانت بتستبعده بوضوح — كاميرا الموقف بتوضحه في مكان تاني تمامًا وقت الحادثة، والخدش المعدني مايتفقش مع أي حاجة بيلبسها. القضية بتتقفل من غير عدالة حقيقية لدينا، وعمر بيفضل يدفع تمن اتهام مالوش أساس.',
       questions:[
@@ -89,7 +89,7 @@ const CASE_DARK_TESTIMONY = {
       ]
     },
     {
-      id:'karim', name:'كريم', role:'ابن عم العريس، من ضيوف الحفل', img:null, avatarEmoji:'🍷',
+      id:'karim', name:'كريم', role:'ابن عم العريس، من ضيوف الحفل', img: IMG_BASE_DARKTEST + 'karim.jpg', avatarEmoji:'🍷',
       alibi:'قال إنه كان قاعد على ترابيزته طول الليل تقريبًا.',
       questions:[
         { q:'إنت كنت فين وقت الحادثة؟',
@@ -101,7 +101,7 @@ const CASE_DARK_TESTIMONY = {
       ]
     },
     {
-      id:'sameh', name:'سامح', role:'مسؤول تنظيم الجنينة الجانبية', img:null, avatarEmoji:'📋',
+      id:'sameh', name:'سامح', role:'مسؤول تنظيم الجنينة الجانبية', img: IMG_BASE_DARKTEST + 'sameh.jpg', avatarEmoji:'📋',
       alibi:'قال إنه كان مشغول بتجهيز الطاولات في الصالة الرئيسية.',
       loseMsg:'سامح كان بس مسؤول تنظيم انشغل شوية عن مراقبة الجنينة — تقصير في الشغل، مش جريمة. مفيش أي دليل مادي يربطه بالحادثة نفسها، واتهامه هيضيّع وقت التحقيق من غير أي داعي.',
       questions:[
@@ -112,7 +112,7 @@ const CASE_DARK_TESTIMONY = {
       ]
     },
     {
-      id:'ahmed', name:'أحمد', role:'أخو العريس', img:null, avatarEmoji:'🤝',
+      id:'ahmed', name:'أحمد', role:'أخو العريس', img: IMG_BASE_DARKTEST + 'ahmed.jpg', avatarEmoji:'🤝',
       alibi:'قال إنه كان بيستقبل الضيوف عند الباب طول الليل.',
       loseMsg:'عشرات الضيوف شافوا أحمد عند الباب طول الليل تقريبًا. مفيش أي دليل يربطه بالجنينة الجانبية وقت الحادثة، واتهامه هيبقى تخمين مالوش أساس.',
       questions:[
@@ -125,17 +125,17 @@ const CASE_DARK_TESTIMONY = {
   ],
 
   evidence: [
-    { id:'valet', tag:'من موقف السيارات', crit:true, title:'شهادة عمر عن الموقف', img:null, unlocksCamera:true,
+    { id:'valet', tag:'من موقف السيارات', crit:true, title:'شهادة عمر عن الموقف', img: IMG_BASE_DARKTEST + 'dark-valet.jpg', unlocksCamera:true,
       short:'قال إنه كان في الموقف وقت الحادثة',
       full:'عمر قال إنه كان واقف في موقف السيارات بيساعد سواق يرجّع عربية وقت الحادثة بالظبط. كلامه محتاج تأكيد مستقل — روح لتبويب "تحليل الكاميرات" عشان تتأكد بنفسك من الطابع الزمني.',
       unlocked:true, order:1 },
 
-    { id:'ring', tag:'من مسرح الحادثة', crit:true, title:'أثر خدش معدني على سوار دينا', img:null,
+    { id:'ring', tag:'من مسرح الحادثة', crit:true, title:'أثر خدش معدني على سوار دينا', img: IMG_BASE_DARKTEST + 'dark-ring.jpg',
       short:'خدش بيتطابق مع خاتم معين',
       full:'خدش صغير على سوار دينا، شكله متطابق مع خاتم فضي سميك، النوع اللي بيسبب خدش زي ده لو اتخبط في حاجة معدنية بقوة. عمر مش لابس أي خاتم أصلاً.',
       unlocked:true, order:2 },
 
-    { id:'jacket', tag:'من مسرح الحادثة', crit:false, title:'خيط قماش عالق في شجر الجنينة', img:null,
+    { id:'jacket', tag:'من مسرح الحادثة', crit:false, title:'خيط قماش عالق في شجر الجنينة', img: IMG_BASE_DARKTEST + 'dark-jacket.jpg',
       short:'نوع قماش مختلف عن بدلة عمر',
       full:'خيط قماش أسود عالق في فرع شجر قريب من مكان الحادثة. نوع القماش (صوف تقيل) مختلف عن قماش بدلة عمر (قطن خفيف)، يعني الشخص اللي كان هناك لابس بدلة تانية مش بدلته.',
       unlocked:true, order:3 },
