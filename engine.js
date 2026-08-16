@@ -5,8 +5,7 @@
    ============================================================ */
 
 const app = {
-  view: 'loading',      // loading | auth | library | case
-  session: null,
+  view: 'loading',      // loading | library | case
   unlockedIds: [],
   completedIds: [],
 };
@@ -32,90 +31,43 @@ function freshGameState(){
 const appRoot = document.getElementById('app');
 
 /* ============================================================
-   BOOT
+   LOCAL STORAGE — كل حاجة متسجلة على الجهاز ده بس (مفيش حسابات)
    ============================================================ */
 
-async function boot(){
-  const session = await authGetSession();
-  app.session = session;
-  if(session){
-    app.unlockedIds = await listUnlockedCaseIds();
-    app.completedIds = await listCompletedCaseIds();
-    showLibrary();
-  } else {
-    showAuth();
-  }
+function getUnlockedIds(){
+  try { return JSON.parse(localStorage.getItem('ca_unlocked') || '[]'); }
+  catch(e){ return []; }
+}
+function addUnlockedId(caseId){
+  const list = getUnlockedIds();
+  if(!list.includes(caseId)){ list.push(caseId); localStorage.setItem('ca_unlocked', JSON.stringify(list)); }
+}
+
+function getCompletedIds(){
+  try { return JSON.parse(localStorage.getItem('ca_completed') || '[]'); }
+  catch(e){ return []; }
+}
+function addCompletedId(caseId){
+  const list = getCompletedIds();
+  if(!list.includes(caseId)){ list.push(caseId); localStorage.setItem('ca_completed', JSON.stringify(list)); }
+}
+
+function loadLocalProgress(caseId){
+  try { return JSON.parse(localStorage.getItem('ca_progress_'+caseId) || 'null'); }
+  catch(e){ return null; }
+}
+function saveLocalProgress(caseId, progress){
+  localStorage.setItem('ca_progress_'+caseId, JSON.stringify(progress));
+  if(progress.ending) addCompletedId(caseId);
 }
 
 /* ============================================================
-   AUTH SCREEN
+   BOOT
    ============================================================ */
 
-let authMode = 'signin';
-
-function showAuth(){
-  app.view = 'auth';
-  appRoot.innerHTML = `
-    <div class="auth-wrap">
-      <div class="masthead" style="border:none; margin-bottom:28px; justify-content:center; text-align:center;">
-        <div>
-          <div class="case-no mono">CASE ARCHIVE</div>
-          <h1 class="flicker">أرشيف القضايا</h1>
-        </div>
-      </div>
-      <div class="auth-tabs">
-        <button class="auth-tab ${authMode==='signin'?'active':''}" data-mode="signin">تسجيل الدخول</button>
-        <button class="auth-tab ${authMode==='signup'?'active':''}" data-mode="signup">حساب جديد</button>
-      </div>
-      <div id="authMsgWrap"></div>
-      <div class="auth-field">
-        <label>البريد الإلكتروني</label>
-        <input type="email" id="authEmail" placeholder="you@example.com">
-      </div>
-      <div class="auth-field">
-        <label>كلمة السر</label>
-        <input type="password" id="authPassword" placeholder="••••••••">
-      </div>
-      <button class="btn" id="authSubmit" style="width:100%;">${authMode==='signin' ? 'دخول' : 'إنشاء حساب'}</button>
-    </div>
-  `;
-  document.querySelectorAll('.auth-tab').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ authMode = btn.dataset.mode; showAuth(); });
-  });
-  document.getElementById('authSubmit').addEventListener('click', handleAuthSubmit);
-}
-
-async function handleAuthSubmit(){
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const msgWrap = document.getElementById('authMsgWrap');
-  msgWrap.innerHTML = '';
-  if(!email || !password){
-    msgWrap.innerHTML = `<div class="auth-error">لازم تدخل الإيميل وكلمة السر.</div>`;
-    return;
-  }
-  const submitBtn = document.getElementById('authSubmit');
-  submitBtn.disabled = true;
-  submitBtn.textContent = '...جارِ التحقق';
-
-  let result;
-  if(authMode==='signin') result = await authSignIn(email, password);
-  else result = await authSignUp(email, password);
-
-  submitBtn.disabled = false;
-  submitBtn.textContent = authMode==='signin' ? 'دخول' : 'إنشاء حساب';
-
-  if(result.error){
-    msgWrap.innerHTML = `<div class="auth-error">${result.error.message}</div>`;
-    return;
-  }
-  if(authMode==='signup' && !result.data.session){
-    msgWrap.innerHTML = `<div class="auth-msg">اتبعت لينك تأكيد على إيميلك. أكّده وبعدين سجّل دخول.</div>`;
-    return;
-  }
-  app.session = result.data.session;
-  app.unlockedIds = await listUnlockedCaseIds();
-  app.completedIds = await listCompletedCaseIds();
+function boot(){
+  app.unlockedIds = getUnlockedIds();
+  app.completedIds = getCompletedIds();
   showLibrary();
 }
 
@@ -147,11 +99,11 @@ function showLibrary(){
       <div class="lib-lock-overlay">
         <div style="font-size:22px;">🔒</div>
         ${lock.reason==='premium'
-          ? '<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">نظام الدفع قريبًا</span></div>'
+          ? '<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">اضغط للشراء</span></div>'
           : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
       </div>` : '';
     return `
-      <div class="lib-card" data-case="${c.id}" data-locked="${lock.locked}">
+      <div class="lib-card" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}">
         ${badges.join('')}
         <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
         <div class="body">
@@ -169,25 +121,72 @@ function showLibrary(){
         <div class="case-no mono">CASE ARCHIVE</div>
         <h1 class="flicker" style="font-size:clamp(24px,4vw,32px);">اختار قضيتك</h1>
       </div>
-      <div style="text-align:left;">
-        <div class="user-email">${app.session ? app.session.user.email : ''}</div>
-        <button class="btn ghost" id="logoutBtn" style="margin-top:6px; font-size:12px; padding:6px 14px;">تسجيل خروج</button>
-      </div>
     </div>
     <div class="lib-grid">${cards}</div>
   `;
 
   document.querySelectorAll('.lib-card').forEach(card=>{
     card.addEventListener('click', ()=>{
-      if(card.dataset.locked === 'true') return; // مقفولة، متعملش حاجة (لسه)
       const caseData = CASES_REGISTRY.find(c=>c.id === card.dataset.case);
+      if(card.dataset.locked === 'true'){
+        if(card.dataset.lockReason === 'premium') openPurchasePopup(caseData);
+        return;
+      }
       enterCase(caseData);
     });
   });
-  document.getElementById('logoutBtn').addEventListener('click', async ()=>{
-    await authSignOut();
-    app.session = null;
-    showAuth();
+}
+
+/* ============================================================
+   PURCHASE POPUP (واتساب + كود)
+   ============================================================ */
+
+function openPurchasePopup(caseData){
+  const waText = encodeURIComponent(`عايز أشتري قضية "${caseData.title}"`);
+  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="tag" style="color:var(--amber);">قضية بريميوم</div>
+      <h3>${caseData.title}</h3>
+      <p>تواصل معانا على واتساب لشراء القضية، هتوصلك كود تفتح بيه القضية على طول.</p>
+      <a href="${waLink}" target="_blank" rel="noopener" class="btn" style="display:block; text-align:center; background:#25D366; color:#04230f; margin-top:8px; text-decoration:none;">
+        تواصل على واتساب ←
+      </a>
+      <div class="divider"></div>
+      <p class="dim">عندك كود بالفعل؟</p>
+      <input type="text" id="redeemInput" placeholder="اكتب الكود هنا" style="width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); padding:11px 14px; border-radius:3px; font-family:'JetBrains Mono',monospace; text-align:center; letter-spacing:.1em; margin-bottom:10px;">
+      <div id="redeemMsg" style="font-size:13px; margin-bottom:10px; min-height:18px;"></div>
+      <button class="btn" id="redeemBtn" style="width:100%;">افتح القضية</button>
+      <button class="btn ghost close-btn" style="width:100%; margin-top:8px;">إغلاق</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
+
+  overlay.querySelector('#redeemBtn').addEventListener('click', async ()=>{
+    const input = overlay.querySelector('#redeemInput');
+    const msg = overlay.querySelector('#redeemMsg');
+    const btn = overlay.querySelector('#redeemBtn');
+    const code = input.value.trim();
+    if(!code){ msg.textContent = 'اكتب الكود الأول.'; msg.style.color = 'var(--danger)'; return; }
+    btn.disabled = true;
+    btn.textContent = '...جارِ التحقق';
+    const ok = await redeemCode(caseData.id, code);
+    btn.disabled = false;
+    btn.textContent = 'افتح القضية';
+    if(ok){
+      msg.textContent = 'تمام! القضية اتفتحت.';
+      msg.style.color = 'var(--signal)';
+      addUnlockedId(caseData.id);
+      app.unlockedIds = getUnlockedIds();
+      setTimeout(()=>{ overlay.remove(); showLibrary(); }, 900);
+    } else {
+      msg.textContent = 'الكود غلط أو مستخدم قبل كده.';
+      msg.style.color = 'var(--danger)';
+    }
   });
 }
 
@@ -195,27 +194,27 @@ function showLibrary(){
    ENTER A CASE
    ============================================================ */
 
-async function enterCase(caseData){
+function enterCase(caseData){
   CASE = caseData;
   game = freshGameState();
 
-  const saved = await loadProgress(CASE.id);
+  const saved = loadLocalProgress(CASE.id);
   if(saved){
     game.collected = new Set(saved.collected || []);
     game.interrogated = {};
     Object.entries(saved.interrogated || {}).forEach(([sid, arr])=>{ game.interrogated[sid] = new Set(arr); });
-    game.audioSolved = !!saved.audio_solved;
+    game.audioSolved = !!saved.audioSolved;
     game.ending = saved.ending || null;
-  } else {
-    // أول مرة يلعب القضية دي — سجّلها كمفتوحة (مجانية بشكل افتراضي)
-    if(!CASE.isPremium) await unlockCaseForUser(CASE.id, 'free');
+  } else if(!CASE.isPremium){
+    addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
+    app.unlockedIds = getUnlockedIds();
   }
 
   showCaseSplash();
 }
 
 function persistProgress(){
-  saveProgress(CASE.id, {
+  saveLocalProgress(CASE.id, {
     collected: [...game.collected],
     interrogated: Object.fromEntries(Object.entries(game.interrogated).map(([k,v])=>[k,[...v]])),
     audioSolved: game.audioSolved,
@@ -327,10 +326,10 @@ function mountGameShell(){
     <div class="tabs" id="tabs"></div>
     <div class="panel" id="panelBody"></div>
   `;
-  document.getElementById('backToLibrary').addEventListener('click', async ()=>{
+  document.getElementById('backToLibrary').addEventListener('click', ()=>{
     persistProgress();
-    app.unlockedIds = await listUnlockedCaseIds();
-    app.completedIds = await listCompletedCaseIds();
+    app.unlockedIds = getUnlockedIds();
+    app.completedIds = getCompletedIds();
     showLibrary();
   });
   render();
@@ -819,9 +818,9 @@ function attachPanelEvents(){
     render();
   });
   const backLibBtn = document.querySelector('[data-back-to-lib]');
-  if(backLibBtn) backLibBtn.addEventListener('click', async ()=>{
-    app.unlockedIds = await listUnlockedCaseIds();
-    app.completedIds = await listCompletedCaseIds();
+  if(backLibBtn) backLibBtn.addEventListener('click', ()=>{
+    app.unlockedIds = getUnlockedIds();
+    app.completedIds = getCompletedIds();
     showLibrary();
   });
 }
