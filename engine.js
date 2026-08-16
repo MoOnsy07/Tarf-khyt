@@ -20,6 +20,7 @@ function freshGameState(){
     collected:new Set(),
     interrogated:{},
     audioSolved:false,
+    cameraSolved:false,
     activeSuspect:null,
     accSuspect:null,
     accEvidence:new Set(),
@@ -102,6 +103,7 @@ function showLibrary(){
     const badges = [];
     if(c.isPremium) badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
     if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
+    if(c.contentWarning) badges.push(`<span class="lib-badge adult mono">+18</span>`);
     const lockOverlay = lock.locked ? `
       <div class="lib-lock-overlay">
         <div style="font-size:22px;">🔒</div>
@@ -231,7 +233,32 @@ function enterCase(caseData){
   // سواء قضية جديدة أو تقدّم متسجل قبل كده (بيتم دمجها بهدوء من غير toast)
   ensureSceneEvidence();
 
-  showCaseSplash();
+  if(CASE.contentWarning) showContentWarning();
+  else showCaseSplash();
+}
+
+function showContentWarning(){
+  app.view = 'case';
+  appRoot.innerHTML = '';
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="warnGate" class="splash" style="cursor:default;" tabindex="-1">
+      <div class="splash-caseno mono">${CASE.caseNo} — تنبيه محتوى</div>
+      <h1 class="splash-title" style="font-size:clamp(24px,5vw,36px); color:var(--danger);">⚠ محتوى للكبار (+18)</h1>
+      <p style="max-width:480px; color:var(--ink-dim); line-height:2; font-size:14px; margin:18px 0 30px; text-align:center;">${CASE.contentWarning}</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <button class="btn ghost" id="warnBack">رجوع للأرشيف</button>
+        <button class="btn" id="warnContinue">فهمت، كمّل ←</button>
+      </div>
+    </div>
+  `);
+  document.getElementById('warnContinue').addEventListener('click', ()=>{
+    document.getElementById('warnGate').remove();
+    showCaseSplash();
+  });
+  document.getElementById('warnBack').addEventListener('click', ()=>{
+    document.getElementById('warnGate').remove();
+    showLibrary();
+  });
 }
 
 function persistProgress(){
@@ -310,15 +337,33 @@ function startPrologue(){
 
 function showPrologueSlide(i){
   const s = CASE.prologue[i];
-  document.getElementById('prologueBg').style.backgroundImage = s.img ? `url('${s.img}')` : 'none';
-  document.getElementById('prologueScene').textContent = s.scene;
-  const nextBtn = document.getElementById('prologueNext');
-  nextBtn.classList.remove('show');
-  nextBtn.textContent = (i === CASE.prologue.length-1) ? 'افتح ملف القضية ←' : 'التالي ←';
-  document.getElementById('prologueProgress').innerHTML =
-    CASE.prologue.map((_,idx)=>`<div class="dot ${idx===i?'active':''}"></div>`).join('');
-  const textEl = document.getElementById('prologueText');
-  prologueSkip = typeTextSkippable(textEl, s.text, 22, ()=>{ nextBtn.classList.add('show'); });
+  const bg = document.getElementById('prologueBg');
+  const content = document.getElementById('prologueContent');
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function applySlide(){
+    bg.style.backgroundImage = s.img ? `url('${s.img}')` : 'none';
+    document.getElementById('prologueScene').textContent = s.scene;
+    const nextBtn = document.getElementById('prologueNext');
+    nextBtn.classList.remove('show');
+    nextBtn.textContent = (i === CASE.prologue.length-1) ? 'افتح ملف القضية ←' : 'التالي ←';
+    document.getElementById('prologueProgress').innerHTML =
+      CASE.prologue.map((_,idx)=>`<div class="dot ${idx===i?'active':''}"></div>`).join('');
+    const textEl = document.getElementById('prologueText');
+    prologueSkip = typeTextSkippable(textEl, s.text, 22, ()=>{ nextBtn.classList.add('show'); });
+  }
+
+  if(reduced){ applySlide(); return; }
+
+  bg.classList.add('fading');
+  content.classList.add('fading');
+  setTimeout(()=>{
+    applySlide();
+    requestAnimationFrame(()=>{
+      bg.classList.remove('fading');
+      content.classList.remove('fading');
+    });
+  }, 320);
 }
 
 function endPrologue(){
@@ -360,7 +405,7 @@ function mountGameShell(){
    RENDER ROOT
    ============================================================ */
 
-const TAB_ORDER = ['briefing','evidence','suspects','audio','accusation','ending'];
+const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','accusation','ending'];
 
 function render(){
   renderTabs();
@@ -383,6 +428,9 @@ function renderTabs(){
   const tabsEl = document.getElementById('tabs');
   const audioAvailable = CASE.audioPuzzle && CASE.audioPuzzle.enabled;
   const audioUnlocked = audioAvailable && game.collected.has(evidenceThatUnlocksAudio());
+  const cameraAvailable = CASE.cameraPuzzle && CASE.cameraPuzzle.enabled;
+  const cameraUnlockId = evidenceThatUnlocks('unlocksCamera');
+  const cameraUnlocked = cameraAvailable && (!cameraUnlockId || game.collected.has(cameraUnlockId));
   const accUnlocked = game.collected.size >= Math.min(5, CASE.evidence.length);
   const defs = [
     {id:'briefing', label:'ملف القضية'},
@@ -390,6 +438,7 @@ function renderTabs(){
     {id:'suspects', label:'المشتبه بهم'},
   ];
   if(audioAvailable) defs.push({id:'audio', label:'تحليل صوتي', locked: !audioUnlocked});
+  if(cameraAvailable) defs.push({id:'camera', label:'تحليل الكاميرات', locked: !cameraUnlocked});
   defs.push({id:'accusation', label:'الاتهام', locked: !accUnlocked});
 
   tabsEl.innerHTML = defs.map(d=>{
@@ -407,6 +456,12 @@ function evidenceThatUnlocksAudio(){
   return ev ? ev.id : null;
 }
 
+// عام: بيدوّر على أي دليل عليه فلاج معيّن (زي unlocksCamera) عشان يفتح تبويب معيّن
+function evidenceThatUnlocks(flag){
+  const ev = CASE.evidence.find(e=>e[flag]);
+  return ev ? ev.id : null;
+}
+
 function renderPanel(){
   const el = document.getElementById('panelBody');
   const newIndex = TAB_ORDER.indexOf(game.screen);
@@ -420,6 +475,7 @@ function renderPanel(){
   else if(game.screen==='evidence') el.innerHTML = evidenceHTML();
   else if(game.screen==='suspects') el.innerHTML = suspectsHTML();
   else if(game.screen==='audio') el.innerHTML = audioHTML();
+  else if(game.screen==='camera') el.innerHTML = cameraHTML();
   else if(game.screen==='accusation') el.innerHTML = accusationHTML();
   else if(game.screen==='ending') el.innerHTML = endingHTML();
 
@@ -714,11 +770,84 @@ function triggerFlash(tone){
 }
 
 /* ============================================================
+   CAMERA TIMELINE PUZZLE (generic — driven by CASE.cameraPuzzle)
+   مراجعة تايم لاين كاميرا مراقبة: دوّر على اللحظة الصح في الشريط الزمني
+   ============================================================ */
+
+// بيحوّل عدد دقايق من بداية الشريط لصيغة ساعة معروضة، على أساس ساعة بداية الشريط (24 ساعة)
+function formatClockFromOffset(startHour24, offsetMinutes){
+  let totalMin = Math.round(startHour24*60 + offsetMinutes);
+  totalMin = ((totalMin % 1440) + 1440) % 1440;
+  let hh = Math.floor(totalMin/60), mm = totalMin%60;
+  const ampm = hh>=12 ? 'PM':'AM';
+  let hh12 = hh%12; if(hh12===0) hh12=12;
+  return `${hh12}:${String(mm).padStart(2,'0')} ${ampm}`;
+}
+
+function cameraHTML(){
+  const cfg = CASE.cameraPuzzle;
+  if(game.cameraSolved){
+    return `
+      <h2>تحليل الكاميرات — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const startLabel = formatClockFromOffset(cfg.startHour24, 0);
+  const endLabel = formatClockFromOffset(cfg.startHour24, cfg.totalMinutes);
+  return `
+    <h2>تحليل الكاميرات</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="cam-wrap">
+      <div class="cam-track" id="camTrack">
+        <div class="cam-marker" id="camMarker"></div>
+      </div>
+      <div class="cam-labels">
+        <span class="mono">${startLabel}</span>
+        <span class="mono" id="camReadout">--:-- --</span>
+        <span class="mono">${endLabel}</span>
+      </div>
+      <div class="wave-feedback" id="camFeedback"></div>
+    </div>
+  `;
+}
+
+function handleCamClick(e){
+  const cfg = CASE.cameraPuzzle;
+  const track = document.getElementById('camTrack');
+  const rect = track.getBoundingClientRect();
+  const relX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const offsetMinutes = relX * cfg.totalMinutes;
+  const label = formatClockFromOffset(cfg.startHour24, offsetMinutes);
+
+  const marker = document.getElementById('camMarker');
+  marker.style.left = (relX*100) + '%';
+  marker.classList.add('show');
+  document.getElementById('camReadout').textContent = label;
+
+  const feedback = document.getElementById('camFeedback');
+  if(Math.abs(offsetMinutes - cfg.targetMinutes) <= cfg.toleranceMinutes){
+    feedback.textContent = `✓ ظبطت اللحظة الصح (${label}).`;
+    feedback.className = 'wave-feedback ok';
+    game.cameraSolved = true;
+    triggerFlash('good');
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = `✗ ${label} — لسه مش الوقت الصح، جرّب مكان تاني على الخط.`;
+    feedback.className = 'wave-feedback bad';
+  }
+}
+
+/* ============================================================
    ACCUSATION
    ============================================================ */
 
 function accusationHTML(){
-  const suspectPicks = CASE.suspects.map(s=>{
+  // شخصيات زي الشهود/الناجيين ممكن يتحطلهم accusable:false — يتستجوبوا عادي بس ميظهروش هنا خالص
+  const accusableSuspects = CASE.suspects.filter(s=>s.accusable !== false);
+  const suspectPicks = accusableSuspects.map(s=>{
     const sel = game.accSuspect===s.id ? 'selected':'';
     return `<button class="pick ${sel}" data-pick-suspect="${s.id}">${s.name}</button>`;
   }).join('');
@@ -845,6 +974,9 @@ function attachPanelEvents(){
 
   const waveSvg = document.getElementById('waveSvg');
   if(waveSvg) waveSvg.addEventListener('click', handleWaveClick);
+
+  const camTrack = document.getElementById('camTrack');
+  if(camTrack) camTrack.addEventListener('click', handleCamClick);
 
   document.querySelectorAll('[data-pick-suspect]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ game.accSuspect = btn.dataset.pickSuspect; render(); game.screen='accusation'; });
