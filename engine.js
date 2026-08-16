@@ -28,6 +28,12 @@ function freshGameState(){
   };
 }
 
+// أدلة مسرح الجريمة (unlocked:true) لازم تكون متجمّعة دايمًا — أول ما تدخل القضية،
+// وبعد أي "ابدأ من الأول" كمان. من غير الدالة دي بتتنسى بسهولة في أكتر من مكان.
+function ensureSceneEvidence(){
+  CASE.evidence.filter(e=>e.unlocked).forEach(e=>game.collected.add(e.id));
+}
+
 const appRoot = document.getElementById('app');
 
 /* ============================================================
@@ -209,6 +215,10 @@ function enterCase(caseData){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
   }
+
+  // أدلة مسرح الجريمة (unlocked:true) لازم تكون متجمّعة من البداية دايمًا،
+  // سواء قضية جديدة أو تقدّم متسجل قبل كده (بيتم دمجها بهدوء من غير toast)
+  ensureSceneEvidence();
 
   showCaseSplash();
 }
@@ -814,6 +824,7 @@ function attachPanelEvents(){
   const restartBtn = document.querySelector('[data-restart]');
   if(restartBtn) restartBtn.addEventListener('click', ()=>{
     game = freshGameState();
+    ensureSceneEvidence();
     persistProgress();
     render();
   });
