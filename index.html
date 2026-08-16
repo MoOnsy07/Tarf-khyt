@@ -331,47 +331,59 @@ body{
   const SUPABASE_ANON_KEY = 'sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ===== Unique visitor tracking =====
-  // Counts one visitor per browser/device using a persistent localStorage ID.
+  // ===== Unique visitor tracking (fixed) =====
   function getVisitorId(){
-    const key = 'taraf5eet_visitor_id';
-    let id = localStorage.getItem(key);
+    const idKey = 'taraf5eet_visitor_id';
+    let id = localStorage.getItem(idKey);
+
     if(!id){
       if(window.crypto && crypto.randomUUID){
         id = crypto.randomUUID();
       }else{
         id = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
       }
-      localStorage.setItem(key, id);
+      localStorage.setItem(idKey, id);
     }
+
     return id;
   }
 
   async function trackUniqueVisitor(){
+    const trackedKey = 'taraf5eet_visitor_tracked';
+
+    // Same browser/device is counted only once.
+    if(localStorage.getItem(trackedKey) === '1') return;
+
     try{
       const visitorId = getVisitorId();
 
-      // Table has a UNIQUE constraint on visitor_id.
-      // upsert prevents refreshes from increasing the unique visitor count.
       const { error } = await sb
         .from('site_visitors')
-        .upsert(
-          {
-            visitor_id: visitorId,
-            first_seen: new Date().toISOString(),
-            last_seen: new Date().toISOString()
-          },
-          { onConflict: 'visitor_id' }
-        );
+        .insert({
+          visitor_id: visitorId,
+          first_seen: new Date().toISOString(),
+          last_seen: new Date().toISOString()
+        });
 
-      if(error) console.error('Visitor tracking error:', error);
+      if(!error){
+        localStorage.setItem(trackedKey, '1');
+        console.log('Unique visitor tracked');
+        return;
+      }
+
+      // If the ID already exists, treat this browser as already counted.
+      if(error.code === '23505'){
+        localStorage.setItem(trackedKey, '1');
+        return;
+      }
+
+      console.error('Visitor tracking error:', error);
     }catch(err){
       console.error('Visitor tracking failed:', err);
     }
   }
 
   trackUniqueVisitor();
-
 
   const btn = document.getElementById('notifyBtn');
   const input = document.getElementById('phoneInput');
