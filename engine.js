@@ -25,6 +25,7 @@ function freshGameState(){
     accEvidence:new Set(),
     ending:null,
     prologueIdx:0,
+    rumorsShown:new Set(), // اختياري — بس للقضايا اللي فيها CASE.rumors (طابع "قهوة البلد")
   };
 }
 
@@ -122,11 +123,21 @@ function showLibrary(){
   }).join('');
 
   appRoot.innerHTML = `
-    <div class="lib-header">
-      <div>
-        <div class="case-no mono">CASE ARCHIVE</div>
-        <h1 class="flicker" style="font-size:clamp(24px,4vw,32px);">اختار قضيتك</h1>
-      </div>
+    <div class="lib-hero">
+      <svg class="lib-fingerprint" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M100,20 C50,20 20,60 20,100 C20,150 50,180 100,180"/>
+        <path d="M100,35 C62,35 35,68 35,100 C35,142 62,165 100,165"/>
+        <path d="M100,50 C74,50 50,76 50,100 C50,134 74,150 100,150"/>
+        <path d="M100,65 C86,65 65,84 65,100 C65,126 86,135 100,135"/>
+        <path d="M100,20 C150,20 180,60 180,100 C180,150 150,180 100,180" stroke-dasharray="4 6"/>
+        <path d="M100,35 C138,35 165,68 165,100 C165,142 138,165 100,165" stroke-dasharray="3 7"/>
+      </svg>
+      <div class="lib-hero-eyebrow mono">CASE ARCHIVE</div>
+      <h1 class="lib-hero-title">طرف <span class="accent">الخيط</span></h1>
+      <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M6,6 C60,18 150,-2 214,10"/>
+      </svg>
+      <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
     <div class="lib-grid">${cards}</div>
   `;
@@ -470,15 +481,39 @@ function runBriefingTypewriter(){
 function evidenceById(id){ return CASE.evidence.find(e=>e.id===id); }
 function suspectById(id){ return CASE.suspects.find(s=>s.id===id); }
 
+// بعض الشخصيات (زي شخصيات فولكلورية/كوميدية) ممكن متكونش ليها صورة —
+// في الحالة دي بيتعرض إيموجي بدلها (avatarEmoji في بيانات القضية)
+function avatarMarkup(s, cls){
+  if(s.img) return `<img class="${cls} photo-tone" src="${s.img}" alt="${s.name}" loading="lazy">`;
+  return `<div class="${cls}" style="display:flex;align-items:center;justify-content:center;background:var(--panel-2);font-size:28px;">${s.avatarEmoji || '❓'}</div>`;
+}
+
 function collect(id, opts={}){
   if(!game.collected.has(id)){
     game.collected.add(id);
     if(!opts.silent){
       const ev = evidenceById(id);
       if(ev) showToast('دليل جديد: ' + ev.title, ev.crit ? 'danger' : 'amber');
+      maybeShowVillageRumor();
     }
     persistProgress();
   }
+}
+
+// طابع "قهوة البلد" — شائعة عشوائية بتظهر بعد جمع دليل، بس للقضايا اللي فيها CASE.rumors
+// (مش دليل حقيقي، مجرد جو عام؛ اختياري تمامًا ومفيهوش أي تأثير على منطق اللعبة)
+function maybeShowVillageRumor(){
+  if(!CASE.rumors || !CASE.rumors.length) return;
+  if(Math.random() > 0.55) return; // مش كل مرة، عشان متبقاش مزعجة
+  const remaining = CASE.rumors
+    .map((text,i)=>i)
+    .filter(i=>!game.rumorsShown.has(i));
+  if(!remaining.length) return;
+  const idx = remaining[Math.floor(Math.random()*remaining.length)];
+  game.rumorsShown.add(idx);
+  setTimeout(()=>{
+    showToast('📢 من قهوة البلد: ' + CASE.rumors[idx], 'rumor');
+  }, 2600);
 }
 
 function showToast(text, tone){
@@ -490,10 +525,10 @@ function showToast(text, tone){
     document.body.appendChild(wrap);
   }
   const t = document.createElement('div');
-  t.className = 'toast' + (tone==='danger' ? ' danger' : '');
+  t.className = 'toast' + (tone==='danger' ? ' danger' : tone==='rumor' ? ' rumor' : '');
   t.textContent = text;
   wrap.appendChild(t);
-  setTimeout(()=>t.remove(), 3000);
+  setTimeout(()=>t.remove(), 3400);
 }
 
 function evidenceHTML(){
@@ -547,7 +582,7 @@ function suspectsHTML(){
     const done = game.interrogated[s.id] ? game.interrogated[s.id].size : 0;
     const total = s.questions.length;
     return `<div class="sus-card" data-suspect="${s.id}">
-      <img class="avatar-photo photo-tone" src="${s.img}" alt="${s.name}" loading="lazy">
+      ${avatarMarkup(s, 'avatar-photo')}
       <h4>${s.name}</h4>
       <div class="role">${s.role}</div>
       ${done>0?`<div class="mono" style="font-size:11px;color:var(--signal);margin-top:10px;">${done}/${total} أسئلة</div>`:''}
@@ -576,7 +611,7 @@ function interrogationHTML(suspectId){
   return `
     <button class="btn ghost" data-back-suspects style="margin-bottom:16px;">← رجوع للمشتبه بهم</button>
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:6px;">
-      <img class="avatar-photo small photo-tone" src="${s.img}" alt="${s.name}" loading="lazy">
+      ${avatarMarkup(s, 'avatar-photo small')}
       <div><h2 style="margin-bottom:2px;">${s.name}</h2><span class="dim" style="font-size:14px;">${s.role}</span></div>
     </div>
     <p class="dim">علمة الحضور: ${s.alibi}</p>
@@ -737,8 +772,12 @@ function endingHTML(){
   const e = CASE.endings[game.ending];
   const all = game.collected.size === CASE.evidence.length;
   const bonus = all ? `<p class="dim" style="margin-top:14px;">جمعت كل الأدلة — تحقيق دقيق بجد.</p>` : '';
-  const wrongName = game.accSuspect ? suspectById(game.accSuspect).name : '—';
-  const paragraphs = e.paragraphs.map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('');
+  const wrongSuspect = game.accSuspect ? suspectById(game.accSuspect) : null;
+  const wrongName = wrongSuspect ? wrongSuspect.name : '—';
+  // لو المشتبه به الغلط عنده رد مخصص (loseMsg)، بيتستخدم بدل النص العام بتاع القضية
+  const paragraphs = (game.ending==='bad' && wrongSuspect && wrongSuspect.loseMsg)
+    ? `<p>${wrongSuspect.loseMsg}</p>`
+    : e.paragraphs.map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('');
   const hint = e.hint ? `<p class="dim">${e.hint}</p>` : '';
   return `
     <div class="stamp ${game.ending} mono">${e.stamp}</div>

@@ -185,6 +185,7 @@ body{
 .toast-wrap{ position:fixed; top:18px; left:50%; transform:translateX(-50%); z-index:180; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
 .toast{ background:var(--panel); border:1px solid var(--amber-dim); border-radius:3px; padding:10px 20px; font-size:13px; color:var(--amber); box-shadow:0 6px 24px rgba(0,0,0,.5); white-space:nowrap; font-family:'JetBrains Mono',monospace; }
 .toast.danger{ border-color:var(--danger-dim); color:var(--danger); }
+.toast.rumor{ border-color:var(--signal-dim); color:var(--ink-dim); font-style:italic; }
 @media (prefers-reduced-motion: no-preference){ .toast{ animation: toastIn .35s cubic-bezier(.2,.8,.3,1), toastOut .4s ease 2.6s forwards; } }
 @keyframes toastIn{ from{opacity:0; transform:translateY(-14px) scale(.94);} to{opacity:1; transform:translateY(0) scale(1);} }
 @keyframes toastOut{ to{opacity:0; transform:translateY(-10px) scale(.96);} }
@@ -255,3 +256,27 @@ body{
 }
 .lib-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; flex-wrap:wrap; gap:10px; }
 .lib-header .user-email{ font-size:12px; color:var(--ink-dim); font-family:'JetBrains Mono',monospace; }
+
+/* ============ LIBRARY BRAND HERO — طرف الخيط ============ */
+.lib-hero{
+  position:relative; text-align:center; overflow:hidden; margin-bottom:28px;
+  padding:46px 20px 34px; border-radius:6px; border:1px solid var(--line);
+  background: linear-gradient(160deg, #3a2712 0%, #221708 55%, #120c07 100%);
+}
+.lib-fingerprint{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:min(60vw,300px); height:min(60vw,300px); opacity:.14; pointer-events:none;
+}
+.lib-fingerprint path{ fill:none; stroke:#d3ab61; stroke-width:2.2; }
+.lib-hero-eyebrow{
+  position:relative; z-index:2; font-size:11px; color:#c7bb9c; letter-spacing:.2em; margin-bottom:14px;
+}
+.lib-hero-title{
+  position:relative; z-index:2; font-size:clamp(38px,7vw,60px); font-weight:900; color:#ece3cc;
+  letter-spacing:-.02em; line-height:1;
+  text-shadow: 0 1px 0 #6b5738, 0 2px 0 #574627, 0 3px 6px rgba(0,0,0,.6);
+}
+.lib-hero-title .accent{ color:#d3ab61; }
+.lib-hero-thread{ position:relative; z-index:2; width:200px; height:20px; margin:6px auto 14px; display:block; }
+.lib-hero-thread path{ fill:none; stroke:#a8382f; stroke-width:3; stroke-linecap:round; filter:drop-shadow(0 0 3px rgba(168,56,47,.4)); }
+.lib-hero-sub{ position:relative; z-index:2; font-size:13px; color:#c7bb9c; }
