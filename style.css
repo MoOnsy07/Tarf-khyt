@@ -390,3 +390,51 @@ body{
 .notebook-ev-row:hover{ border-color:var(--amber-dim); }
 .notebook-ev-row .tag{ font-size:10px; color:var(--signal); font-family:'JetBrains Mono',monospace; letter-spacing:.05em; white-space:nowrap; }
 .notebook-ev-row .tag.crit{ color:var(--danger); }
+
+/* Extended evidence: partial/combinable evidence tag + combo toast tone */
+.tag.partial{ color:var(--signal); font-size:10px; font-family:'JetBrains Mono',monospace; margin-top:2px; letter-spacing:.03em; }
+.toast.combo{ border-color:var(--signal); color:var(--signal); }
+
+/* Phase 2: manual evidence linking selection state */
+.ev-card.link-selected{ border-color:var(--signal); box-shadow:0 0 0 1px var(--signal); }
+
+/* Phase 2: evidence zoom */
+.ev-zoom-wrap{ overflow:hidden; border-radius:3px; margin-bottom:14px; }
+.ev-zoom-img{ transition:transform .3s ease; cursor:zoom-in; display:block; width:100%; object-fit:cover; }
+.ev-zoom-img.zoomed{ transform:scale(2.2); cursor:zoom-out; }
+
+/* Phase 4: interactive timeline puzzle */
+.timeline-item{
+  display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--line);
+  border-radius:4px; padding:12px 14px; margin-bottom:8px;
+}
+.timeline-pos{ color:var(--amber); font-size:13px; flex-shrink:0; width:20px; text-align:center; }
+.timeline-text{ flex:1; font-size:14px; line-height:1.7; }
+.timeline-arrows{ display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+.tl-btn{
+  background:var(--panel); border:1px solid var(--line); color:var(--ink-dim); width:26px; height:22px;
+  border-radius:2px; cursor:pointer; font-size:11px; line-height:1;
+}
+.tl-btn:hover:not(:disabled){ border-color:var(--amber-dim); color:var(--ink); }
+.tl-btn:disabled{ opacity:.3; cursor:not-allowed; }
+
+/* Prologue mute/unmute button */
+.prologue-sfx-btn{
+  position:absolute; top:18px; left:18px; z-index:5;
+  background:rgba(18,22,31,.65); border:1px solid var(--line); color:var(--ink);
+  width:38px; height:38px; border-radius:50%; font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);
+}
+.prologue-sfx-btn:hover{ border-color:var(--amber-dim); }
+
+/* Settings modal */
+.settings-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 0; border-bottom:1px solid var(--line); gap:12px;
+}
+.settings-row:first-of-type{ padding-top:0; }
+.font-size-btn.active{ background:var(--amber); color:#1a1305; border-color:var(--amber); }
+
+/* Font size preference — applied to #app as a whole via zoom */
+#app.text-small{ zoom:0.9; }
+#app.text-large{ zoom:1.15; }

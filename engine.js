@@ -151,12 +151,33 @@ function saveLocalProgress(caseId, progress){
 }
 
 /* ============================================================
+   FONT SIZE — تفضيل حجم الخط، محفوظ ومطبّق على شكل zoom عام
+   بيغطي كل عناصر المنصة من غير ما نحتاج نعيد كتابة الـ CSS كله
+   ============================================================ */
+
+const FONT_SIZE_KEY = 'ca_font_size';
+function getFontSize(){
+  return localStorage.getItem(FONT_SIZE_KEY) || 'normal';
+}
+function setFontSize(size){
+  localStorage.setItem(FONT_SIZE_KEY, size);
+  applyFontSize();
+}
+function applyFontSize(){
+  appRoot.classList.remove('text-small','text-large');
+  const s = getFontSize();
+  if(s==='small') appRoot.classList.add('text-small');
+  if(s==='large') appRoot.classList.add('text-large');
+}
+
+/* ============================================================
    BOOT
    ============================================================ */
 
 function boot(){
   app.unlockedIds = getUnlockedIds();
   app.completedIds = getCompletedIds();
+  applyFontSize();
   showLibrary();
 }
 
@@ -469,6 +490,7 @@ function startPrologue(){
   document.body.insertAdjacentHTML('beforeend', `
     <div id="prologue" class="prologue" style="display:flex;">
       <div class="prologue-bg" id="prologueBg"></div>
+      <button id="prologueSfxToggle" class="prologue-sfx-btn mono" aria-label="كتم/تشغيل الصوت">${sfxEnabled() ? '🔊' : '🔇'}</button>
       <div class="prologue-content" id="prologueContent">
         <div class="prologue-scene mono" id="prologueScene"></div>
         <p class="prologue-text" id="prologueText"></p>
@@ -487,6 +509,12 @@ function startPrologue(){
     game.prologueIdx++;
     if(game.prologueIdx < CASE.prologue.length) showPrologueSlide(game.prologueIdx);
     else endPrologue();
+  });
+  document.getElementById('prologueSfxToggle').addEventListener('click', e=>{
+    e.stopPropagation();
+    setSfxEnabled(!sfxEnabled());
+    e.target.textContent = sfxEnabled() ? '🔊' : '🔇';
+    if(sfxEnabled()) startAmbience(CASE.introAmbience || DEFAULT_INTRO_AMBIENCE);
   });
 }
 
@@ -522,7 +550,6 @@ function showPrologueSlide(i){
 }
 
 function endPrologue(){
-  stopAmbience();
   const p = document.getElementById('prologue');
   p.classList.add('hide');
   setTimeout(()=>{ p.remove(); mountGameShell(); }, 500);
@@ -544,7 +571,7 @@ function mountGameShell(){
       </div>
       <div class="stat-line">
         <button class="btn ghost" id="backToLibrary" style="font-size:12px; padding:6px 12px;">← الأرشيف</button>
-        <button class="btn ghost" id="sfxToggle" style="font-size:12px; padding:6px 12px;">${sfxEnabled() ? '🔊' : '🔇'}</button>
+        <button class="btn ghost" id="settingsBtn" style="font-size:12px; padding:6px 12px;">⚙️ إعدادات</button>
         <button class="btn ghost" id="hintBtn" style="font-size:12px; padding:6px 12px;">💡 تلميح</button>
         <span class="status-dot"></span>
         <span id="evCount" class="mono">0 / ${CASE.evidence.length}</span> أدلة مجمّعة
@@ -557,11 +584,9 @@ function mountGameShell(){
   `;
   document.getElementById('notebookFab').addEventListener('click', openNotebook);
   document.getElementById('hintBtn').addEventListener('click', giveHint);
-  document.getElementById('sfxToggle').addEventListener('click', e=>{
-    setSfxEnabled(!sfxEnabled());
-    e.target.textContent = sfxEnabled() ? '🔊' : '🔇';
-  });
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
+    stopAmbience();
     persistProgress();
     app.unlockedIds = getUnlockedIds();
     app.completedIds = getCompletedIds();
@@ -975,6 +1000,59 @@ function interrogationHTML(suspectId){
     ${closedBanner}
     ${confrontHTML}
   `;
+}
+
+/* ============================================================
+   SETTINGS — الصوت، حجم الخط، والتواصل معانا
+   ============================================================ */
+
+function openSettings(){
+  if(document.getElementById('settingsOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.id = 'settingsOverlay';
+  const waLink = `https://wa.me/${WHATSAPP_NUMBER}`;
+  const currentSize = getFontSize();
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3 style="margin-bottom:18px;">⚙️ الإعدادات</h3>
+
+      <div class="settings-row">
+        <span>المؤثرات الصوتية</span>
+        <button class="btn ghost" id="settingsSfxToggle">${sfxEnabled() ? '🔊 مشغّل' : '🔇 مقفول'}</button>
+      </div>
+
+      <div class="settings-row" style="align-items:flex-start;">
+        <span>حجم الخط</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn ghost font-size-btn ${currentSize==='small'?'active':''}" data-fontsize="small">صغير</button>
+          <button class="btn ghost font-size-btn ${currentSize==='normal'?'active':''}" data-fontsize="normal">عادي</button>
+          <button class="btn ghost font-size-btn ${currentSize==='large'?'active':''}" data-fontsize="large">كبير</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <a href="${waLink}" target="_blank" rel="noopener" class="btn" style="display:block; text-align:center; background:#25D366; color:#04230f; text-decoration:none;">تواصل معانا على واتساب ←</a>
+      <button class="btn ghost close-btn" style="width:100%; margin-top:10px;">إغلاق</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
+
+  const sfxBtn = overlay.querySelector('#settingsSfxToggle');
+  sfxBtn.addEventListener('click', ()=>{
+    setSfxEnabled(!sfxEnabled());
+    sfxBtn.textContent = sfxEnabled() ? '🔊 مشغّل' : '🔇 مقفول';
+    if(sfxEnabled()) startAmbience(CASE ? (CASE.introAmbience || DEFAULT_INTRO_AMBIENCE) : null);
+  });
+
+  overlay.querySelectorAll('.font-size-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      setFontSize(btn.dataset.fontsize);
+      overlay.querySelectorAll('.font-size-btn').forEach(b=>b.classList.toggle('active', b===btn));
+    });
+  });
 }
 
 /* ============================================================
