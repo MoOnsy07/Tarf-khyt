@@ -41,6 +41,7 @@ function freshGameState(){
     hintsUsed:0,
     contradictionSolved:false,
     contradictionSelected:[],
+    classifications:{},    // suspectId -> 'strong' | 'weak' | 'cleared' — تصنيف اللاعب الشخصي، دفتر التحقيق
   };
 }
 
@@ -295,6 +296,7 @@ function enterCase(caseData){
     game.connections = saved.connections || {};
     game.hintsUsed = saved.hintsUsed || 0;
     game.contradictionSolved = !!saved.contradictionSolved;
+    game.classifications = saved.classifications || {};
   } else if(!CASE.isPremium){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -344,6 +346,7 @@ function persistProgress(){
     connections: game.connections,
     hintsUsed: game.hintsUsed,
     contradictionSolved: game.contradictionSolved,
+    classifications: game.classifications,
   });
 }
 
@@ -473,7 +476,9 @@ function mountGameShell(){
     </div>
     <div class="tabs" id="tabs"></div>
     <div class="panel" id="panelBody"></div>
+    <button id="notebookFab" class="notebook-fab" title="دفتر التحقيق" aria-label="دفتر التحقيق">📓</button>
   `;
+  document.getElementById('notebookFab').addEventListener('click', openNotebook);
   document.getElementById('hintBtn').addEventListener('click', giveHint);
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
     persistProgress();
@@ -842,6 +847,140 @@ function interrogationHTML(suspectId){
 }
 
 /* ============================================================
+   INVESTIGATION NOTEBOOK (generic — دفتر التحقيق + لوحة تصنيف المشتبهين)
+   بيفتح فوق أي شاشة عن طريق الزرار العائم. مش بديل شاشة الاتهام —
+   التصنيف هنا مجرد أداة تنظيم وتفكير للاعب، وبيأثر بس في ملاحظة
+   إضافية بنهاية القضية (شوف classificationNoteHTML).
+   ============================================================ */
+
+const CLASSIFY_LEVELS = [
+  { key:'strong', label:'مشتبه قوي', cls:'strong' },
+  { key:'weak', label:'مشتبه ضعيف', cls:'weak' },
+  { key:'cleared', label:'مستبعد', cls:'cleared' },
+];
+
+let notebookTab = 'suspects';
+
+function openNotebook(){
+  if(document.getElementById('notebookOverlay')) return;
+  notebookTab = 'suspects';
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.id = 'notebookOverlay';
+  overlay.innerHTML = `
+    <div class="modal notebook-modal">
+      <div class="notebook-head">
+        <h3 style="margin:0;">📓 دفتر التحقيق</h3>
+        <button class="btn ghost close-btn" style="padding:6px 12px; font-size:12px;">إغلاق</button>
+      </div>
+      <div class="notebook-tabs">
+        <button class="notebook-tab active" data-nbtab="suspects">المشتبهين</button>
+        <button class="notebook-tab" data-nbtab="evidence">الأدلة</button>
+      </div>
+      <div class="notebook-body" id="notebookBody"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
+  overlay.querySelectorAll('.notebook-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      notebookTab = btn.dataset.nbtab;
+      overlay.querySelectorAll('.notebook-tab').forEach(b=>b.classList.toggle('active', b===btn));
+      renderNotebookBody();
+    });
+  });
+  renderNotebookBody();
+}
+
+function renderNotebookBody(){
+  const body = document.getElementById('notebookBody');
+  if(!body) return;
+  body.innerHTML = notebookTab==='suspects' ? notebookSuspectsHTML() : notebookEvidenceHTML();
+  if(notebookTab==='suspects'){
+    body.querySelectorAll('[data-classify]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        classifySuspect(btn.dataset.classify, btn.dataset.level);
+      });
+    });
+  } else {
+    body.querySelectorAll('[data-nb-ev]').forEach(card=>{
+      card.addEventListener('click', ()=> openEvidenceModal(card.dataset.nbEv));
+    });
+  }
+}
+
+function classifySuspect(suspectId, level){
+  if(game.classifications[suspectId] === level){
+    delete game.classifications[suspectId]; // دوس على نفس التصنيف تاني يشيله
+  } else {
+    game.classifications[suspectId] = level;
+  }
+  persistProgress();
+  renderNotebookBody();
+}
+
+function notebookSuspectsHTML(){
+  const cards = CASE.suspects.filter(s=>s.accusable !== false).map(s=>{
+    const current = game.classifications[s.id];
+    const interrogatedCount = game.interrogated[s.id] ? game.interrogated[s.id].size : 0;
+    const btns = CLASSIFY_LEVELS.map(l=>
+      `<button class="classify-btn ${l.cls} ${current===l.key?'active':''}" data-classify="${s.id}" data-level="${l.key}">${l.label}</button>`
+    ).join('');
+    return `
+      <div class="notebook-suspect ${current?'classified-'+current:''}">
+        ${avatarMarkup(s,'avatar-photo small')}
+        <div class="notebook-suspect-info">
+          <h4>${s.name}</h4>
+          <div class="role">${s.role}</div>
+          <div class="mono" style="font-size:11px; color:var(--ink-dim); margin-top:4px;">${interrogatedCount>0 ? interrogatedCount+' سؤال متسأل' : 'لسه ما استجوبتوش'}</div>
+        </div>
+        <div class="classify-row">${btns}</div>
+      </div>
+    `;
+  }).join('');
+  return `
+    <p class="dim" style="margin-top:0;">صنّف كل مشتبه حسب شكّك فيه. التصنيف ده بس لتنظيم أفكارك — اللعبة مش هتقولك مين الصح.</p>
+    ${cards}
+  `;
+}
+
+function notebookEvidenceHTML(){
+  const collectedList = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
+  if(!collectedList.length){
+    return `<p class="dim" style="margin-top:0;">لسه ما جمعتش أي أدلة. فتش مسرح الجريمة واستجوّب المشتبه بهم.</p>`;
+  }
+  const rows = collectedList.map(ev=>`
+    <div class="notebook-ev-row" data-nb-ev="${ev.id}">
+      <span class="tag ${ev.crit?'crit':''}" style="flex-shrink:0;">${ev.crit?'حاسم':ev.tag}</span>
+      <span>${ev.title}</span>
+    </div>
+  `).join('');
+  return `
+    <p class="dim" style="margin-top:0;">${collectedList.length} / ${CASE.evidence.length} دليل مجمّع. دوس على أي دليل للتفاصيل.</p>
+    ${rows}
+  `;
+}
+
+// ملاحظة اختيارية بتتضاف لشاشة النهاية — بتعكس دقة تصنيف اللاعب من غير ما تغيّر نتيجة القضية نفسها
+function classificationNoteHTML(){
+  if(!game.classifications || !Object.keys(game.classifications).length) return '';
+  const correctId = CASE.correctSuspectId;
+  const correctClass = game.classifications[correctId];
+  let note;
+  if(correctClass === 'strong'){
+    note = '📓 من دفتر التحقيق: صنّفت الجاني الحقيقي "مشتبه قوي" من البداية — حدسك كان في محله.';
+  } else if(correctClass === 'cleared'){
+    note = '📓 من دفتر التحقيق: كنت مستبعد الجاني الحقيقي تمامًا في تصنيفك — يستاهل تراجعة تانية للأدلة.';
+  } else if(correctClass === 'weak'){
+    note = '📓 من دفتر التحقيق: كان عندك شك خفيف في الجاني الحقيقي، بس مكنش شك قوي كفاية.';
+  } else {
+    note = '📓 من دفتر التحقيق: ما صنّفتش الجاني الحقيقي خالص — جرب تستخدم لوحة التصنيف أكتر في القضية الجاية.';
+  }
+  return `<p class="dim" style="margin-top:14px; border-top:1px dashed var(--line); padding-top:14px;">${note}</p>`;
+}
+
+/* ============================================================
    AUDIO PUZZLE (generic — driven by CASE.audioPuzzle)
    ============================================================ */
 
@@ -1184,6 +1323,7 @@ function endingHTML(){
     ${paragraphs}
     ${hint}
     ${bonus}
+    ${classificationNoteHTML()}
     <div class="divider"></div>
     <button class="btn ghost" data-restart>ابدأ القضية دي من الأول</button>
     <button class="btn" data-back-to-lib style="margin-right:10px;">رجوع للأرشيف</button>
