@@ -4,4 +4,4 @@
 
 // رقم الواتساب اللي هيوصلك عليه العميل، بصيغة دولية بدون + أو أصفار زيادة
 // مثال: لو رقمك المصري 01001234567، يبقى: 201001234567
-const WHATSAPP_NUMBER = 'PASTE_YOUR_WHATSAPP_NUMBER_HERE';
+const WHATSAPP_NUMBER = '201145785696';
