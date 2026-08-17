@@ -18,6 +18,7 @@ const CASE_DARK_TESTIMONY = {
   investigationPoints: 17,
 
   isPremium: false,
+  categories: ['social'],
   seriesId: null,
   seriesOrder: null,
   seriesTitle: null,

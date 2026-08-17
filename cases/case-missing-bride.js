@@ -15,8 +15,12 @@ const CASE_MISSING_BRIDE = {
   difficulty: 'صعبة',
   estMinutes: 45,
   investigationPoints: 28,
+  price: '25 جنيه',
+  oldPrice: '40 جنيه',
+  discountLabel: 'خصم 37%',
 
   isPremium: true,
+  categories: ['disappearance', 'social'],
   seriesId: null,
   seriesOrder: null,
   seriesTitle: null,
@@ -278,4 +282,3 @@ const CASE_MISSING_BRIDE = {
     }
   }
 };
-

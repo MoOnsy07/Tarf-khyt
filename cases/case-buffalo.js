@@ -18,6 +18,7 @@ const CASE_BUFFALO = {
   investigationPoints: 19,
 
   isPremium: false,
+  categories: ['theft', 'comedy'],
   seriesId: null,
   seriesOrder: null,
   seriesTitle: null,
