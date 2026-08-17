@@ -166,11 +166,21 @@ body{
 .cam-labels{ display:flex; justify-content:space-between; margin-top:14px; font-size:12px; color:var(--ink-dim); }
 .cam-labels #camReadout{ color:var(--amber); font-weight:700; }
 
-.acc-suspects{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 22px; }
-.pick{ border:1px solid var(--line); background:var(--panel-2); padding:10px 16px; border-radius:20px; cursor:pointer; font-size:13.5px; color:var(--ink-dim); transition:.15s; }
-.pick.selected{ border-color:var(--amber); color:var(--amber); background:#241d0f; }
-.pick.ev{ border-radius:4px; text-align:right; width:100%; padding:12px 16px; }
-.acc-evidence{ display:flex; flex-direction:column; gap:8px; margin-bottom:22px; }
+/* لوحة التحقيق — ربط الأدلة بالمشتبه بهم بخيوط */
+.board-wrap{ position:relative; display:flex; gap:32px; margin:18px 0 8px; }
+.board-col{ flex:1; display:flex; flex-direction:column; gap:10px; position:relative; z-index:2; }
+.board-col h4{ font-size:11px; color:var(--ink-dim); letter-spacing:.08em; margin-bottom:4px; }
+.board-chip{
+  border:1px solid var(--line); background:var(--panel-2); color:var(--ink-dim);
+  padding:11px 14px; border-radius:4px; cursor:pointer; font-size:13px; text-align:right; transition:.15s;
+}
+.board-chip:hover{ border-color:var(--amber-dim); color:var(--ink); }
+.board-chip.selected{ border-color:var(--amber); color:var(--amber); background:#241d0f; }
+.board-chip.connected{ border-color:var(--danger); color:var(--danger); }
+.board-svg{ position:absolute; inset:0; z-index:1; pointer-events:none; width:100%; height:100%; }
+.board-thread{ stroke:var(--danger); stroke-width:2; fill:none; opacity:.85; filter:drop-shadow(0 0 3px rgba(198,90,78,.5)); }
+.board-warning{ color:var(--danger); font-size:12.5px; margin-top:14px; line-height:1.8; }
+.confront-btn{ text-align:right; }
 
 .ending-badge{ font-size:12px; letter-spacing:.1em; font-family:'JetBrains Mono',monospace; margin-bottom:10px; }
 .ending-badge.good{ color:var(--signal); }
@@ -270,6 +280,14 @@ body{
 .auth-msg{ color:var(--signal); font-size:13px; margin-bottom:12px; }
 
 /* ============ LIBRARY ============ */
+.lib-filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.lib-filter{
+  border:1px solid var(--line); background:var(--panel-2); color:var(--ink-dim);
+  padding:8px 16px; border-radius:20px; cursor:pointer; font-size:13px; transition:.15s;
+  font-family:'Tajawal', sans-serif;
+}
+.lib-filter:hover{ border-color:var(--amber-dim); color:var(--ink); }
+.lib-filter.active{ border-color:var(--amber); color:var(--amber); background:#241d0f; }
 .lib-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px; }
 .lib-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:6px; overflow:hidden; cursor:pointer; transition:.2s; position:relative; }
 .lib-card:hover{ border-color:var(--amber-dim); transform:translateY(-3px); }
@@ -282,6 +300,9 @@ body{
 .lib-badge{ position:absolute; top:10px; left:10px; font-size:10px; font-family:'JetBrains Mono',monospace; padding:3px 9px; border-radius:12px; z-index:2; }
 .lib-badge.premium{ background:var(--amber); color:#1a1305; }
 .lib-badge.adult{ background:var(--danger); color:#fff; }
+.lib-badge.discount{ background:var(--danger); color:#fff; top:38px; }
+.lib-price{ margin-top:8px; font-size:14px; }
+.lib-price .old{ color:var(--ink-dim); text-decoration:line-through; font-size:12px; margin-left:6px; }
 .lib-badge.series{ background:var(--signal); color:#04231d; }
 .lib-badge.locked{ background:var(--panel); color:var(--ink-dim); border:1px solid var(--line); }
 .lib-badge.done{ background:transparent; color:var(--signal); border:1px solid var(--signal-dim); }

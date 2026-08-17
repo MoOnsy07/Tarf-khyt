@@ -8,6 +8,13 @@ const app = {
   view: 'loading',      // loading | library | case
   unlockedIds: [],
   completedIds: [],
+  libraryFilter: 'all', // فلتر المكتبة الحالي
+};
+
+// تسميات التصنيفات — ضيف هنا أي تصنيف جديد تستخدمه في CASE.categories
+const CATEGORY_LABELS = {
+  murder:'قتل', theft:'سرقة', comedy:'فكاهية', disappearance:'اختفاء',
+  social:'اجتماعية', scandal:'فضيحة',
 };
 
 let CASE = null;         // القضية الحالية (object)
@@ -105,17 +112,46 @@ function isCaseLocked(caseData){
 
 function showLibrary(){
   app.view = 'library';
-  const cards = CASES_REGISTRY.map(c=>{
+
+  // بناء قايمة الفلاتر المتاحة فعليًا (بس اللي عنده قضية واحدة على الأقل)
+  const hasFree = CASES_REGISTRY.some(c=>!c.isPremium);
+  const hasPremium = CASES_REGISTRY.some(c=>c.isPremium);
+  const usedCategories = [...new Set(CASES_REGISTRY.flatMap(c=>c.categories||[]))];
+  const filters = [{key:'all', label:'الكل'}];
+  if(hasFree) filters.push({key:'free', label:'مجانية'});
+  if(hasPremium) filters.push({key:'premium', label:'مدفوعة'});
+  usedCategories.forEach(cat=>{
+    filters.push({key:cat, label: CATEGORY_LABELS[cat] || cat});
+  });
+
+  function matchesFilter(c){
+    if(app.libraryFilter==='all') return true;
+    if(app.libraryFilter==='free') return !c.isPremium;
+    if(app.libraryFilter==='premium') return !!c.isPremium;
+    return (c.categories||[]).includes(app.libraryFilter);
+  }
+
+  const filterBar = filters.map(f=>
+    `<button class="lib-filter ${app.libraryFilter===f.key?'active':''}" data-filter="${f.key}">${f.label}</button>`
+  ).join('');
+
+  const visibleCases = CASES_REGISTRY.filter(matchesFilter);
+
+  const cards = visibleCases.map(c=>{
     const lock = isCaseLocked(c);
     const badges = [];
     if(c.isPremium) badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
+    if(c.isPremium && c.discountLabel) badges.push(`<span class="lib-badge discount mono">${c.discountLabel}</span>`);
     if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
     if(c.contentWarning) badges.push(`<span class="lib-badge adult mono">+18</span>`);
+    const priceHTML = (c.isPremium && c.price)
+      ? `<div class="lib-price mono">${c.oldPrice ? `<span class="old">${c.oldPrice}</span> ` : ''}${c.price}</div>`
+      : '';
     const lockOverlay = lock.locked ? `
       <div class="lib-lock-overlay">
         <div style="font-size:22px;">🔒</div>
         ${lock.reason==='premium'
-          ? '<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">اضغط للشراء</span></div>'
+          ? `<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">${c.price ? 'اضغط للشراء — '+c.price : 'اضغط للشراء'}</span></div>`
           : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
       </div>` : '';
     return `
@@ -125,11 +161,12 @@ function showLibrary(){
         <div class="body">
           <h4>${c.title}</h4>
           <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>
+          ${priceHTML}
         </div>
         ${lockOverlay}
       </div>
     `;
-  }).join('');
+  }).join('') || `<p class="dim" style="grid-column:1/-1; text-align:center; padding:30px 0;">مفيش قضايا في التصنيف ده لسه.</p>`;
 
   appRoot.innerHTML = `
     <div class="lib-hero">
@@ -148,8 +185,16 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
+    <div class="lib-filters">${filterBar}</div>
     <div class="lib-grid">${cards}</div>
   `;
+
+  document.querySelectorAll('.lib-filter').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      app.libraryFilter = btn.dataset.filter;
+      showLibrary();
+    });
+  });
 
   document.querySelectorAll('.lib-card').forEach(card=>{
     card.addEventListener('click', ()=>{
@@ -168,14 +213,25 @@ function showLibrary(){
    ============================================================ */
 
 function openPurchasePopup(caseData){
-  const waText = encodeURIComponent(`عايز أشتري قضية "${caseData.title}"`);
+  const waText = encodeURIComponent(
+    caseData.price
+      ? `عايز أشتري قضية "${caseData.title}" (${caseData.price})`
+      : `عايز أشتري قضية "${caseData.title}"`
+  );
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
+  const priceHTML = caseData.price ? `
+    <div style="text-align:center; margin:10px 0 4px;">
+      ${caseData.oldPrice ? `<span class="mono" style="color:var(--ink-dim); text-decoration:line-through; font-size:14px; margin-left:8px;">${caseData.oldPrice}</span>` : ''}
+      <span class="mono" style="color:var(--amber); font-size:22px; font-weight:800;">${caseData.price}</span>
+      ${caseData.discountLabel ? `<div class="mono" style="color:var(--signal); font-size:11px; margin-top:4px;">${caseData.discountLabel}</div>` : ''}
+    </div>` : '';
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
   overlay.innerHTML = `
     <div class="modal">
       <div class="tag" style="color:var(--amber);">قضية بريميوم</div>
       <h3>${caseData.title}</h3>
+      ${priceHTML}
       <p>تواصل معانا على واتساب لشراء القضية، هتوصلك كود تفتح بيه القضية على طول.</p>
       <a href="${waLink}" target="_blank" rel="noopener" class="btn" style="display:block; text-align:center; background:#25D366; color:#04230f; margin-top:8px; text-decoration:none;">
         تواصل على واتساب ←
@@ -550,12 +606,13 @@ function evidenceThatUnlocks(flag){
 function renderPanel(){
   const el = document.getElementById('panelBody');
   const newIndex = TAB_ORDER.indexOf(game.screen);
+  const tabChanged = newIndex >= 0 && newIndex !== game.lastTabIndex;
   el.classList.remove('slide-r','slide-l');
-  void el.offsetWidth;
-  if(newIndex >= 0){
+  if(tabChanged){
+    void el.offsetWidth; // force reflow so the animation re-triggers
     el.classList.add(newIndex >= game.lastTabIndex ? 'slide-r' : 'slide-l');
-    game.lastTabIndex = newIndex;
   }
+  if(newIndex >= 0) game.lastTabIndex = newIndex;
   if(game.screen==='briefing') el.innerHTML = briefingHTML();
   else if(game.screen==='evidence') el.innerHTML = evidenceHTML();
   else if(game.screen==='suspects') el.innerHTML = suspectsHTML();
@@ -567,7 +624,7 @@ function renderPanel(){
 
   attachPanelEvents();
   if(game.screen==='briefing') runBriefingTypewriter();
-  if(game.screen==='accusation') requestAnimationFrame(drawBoardConnections);
+  if(game.screen==='accusation') setTimeout(drawBoardConnections, tabChanged ? 420 : 30);
 }
 
 /* ============================================================
