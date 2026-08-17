@@ -84,7 +84,7 @@ const CASE_DARK_TESTIMONY = {
       questions:[
         { q:'ليه الناس شافوك متضايق قريب من الجنينة؟',
           a:'"كان عندي خناقة قصيرة مع صاحبي على حجز الطاولات، مالوش أي علاقة بدينا خالص. بعدها رحت على طول أساعد في الموقف."' },
-        { q:'حد يقدر يأكد إنك كنت في الموقف؟',
+        { q:'حد يقدر يأكد إنك كنت في الموقف؟', unlockId:'valet',
           a:'"أكيد، الفاليه وسواق تاني كانوا معايا، وفيه كاميرا مراقبة على الموقف كمان."' },
         { q:'إيه حسيت بيه لما عرفت إنهم بيشكوا فيك؟',
           a:'"اتصدمت. اللي حصل لدينا وحش جدًا، وبعدين لقيت نفسي متهم من غير أي دليل غير إني كنت قريب في توقيت غلط."' },
@@ -96,13 +96,13 @@ const CASE_DARK_TESTIMONY = {
       questions:[
         { q:'إنت كنت فين وقت الحادثة؟',
           a:'"قاعد على الترابيزة بتاعتي، مش فاكر أوي، الليلة كانت زحمة."' },
-        { q:'حد قاعد معاك يأكد كلامك؟',
+        { q:'حد قاعد معاك يأكد كلامك؟', unlockId:'seating',
           a:'"مش متأكد مين كان قاعد بالظبط، كنت بتنقل بين الترابيزات شوية."' },
         { q:'سمعنا إن في شكوى قبل كده من بنت تانية في مناسبة سابقة؟', unlockId:'pastcomplaint',
           a:'"ده كلام فاضي، محدش قال حاجة رسمية، ناس بتحب تتكلم بس."' },
         { q:'ضيف تاني وصف راجل طويل بخاتم فضي كبير جوه الجنينة قبل الحادثة — الوصف قريب منك أوي.', requires:['witness'],
           a:'(بيتلعثم) "يمكن كان حد شبهي، مش لازم يبقى أنا بالظبط. البدل السودا كلها بتشبه بعض."' },
-        { q:'الخدش على سوار دينا شكله متطابق مع خاتمك — عندك تفسير؟', requires:['ring','witness'],
+        { q:'الخدش على سوار دينا شكله متطابق مع خاتمك — عندك تفسير؟', requires:['ring','witness'], closesInterrogation:true,
           a:'(بيهدى فجأة، مفيش هروب تاني) "معرفش... يمكن مصادفة." (بيبعد نظره تمامًا)' },
       ]
     },
@@ -134,9 +134,9 @@ const CASE_DARK_TESTIMONY = {
     { id:'valet', tag:'من موقف السيارات', crit:true, title:'شهادة عمر عن الموقف', img: IMG_BASE_DARKTEST + 'dark-valet.jpg', unlocksCamera:true,
       short:'قال إنه كان في الموقف وقت الحادثة',
       full:'عمر قال إنه كان واقف في موقف السيارات بيساعد سواق يرجّع عربية وقت الحادثة بالظبط. كلامه محتاج تأكيد مستقل — روح لتبويب "تحليل الكاميرات" عشان تتأكد بنفسك من الطابع الزمني.',
-      unlocked:true, order:1 },
+      unlocked:false, order:1 },
 
-    { id:'ring', tag:'من مسرح الحادثة', crit:true, title:'أثر خدش معدني على سوار دينا', img: IMG_BASE_DARKTEST + 'dark-ring.jpg',
+    { id:'ring', tag:'من مسرح الحادثة', crit:true, partial:true, title:'أثر خدش معدني على سوار دينا', img: IMG_BASE_DARKTEST + 'dark-ring.jpg',
       short:'خدش بيتطابق مع خاتم معين',
       full:'خدش صغير على سوار دينا، شكله متطابق مع خاتم فضي سميك، النوع اللي بيسبب خدش زي ده لو اتخبط في حاجة معدنية بقوة. عمر مش لابس أي خاتم أصلاً.',
       unlocked:true, order:2 },
@@ -149,12 +149,17 @@ const CASE_DARK_TESTIMONY = {
     { id:'seating', tag:'من سجلات الحفل', crit:false, title:'خريطة جلوس الضيوف', img:null,
       short:'كريم كان بعيد عن ترابيزته وقت الحادثة',
       full:'خريطة الجلوس الرسمية بتوضح ترابيزة كريم بعيدة عن الجنينة الجانبية. مفيش سبب رسمي يخليه قريب من المكان في التوقيت ده، عكس كلامه إنه كان "بيتنقل بين الترابيزات".',
-      unlocked:true, order:4 },
+      unlocked:false, order:4 },
 
-    { id:'witness', tag:'من شهادة ضيف تاني', crit:true, title:'وصف ضيف لشخص قرب الجنينة', img:null, unlocksContradiction:true,
+    { id:'witness', tag:'من شهادة ضيف تاني', crit:true, partial:true, title:'وصف ضيف لشخص قرب الجنينة', img:null, unlocksContradiction:true,
       short:'طويل ولابس خاتم فضي كبير — قبل الحادثة بشوية',
       full:'ضيف تاني في الحفلة وصف لسامح إنه شاف رجل طويل لابس خاتم فضي كبير داخل الجنينة الجانبية قبل الحادثة بدقايق قليلة. الوصف ده بيتطابق مع كريم، ومش بيتطابق مع عمر خالص.',
       unlocked:false, order:5 },
+
+    { id:'ring_witness_link', tag:'من ربط الأدلة', crit:true, title:'الخاتم اللي سبب الخدش', img:null,
+      short:'خاتم الضيف الموصوف = نفس نوع الخاتم اللي خدش سوار دينا',
+      full:'لما تربط شكل الخدش المعدني على سوار دينا بوصف الضيف للراجل اللي شافه جوه الجنينة (طويل، خاتم فضي كبير)، الصورة بتكتمل: نفس نوع الخاتم اللي وصفه الضيف هو اللي قادر يعمل خدش زي ده بالظبط. ده مش تخمين، ده تطابق مادي بين دليلين مستقلين.',
+      unlocked:false, order:5.5 },
 
     { id:'pastcomplaint', tag:'من التحقيق الرقمي', crit:true, title:'شكوى سابقة غير رسمية ضد كريم', img:null,
       short:'واقعة مشابهة في مناسبة سابقة اتقفلت من غير إجراء',
@@ -201,8 +206,49 @@ const CASE_DARK_TESTIMONY = {
     resultEvidenceIds: ['cam_verified'],
   },
 
+  evidenceCombinations: [
+    { parts:['ring','witness'], resultId:'ring_witness_link' },
+  ],
+
   correctSuspectId: 'karim',
-  conclusiveEvidenceIds: ['ring', 'witness', 'pastcomplaint', 'cam_verified', 'contradiction_noted_dark'],
+  conclusiveEvidenceIds: ['ring', 'witness', 'ring_witness_link', 'pastcomplaint', 'cam_verified', 'contradiction_noted_dark'],
+  conclusiveRequired: 3,
+
+  theoryBuilder: {
+    enabled: true,
+    questions: [
+      {
+        id:'howidentified',
+        label:'إزاي عرفت إن كريم هو الفاعل؟',
+        options: [
+          { id:'a', text:'الخدش المعدني على السوار بيتطابق مع نوع خاتمه' },
+          { id:'b', text:'شكله بس شبه الوصف اللي دينا قالته' },
+          { id:'c', text:'لأنه كان بعيد عن ترابيزته وقت الحادثة' },
+        ],
+        correctOptionId:'a',
+      },
+      {
+        id:'contradiction',
+        label:'إيه اللي فضحه فعليًا في الاستجواب؟',
+        options: [
+          { id:'a', text:'اعترافه المباشر بالموضوع' },
+          { id:'b', text:'التناقض بين كلامه إنه قاعد على ترابيزته ووصف الضيف ليه جوه الجنينة' },
+          { id:'c', text:'شهادة أحمد عند الباب' },
+        ],
+        correctOptionId:'b',
+      },
+      {
+        id:'whyomar',
+        label:'ليه عمر كان بريء فعليًا؟',
+        options: [
+          { id:'a', text:'مفيش أي دليل مادي ضده، وكاميرا الموقف أكدت مكانه في توقيت الحادثة بالظبط' },
+          { id:'b', text:'لأنه صاحب العريس ومحدش هيتهمه' },
+          { id:'c', text:'لأنه اعترف بمكانه بس' },
+        ],
+        correctOptionId:'a',
+      },
+    ],
+  },
 
   endings: {
     good: {
