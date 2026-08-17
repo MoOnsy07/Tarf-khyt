@@ -27,6 +27,13 @@ function freshGameState(){
     ending:null,
     prologueIdx:0,
     rumorsShown:new Set(), // اختياري — بس للقضايا اللي فيها CASE.rumors (طابع "قهوة البلد")
+    points:null,           // نقاط تحقيق — بتتظبط في enterCase لو CASE.investigationPoints موجودة
+    confronted:{},         // suspectId -> Set(evidenceId) — الأدلة اللي واجهت بيها كل شخص
+    connections:{},        // evidenceId -> suspectId — روابط لوحة التحقيق (الخيوط)
+    boardSelected:null,    // دليل متحدد حاليًا على اللوحة، مستني تربطه بشخص
+    hintsUsed:0,
+    contradictionSolved:false,
+    contradictionSelected:[],
   };
 }
 
@@ -216,6 +223,7 @@ function openPurchasePopup(caseData){
 function enterCase(caseData){
   CASE = caseData;
   game = freshGameState();
+  game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
 
   const saved = loadLocalProgress(CASE.id);
   if(saved){
@@ -223,7 +231,14 @@ function enterCase(caseData){
     game.interrogated = {};
     Object.entries(saved.interrogated || {}).forEach(([sid, arr])=>{ game.interrogated[sid] = new Set(arr); });
     game.audioSolved = !!saved.audioSolved;
+    game.cameraSolved = !!saved.cameraSolved;
     game.ending = saved.ending || null;
+    if(saved.points != null) game.points = saved.points;
+    game.confronted = {};
+    Object.entries(saved.confronted || {}).forEach(([sid, arr])=>{ game.confronted[sid] = new Set(arr); });
+    game.connections = saved.connections || {};
+    game.hintsUsed = saved.hintsUsed || 0;
+    game.contradictionSolved = !!saved.contradictionSolved;
   } else if(!CASE.isPremium){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -266,7 +281,13 @@ function persistProgress(){
     collected: [...game.collected],
     interrogated: Object.fromEntries(Object.entries(game.interrogated).map(([k,v])=>[k,[...v]])),
     audioSolved: game.audioSolved,
+    cameraSolved: game.cameraSolved,
     ending: game.ending,
+    points: game.points,
+    confronted: Object.fromEntries(Object.entries(game.confronted).map(([k,v])=>[k,[...v]])),
+    connections: game.connections,
+    hintsUsed: game.hintsUsed,
+    contradictionSolved: game.contradictionSolved,
   });
 }
 
@@ -377,6 +398,9 @@ function endPrologue(){
    ============================================================ */
 
 function mountGameShell(){
+  const pointsHTML = CASE.investigationPoints != null
+    ? `<span class="status-dot" style="background:var(--danger); box-shadow:0 0 8px var(--danger);"></span><span id="ptsCount" class="mono">${game.points}</span> نقاط تحقيق`
+    : '';
   appRoot.innerHTML = `
     <div class="masthead">
       <div>
@@ -385,13 +409,16 @@ function mountGameShell(){
       </div>
       <div class="stat-line">
         <button class="btn ghost" id="backToLibrary" style="font-size:12px; padding:6px 12px;">← الأرشيف</button>
+        <button class="btn ghost" id="hintBtn" style="font-size:12px; padding:6px 12px;">💡 تلميح</button>
         <span class="status-dot"></span>
         <span id="evCount" class="mono">0 / ${CASE.evidence.length}</span> أدلة مجمّعة
+        ${pointsHTML}
       </div>
     </div>
     <div class="tabs" id="tabs"></div>
     <div class="panel" id="panelBody"></div>
   `;
+  document.getElementById('hintBtn').addEventListener('click', giveHint);
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
     persistProgress();
     app.unlockedIds = getUnlockedIds();
@@ -405,12 +432,66 @@ function mountGameShell(){
    RENDER ROOT
    ============================================================ */
 
-const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','accusation','ending'];
+const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','contradiction','accusation','ending'];
 
 function render(){
   renderTabs();
   renderPanel();
   document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
+  updatePointsUI();
+}
+
+function updatePointsUI(){
+  const el = document.getElementById('ptsCount');
+  if(el) el.textContent = game.points;
+}
+
+// بتحاول تخصم نقطة تحقيق (سؤال استجواب أو مواجهة بدليل). لو القضية مالهاش نظام نقاط
+// (CASE.investigationPoints مش متعرّفة)، دايمًا بترجع true من غير أي خصم.
+function spendPoint(){
+  if(CASE.investigationPoints == null) return true;
+  if(game.points <= 0){
+    showToast('خلصت نقاط التحقيق — قدّم اتهامك بناءً على اللي جمعته لحد دلوقتي.', 'danger');
+    return false;
+  }
+  game.points--;
+  updatePointsUI();
+  return true;
+}
+
+// نظام تلميحات عام — بيدوّر تلقائي على أول دليل ناقص وبيقولك منين تجيبه،
+// من غير ما يحتاج أي محتوى مخصص من القضية نفسها. محدود 3 استخدامات لكل قضية.
+const MAX_HINTS = 3;
+function giveHint(){
+  if(game.hintsUsed >= MAX_HINTS){
+    showToast('استخدمت كل التلميحات المتاحة (3) — كمّل بحدسك من هنا.', 'danger');
+    return;
+  }
+  const missing = CASE.evidence.find(e=>!game.collected.has(e.id));
+  let msg;
+  if(!missing){
+    msg = '💡 جمعت كل الأدلة المتاحة! روح للوحة التحقيق وابدأ تربط الخيوط.';
+  } else {
+    let found = null;
+    for(const s of CASE.suspects){
+      const qIdx = s.questions.findIndex(q=>q.unlockId===missing.id);
+      if(qIdx>=0){ found = { suspect:s, q:s.questions[qIdx] }; break; }
+    }
+    if(found){
+      msg = `💡 جرب تسأل ${found.suspect.name}: "${found.q.q}"`;
+    } else if(CASE.cameraPuzzle && CASE.cameraPuzzle.enabled && (CASE.cameraPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.cameraPuzzle.tabLabel || 'تحليل الكاميرات'}".`;
+    } else if(CASE.audioPuzzle && CASE.audioPuzzle.enabled && (CASE.audioPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = '💡 جرب تبويب "تحليل صوتي".';
+    } else if(CASE.contradictionPuzzle && CASE.contradictionPuzzle.enabled && (CASE.contradictionPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.contradictionPuzzle.tabLabel || 'التناقضات'}".`;
+    } else {
+      msg = '💡 كمّل تستكشف لوحة الأدلة والمشتبه بيهم كويس.';
+    }
+  }
+  game.hintsUsed++;
+  persistProgress();
+  showToast(msg, 'rumor');
 }
 
 function typeText(el, text, speed, onDone){
@@ -431,15 +512,19 @@ function renderTabs(){
   const cameraAvailable = CASE.cameraPuzzle && CASE.cameraPuzzle.enabled;
   const cameraUnlockId = evidenceThatUnlocks('unlocksCamera');
   const cameraUnlocked = cameraAvailable && (!cameraUnlockId || game.collected.has(cameraUnlockId));
-  const accUnlocked = game.collected.size >= Math.min(5, CASE.evidence.length);
+  const contraAvailable = CASE.contradictionPuzzle && CASE.contradictionPuzzle.enabled;
+  const contraUnlockId = evidenceThatUnlocks('unlocksContradiction');
+  const contraUnlocked = contraAvailable && (!contraUnlockId || game.collected.has(contraUnlockId));
+  const accUnlocked = game.collected.size >= Math.max(Math.min(5, CASE.evidence.length), Math.ceil(CASE.evidence.length * 0.75));
   const defs = [
     {id:'briefing', label:'ملف القضية'},
     {id:'evidence', label:'لوحة الأدلة'},
     {id:'suspects', label:'المشتبه بهم'},
   ];
   if(audioAvailable) defs.push({id:'audio', label:'تحليل صوتي', locked: !audioUnlocked});
-  if(cameraAvailable) defs.push({id:'camera', label:'تحليل الكاميرات', locked: !cameraUnlocked});
-  defs.push({id:'accusation', label:'الاتهام', locked: !accUnlocked});
+  if(cameraAvailable) defs.push({id:'camera', label: (CASE.cameraPuzzle.tabLabel || 'تحليل الكاميرات'), locked: !cameraUnlocked});
+  if(contraAvailable) defs.push({id:'contradiction', label: (CASE.contradictionPuzzle.tabLabel || 'التناقضات'), locked: !contraUnlocked});
+  defs.push({id:'accusation', label:'لوحة التحقيق', locked: !accUnlocked});
 
   tabsEl.innerHTML = defs.map(d=>{
     const active = game.screen===d.id ? 'active':'';
@@ -476,11 +561,13 @@ function renderPanel(){
   else if(game.screen==='suspects') el.innerHTML = suspectsHTML();
   else if(game.screen==='audio') el.innerHTML = audioHTML();
   else if(game.screen==='camera') el.innerHTML = cameraHTML();
+  else if(game.screen==='contradiction') el.innerHTML = contradictionHTML();
   else if(game.screen==='accusation') el.innerHTML = accusationHTML();
   else if(game.screen==='ending') el.innerHTML = endingHTML();
 
   attachPanelEvents();
   if(game.screen==='briefing') runBriefingTypewriter();
+  if(game.screen==='accusation') requestAnimationFrame(drawBoardConnections);
 }
 
 /* ============================================================
@@ -568,7 +655,7 @@ function maybeShowVillageRumor(){
   const idx = remaining[Math.floor(Math.random()*remaining.length)];
   game.rumorsShown.add(idx);
   setTimeout(()=>{
-    showToast('📢 من قهوة البلد: ' + CASE.rumors[idx], 'rumor');
+    showToast((CASE.rumorLabel || '📢 من قهوة البلد: ') + CASE.rumors[idx], 'rumor');
   }, 2600);
 }
 
@@ -660,10 +747,27 @@ function interrogationHTML(suspectId){
     return `<div class="line q"><div class="who">أنت</div>${item.q}</div>
             <div class="line a"><div class="who">${s.name}</div>${item.a}</div>`;
   }).join('');
+  const outOfPoints = CASE.investigationPoints != null && game.points <= 0;
   const qButtons = s.questions.map((item,idx)=>{
     const used = answered.has(idx);
-    return `<button class="q-btn" data-q="${idx}" ${used?'disabled':''}>${item.q}</button>`;
-  }).join('');
+    const locked = item.requires && !item.requires.every(id=>game.collected.has(id));
+    if(locked && !used) return ''; // سؤال جولة تانية لسه ما فتحش
+    return `<button class="q-btn" data-q="${idx}" ${(used||outOfPoints)?'disabled':''}>${item.q}</button>`;
+  }).filter(Boolean).join('');
+
+  const confronted = game.confronted[s.id] || new Set();
+  const confrontableEvidence = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
+  const confrontHTML = confrontableEvidence.length ? `
+    <h3>واجهه بدليل</h3>
+    <p class="dim" style="margin-top:-6px;">اعرض عليه أي دليل جمعته وشوف رد فعله.</p>
+    <div class="q-grid">
+      ${confrontableEvidence.map(ev=>{
+        const used = confronted.has(ev.id);
+        return `<button class="q-btn confront-btn" data-confront="${ev.id}" ${(used||outOfPoints)?'disabled':''}>🧵 ${ev.title}</button>`;
+      }).join('')}
+    </div>
+  ` : '';
+
   return `
     <button class="btn ghost" data-back-suspects style="margin-bottom:16px;">← رجوع للمشتبه بهم</button>
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:6px;">
@@ -676,6 +780,7 @@ function interrogationHTML(suspectId){
       ${lines || '<p class="dim" style="margin:0;">اسأل أول سؤال عشان تبدأ الاستجواب.</p>'}
     </div>
     <div class="q-grid">${qButtons}</div>
+    ${confrontHTML}
   `;
 }
 
@@ -770,6 +875,74 @@ function triggerFlash(tone){
 }
 
 /* ============================================================
+   CONTRADICTION PUZZLE (generic — driven by CASE.contradictionPuzzle)
+   دوّر بين شهادات/تصريحات مختلفة ولاقي الاتنين اللي بيتناقضوا
+   ============================================================ */
+
+function contradictionHTML(){
+  const cfg = CASE.contradictionPuzzle;
+  if(game.contradictionSolved){
+    return `
+      <h2>${cfg.tabLabel || 'التناقضات'} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const chips = cfg.statements.map(st=>{
+    const sel = game.contradictionSelected.includes(st.id) ? 'selected' : '';
+    return `<div class="board-chip ${sel}" data-contra="${st.id}" style="text-align:right; margin-bottom:8px;">
+      <div class="mono" style="font-size:10px; color:var(--ink-dim); margin-bottom:4px;">${st.source}</div>
+      ${st.text}
+    </div>`;
+  }).join('');
+  return `
+    <h2>${cfg.tabLabel || 'التناقضات'}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <div id="contraList">${chips}</div>
+    <div class="wave-feedback" id="contraFeedback"></div>
+  `;
+}
+
+function handleContradictionClick(id){
+  const cfg = CASE.contradictionPuzzle;
+  const sel = game.contradictionSelected;
+  if(sel.includes(id)){
+    game.contradictionSelected = sel.filter(x=>x!==id);
+    render(); game.screen='contradiction';
+    return;
+  }
+  if(sel.length >= 2) return; // اتنين بس في المرة الواحدة
+  sel.push(id);
+  if(sel.length < 2){
+    render(); game.screen='contradiction';
+    return;
+  }
+  // اتاختارت اتنين — نتأكد لو هما اللي بيتناقضوا
+  const correct = cfg.correctPair;
+  const match = correct.every(x=>sel.includes(x)) && sel.every(x=>correct.includes(x));
+  render(); game.screen='contradiction';
+  const feedback = document.getElementById('contraFeedback');
+  if(match){
+    feedback.textContent = '✓ لقيت التناقض الصح!';
+    feedback.className = 'wave-feedback ok';
+    game.contradictionSolved = true;
+    triggerFlash('good');
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ الاتنين دول مش متناقضين فعلًا، جرب تشكيلة تانية.';
+    feedback.className = 'wave-feedback bad';
+    setTimeout(()=>{
+      game.contradictionSelected = [];
+      render(); game.screen='contradiction';
+    }, 1100);
+  }
+}
+
+/* ============================================================
    CAMERA TIMELINE PUZZLE (generic — driven by CASE.cameraPuzzle)
    مراجعة تايم لاين كاميرا مراقبة: دوّر على اللحظة الصح في الشريط الزمني
    ============================================================ */
@@ -786,9 +959,10 @@ function formatClockFromOffset(startHour24, offsetMinutes){
 
 function cameraHTML(){
   const cfg = CASE.cameraPuzzle;
+  const label = cfg.tabLabel || 'تحليل الكاميرات';
   if(game.cameraSolved){
     return `
-      <h2>تحليل الكاميرات — مكتمل</h2>
+      <h2>${label} — مكتمل</h2>
       <p>${cfg.resultText}</p>
       <div class="divider"></div>
       <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
@@ -797,7 +971,7 @@ function cameraHTML(){
   const startLabel = formatClockFromOffset(cfg.startHour24, 0);
   const endLabel = formatClockFromOffset(cfg.startHour24, cfg.totalMinutes);
   return `
-    <h2>تحليل الكاميرات</h2>
+    <h2>${label}</h2>
     <p class="dim">${cfg.introText}</p>
     <div class="cam-wrap">
       <div class="cam-track" id="camTrack">
@@ -847,27 +1021,64 @@ function handleCamClick(e){
 function accusationHTML(){
   // شخصيات زي الشهود/الناجيين ممكن يتحطلهم accusable:false — يتستجوبوا عادي بس ميظهروش هنا خالص
   const accusableSuspects = CASE.suspects.filter(s=>s.accusable !== false);
-  const suspectPicks = accusableSuspects.map(s=>{
-    const sel = game.accSuspect===s.id ? 'selected':'';
-    return `<button class="pick ${sel}" data-pick-suspect="${s.id}">${s.name}</button>`;
-  }).join('');
   const collectedList = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
-  const evPicks = collectedList.map(ev=>{
-    const sel = game.accEvidence.has(ev.id) ? 'selected':'';
-    return `<button class="pick ev ${sel}" data-pick-ev="${ev.id}">${ev.title}</button>`;
+
+  const evChips = collectedList.map(ev=>{
+    const connectedTo = game.connections[ev.id];
+    const cls = connectedTo ? 'connected' : (game.boardSelected===ev.id ? 'selected' : '');
+    return `<div class="board-chip ${cls}" id="board-ev-${ev.id}" data-board-ev="${ev.id}">${ev.title}</div>`;
   }).join('');
-  const canSubmit = game.accSuspect && game.accEvidence.size>0;
+
+  const susChips = accusableSuspects.map(s=>{
+    const hasLink = Object.values(game.connections).includes(s.id);
+    return `<div class="board-chip ${hasLink?'connected':''}" id="board-sus-${s.id}" data-board-sus="${s.id}">${s.name}</div>`;
+  }).join('');
+
+  const targets = new Set(Object.values(game.connections));
+  let warning = '';
+  let canSubmit = false;
+  if(targets.size > 1){
+    warning = `<div class="board-warning">قدر تتهم شخص واحد بس في المرة — افصل باقي الروابط الأول (دوس على الدليل المربوط تاني عشان تفصله).</div>`;
+  } else if(targets.size === 1 && Object.keys(game.connections).length > 0){
+    canSubmit = true;
+  }
+
   return `
-    <h2>لحظة الاتهام</h2>
-    <p class="dim">اختار المشتبه به اللي هتتهمه، وابعت الأدلة اللي هتقدمها كإثبات (لغاية 3 أدلة).</p>
+    <h2>لوحة التحقيق</h2>
+    <p class="dim">دوس على دليل، بعدين دوس على المشتبه به اللي هتربطه بيه — زي ما بتربط خيط فعلي بين حاجتين. لما تربط اللي محتاجه، قدّم اتهامك.</p>
     <div class="divider"></div>
-    <h3>المتهم</h3>
-    <div class="acc-suspects">${suspectPicks}</div>
-    <h3>الأدلة المقدَّمة</h3>
-    <div class="acc-evidence">${evPicks}</div>
-    <button class="btn" id="submitAcc" ${canSubmit?'':'disabled'}>قدّم الاتهام النهائي</button>
+    <div class="board-wrap" id="boardWrap">
+      <svg class="board-svg" id="boardSvg"></svg>
+      <div class="board-col"><h4 class="mono">الأدلة</h4>${evChips}</div>
+      <div class="board-col"><h4 class="mono">المشتبه بهم</h4>${susChips}</div>
+    </div>
+    ${warning}
+    <button class="btn" id="submitAcc" ${canSubmit?'':'disabled'} style="margin-top:16px;">قدّم الاتهام النهائي</button>
   `;
 }
+
+function drawBoardConnections(){
+  const svg = document.getElementById('boardSvg');
+  const wrap = document.getElementById('boardWrap');
+  if(!svg || !wrap) return;
+  const wrapRect = wrap.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  Object.entries(game.connections).forEach(([evId, susId])=>{
+    const evEl = document.getElementById('board-ev-'+evId);
+    const susEl = document.getElementById('board-sus-'+susId);
+    if(!evEl || !susEl) return;
+    const evR = evEl.getBoundingClientRect(), susR = susEl.getBoundingClientRect();
+    const x1 = evR.left + evR.width/2 - wrapRect.left, y1 = evR.top + evR.height/2 - wrapRect.top;
+    const x2 = susR.left + susR.width/2 - wrapRect.left, y2 = susR.top + susR.height/2 - wrapRect.top;
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', `M${x1},${y1} Q${(x1+x2)/2},${(y1+y2)/2} ${x2},${y2}`);
+    path.setAttribute('class','board-thread');
+    svg.appendChild(path);
+  });
+}
+window.addEventListener('resize', ()=>{ if(game && game.screen==='accusation') drawBoardConnections(); });
 
 function computeEnding(){
   const el = document.getElementById('panelBody');
@@ -882,7 +1093,8 @@ function computeEnding(){
     const correctSuspect = game.accSuspect === CASE.correctSuspectId;
     const conclusiveSet = new Set(CASE.conclusiveEvidenceIds);
     const hits = [...game.accEvidence].filter(id=>conclusiveSet.has(id)).length;
-    if(correctSuspect && hits>=2) game.ending='good';
+    const required = CASE.conclusiveRequired || 2;
+    if(correctSuspect && hits>=required) game.ending='good';
     else if(correctSuspect) game.ending='partial';
     else game.ending='bad';
 
@@ -938,8 +1150,9 @@ function attachPanelEvents(){
   const backBtn = document.querySelector('[data-back-suspects]');
   if(backBtn) backBtn.addEventListener('click', ()=>{ game.activeSuspect=null; render(); });
 
-  document.querySelectorAll('.q-btn').forEach(btn=>{
+  document.querySelectorAll('.q-btn:not(.confront-btn)').forEach(btn=>{
     btn.addEventListener('click', ()=>{
+      if(!spendPoint()) return;
       const idx = parseInt(btn.dataset.q,10);
       const s = suspectById(game.activeSuspect);
       if(!game.interrogated[s.id]) game.interrogated[s.id] = new Set();
@@ -972,29 +1185,96 @@ function attachPanelEvents(){
     });
   });
 
+  document.querySelectorAll('.confront-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(!spendPoint()) return;
+      const evId = btn.dataset.confront;
+      const s = suspectById(game.activeSuspect);
+      if(!game.confronted[s.id]) game.confronted[s.id] = new Set();
+      if(game.confronted[s.id].has(evId)) return;
+      game.confronted[s.id].add(evId);
+      btn.disabled = true;
+
+      const ev = evidenceById(evId);
+      // رد فعل مخصص لو القضية عرّفته في suspect.confrontations، وإلا رد عام
+      let reaction = 'بيبص على الدليل شوية، بس مبيديش رد واضح عليه.';
+      let unlockId = null;
+      if(s.confrontations && s.confrontations[evId]){
+        reaction = s.confrontations[evId].text;
+        unlockId = s.confrontations[evId].unlockId || null;
+      } else if(s.confrontations && s.confrontations.default){
+        reaction = s.confrontations.default;
+      }
+
+      const transcript = document.getElementById('transcript');
+      if(transcript){
+        const placeholder = transcript.querySelector('p.dim');
+        if(placeholder) placeholder.remove();
+        const qLine = document.createElement('div');
+        qLine.className='line q';
+        qLine.innerHTML = `<div class="who">🧵 واجهته بـ</div>${ev.title}`;
+        const aLine = document.createElement('div');
+        aLine.className='line a';
+        aLine.innerHTML = `<div class="who">${s.name}</div><span></span>`;
+        transcript.appendChild(qLine);
+        transcript.appendChild(aLine);
+        transcript.scrollTop = transcript.scrollHeight;
+        typeText(aLine.querySelector('span'), reaction, 10, ()=>{ transcript.scrollTop = transcript.scrollHeight; });
+        const scrollTimer = setInterval(()=>{ transcript.scrollTop = transcript.scrollHeight; },120);
+        setTimeout(()=>clearInterval(scrollTimer), reaction.length*10+200);
+      }
+      if(unlockId) collect(unlockId);
+      persistProgress();
+      renderTabs();
+      document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
+    });
+  });
+
   const waveSvg = document.getElementById('waveSvg');
   if(waveSvg) waveSvg.addEventListener('click', handleWaveClick);
 
   const camTrack = document.getElementById('camTrack');
   if(camTrack) camTrack.addEventListener('click', handleCamClick);
 
-  document.querySelectorAll('[data-pick-suspect]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ game.accSuspect = btn.dataset.pickSuspect; render(); game.screen='accusation'; });
+  document.querySelectorAll('[data-contra]').forEach(chip=>{
+    chip.addEventListener('click', ()=> handleContradictionClick(chip.dataset.contra));
   });
-  document.querySelectorAll('[data-pick-ev]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const id = btn.dataset.pickEv;
-      if(game.accEvidence.has(id)) game.accEvidence.delete(id);
-      else if(game.accEvidence.size<3) game.accEvidence.add(id);
+
+  document.querySelectorAll('[data-board-ev]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const evId = chip.dataset.boardEv;
+      if(game.connections[evId]){
+        delete game.connections[evId]; // كان مربوط، دوس عليه تاني يفصله
+        game.boardSelected = null;
+      } else {
+        game.boardSelected = (game.boardSelected===evId) ? null : evId; // toggle الاختيار
+      }
+      persistProgress();
+      render(); game.screen='accusation';
+    });
+  });
+  document.querySelectorAll('[data-board-sus]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      if(!game.boardSelected) return; // لازم تختار دليل الأول
+      game.connections[game.boardSelected] = chip.dataset.boardSus;
+      game.boardSelected = null;
+      persistProgress();
       render(); game.screen='accusation';
     });
   });
   const submitBtn = document.getElementById('submitAcc');
-  if(submitBtn) submitBtn.addEventListener('click', computeEnding);
+  if(submitBtn) submitBtn.addEventListener('click', ()=>{
+    const targets = new Set(Object.values(game.connections));
+    if(targets.size !== 1) return;
+    game.accSuspect = [...targets][0];
+    game.accEvidence = new Set(Object.keys(game.connections));
+    computeEnding();
+  });
 
   const restartBtn = document.querySelector('[data-restart]');
   if(restartBtn) restartBtn.addEventListener('click', ()=>{
     game = freshGameState();
+    game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
     ensureSceneEvidence();
     persistProgress();
     render();
