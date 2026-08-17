@@ -328,19 +328,3 @@ const CASE_FINAL_TESTAMENT = {
     }
   }
 };
-
-/* ============================================================
-   ملاحظة: برومبتات الصور المقترحة (لو حبيت تضيف صور حقيقية بعدين)
-
-   الغلاف ومشاهد الإنترو: فيلا ساحلية قديمة، عاصفة، إضاءة خافتة،
-   جو أجاثا كريستي كلاسيكي — "Photorealistic moody shot of an old
-   coastal Egyptian villa at night during a storm, rain on windows,
-   warm interior lighting contrasted with dark stormy exterior,
-   documentary photography style, no text, no watermark, photorealistic"
-
-   لكل شخصية، برومبت عام (غيّر الوصف حسب الشخصية والعمر):
-   "Photorealistic portrait of an Egyptian [رجل مسن أنيق / سيدة في
-   الثلاثينات / شاب في العشرينات] in formal evening wear, warm
-   indoor lighting, tense expression, candid documentary photography
-   style, no text, no watermark, photorealistic"
-   ============================================================ */
