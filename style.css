@@ -438,3 +438,42 @@ body{
 /* Font size preference — applied to #app as a whole via zoom */
 #app.text-small{ zoom:0.9; }
 #app.text-large{ zoom:1.15; }
+
+/* ============================================================
+   MOBILE — تحسينات خاصة بالشاشات الضيقة (موبايل)
+   ============================================================ */
+@media (max-width: 560px){
+  #app{ padding:18px 14px 90px; }
+
+  .masthead{ gap:10px; padding-bottom:14px; margin-bottom:16px; }
+  .masthead h1{ font-size:clamp(22px,7vw,30px); }
+
+  .stat-line{ flex-wrap:wrap; gap:6px 10px; width:100%; }
+  .stat-line .btn.ghost{ flex:1 1 auto; min-height:40px; padding:9px 10px; font-size:12.5px; text-align:center; }
+
+  .tabs{ gap:5px; margin-bottom:18px; }
+  .tab{ padding:9px 13px; font-size:12.5px; flex:1 1 auto; text-align:center; }
+
+  .ev-grid, .sus-grid{ grid-template-columns:1fr; }
+
+  .modal{ padding:18px; max-width:94vw; max-height:88vh; overflow-y:auto; }
+  .notebook-modal{ max-width:94vw; }
+
+  .q-btn{ padding:13px 14px; font-size:14px; min-height:44px; }
+
+  .classify-row{ flex-direction:column; }
+  .classify-btn{ min-height:40px; font-size:13px; }
+
+  .timeline-item{ padding:10px 12px; gap:8px; }
+  .timeline-text{ font-size:13px; }
+  .tl-btn{ width:36px; height:36px; font-size:14px; }
+
+  .notebook-fab{ width:48px; height:48px; font-size:20px; left:14px; bottom:14px; }
+
+  .settings-row{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .settings-row > div{ width:100%; }
+  .font-size-btn{ min-height:40px; }
+
+  .toast-wrap{ left:4vw; right:4vw; width:92vw; transform:none; }
+  .toast{ white-space:normal; width:100%; box-sizing:border-box; text-align:center; }
+}
