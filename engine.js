@@ -21,6 +21,26 @@ let CASE = null;         // القضية الحالية (object)
 let game = null;         // حالة اللعب داخل القضية الحالية
 
 /* ============================================================
+   GOOGLE ANALYTICS 4 — أحداث اللعب المخصصة
+   لازم يكون Google tag (gtag.js) موجود في <head> في index.html.
+   مفيش أسماء لاعبين أو أكواد شراء بتتبعت لـ Analytics.
+   ============================================================ */
+function gaTrack(eventName, params={}){
+  try{
+    if(typeof window.gtag !== 'function') return;
+    const caseParams = CASE ? {
+      case_id: String(CASE.id || ''),
+      case_title: String(CASE.title || ''),
+      case_no: String(CASE.caseNo || ''),
+      case_premium: CASE.isPremium ? 'yes' : 'no',
+    } : {};
+    window.gtag('event', eventName, { ...caseParams, ...params });
+  }catch(e){
+    // Analytics عمره ما يوقف اللعبة لو حصلت مشكلة في التتبع
+  }
+}
+
+/* ============================================================
    AMBIENCE — صوت خلفية مخصص لكل قضية، بيشتغل وقت الإنترو بس
    وبيهدى تلقائي (fade) لما تدخل شاشة اللعب. عرّفه في بيانات
    القضية بـ CASE.introAmbience. لو مش معرّف، مفيش صوت خالص.
@@ -152,6 +172,9 @@ function saveLocalProgress(caseId, progress){
   localStorage.setItem('ca_progress_'+caseId, JSON.stringify(progress));
   if(progress.ending) addCompletedId(caseId);
 }
+function clearLocalProgress(caseId){
+  localStorage.removeItem('ca_progress_'+caseId);
+}
 
 // آخر قضية كانت مفتوحة — بتتسجل عشان لو المستخدم عمل ريفريش
 // وهو لسه بيحقق، نرجّعه لنفس القضية بدل ما نرميه على الأرشيف
@@ -216,6 +239,12 @@ function boot(){
   app.completedIds = getCompletedIds();
   applyFontSize();
 
+  // بداية نظيفة لتاريخ التصفح: entry واحدة بس بتمثّل الأرشيف، وأي قضية بعد كده
+  // بتتحط فوقها. كده زرار "رجوع" في المتصفح بيرجّع للأرشيف جوّه اللعبة
+  // بدل ما يودّي المستخدم برّه الموقع خالص.
+  try{ history.replaceState({ view:'library' }, '', location.href); }catch(e){}
+  window.addEventListener('popstate', handlePopState);
+
   // لو كان فيه قضية شغالة قبل الريفريش، رجّع المستخدم لها تاني بدل الأرشيف
   const activeCaseId = getActiveCase();
   const activeCase = activeCaseId ? CASES_REGISTRY.find(c => c.id === activeCaseId) : null;
@@ -225,6 +254,39 @@ function boot(){
     clearActiveCase();
     showLibrary();
   }
+}
+
+function handlePopState(e){
+  const state = e.state;
+  if(state && state.view === 'case' && state.caseId){
+    const c = CASES_REGISTRY.find(x=>x.id === state.caseId);
+    if(c && !isCaseLocked(c).locked){
+      enterCase(c, { historyMode:'none' });
+      return;
+    }
+  }
+  returnToLibraryFromCase({ historyMode:'none' });
+}
+
+// نقطة رجوع موحّدة للأرشيف من جوّه أي قضية (زرار، تحذير محتوى، شاشة النهاية، أو زرار المتصفح)
+function returnToLibraryFromCase(opts={}){
+  stopAmbience();
+  if(CASE && game){
+    gaTrack('case_exit', {
+      completed: game.ending ? 'yes' : 'no',
+      ending: game.ending || 'incomplete',
+      evidence_count: game.collected ? game.collected.size : 0,
+      score: game.score || 0,
+    });
+  }
+  if(CASE) persistProgress();
+  clearActiveCase();
+  if(opts.historyMode !== 'none'){
+    try{ history.replaceState({ view:'library' }, '', location.href); }catch(e){}
+  }
+  app.unlockedIds = getUnlockedIds();
+  app.completedIds = getCompletedIds();
+  showLibrary();
 }
 
 /* ============================================================
@@ -288,14 +350,42 @@ function showLibrary(){
           ? `<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">${c.price ? 'اضغط للشراء — '+c.price : 'اضغط للشراء'}</span></div>`
           : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
       </div>` : '';
+
+    // حالة القضية: لسه مبتدأش / قيد التحقيق / مكتملة — وكل حالة ليها زرار مناسب
+    const progress = !lock.locked ? loadLocalProgress(c.id) : null;
+    const isCompleted = !!(progress && progress.ending);
+    const evidenceTotal = c.evidence.length;
+    const evidenceCollected = progress && progress.collected ? progress.collected.length : 0;
+    const pct = evidenceTotal ? Math.round((evidenceCollected/evidenceTotal)*100) : 0;
+    let statusHTML = '';
+    let actionsHTML = '';
+    if(!lock.locked){
+      if(isCompleted){
+        const endingLabel = progress.ending==='good' ? 'نجحت في القضية' : progress.ending==='partial' ? 'حل جزئي' : 'اتهام غلط';
+        const endingTone = progress.ending==='good' ? 'good' : progress.ending==='partial' ? 'partial' : 'bad';
+        statusHTML = `<div class="lib-progress-badge ${endingTone} mono">✓ قضية مكتملة — ${endingLabel} · ${pct}% أدلة</div>`;
+        actionsHTML = `<button class="btn ghost lib-replay-btn mono" data-replay-case="${c.id}" style="width:100%; margin-top:8px; font-size:12px;">إعادة اللعب ↺</button>`;
+      } else if(progress){
+        statusHTML = `<div class="lib-progress-badge inprogress mono">قيد التحقيق — ${pct}% أدلة</div>`;
+        actionsHTML = `
+          <button class="btn ghost lib-continue-btn mono" data-continue-case="${c.id}" style="width:100%; margin-top:8px; font-size:12px;">استكمل التحقيق ←</button>
+          <button class="btn ghost lib-restart-btn mono" data-restart-case="${c.id}" style="width:100%; margin-top:6px; font-size:11px; color:var(--ink-dim);">ابدأ من الأول</button>
+        `;
+      }
+    }
+
     return `
       <div class="lib-card" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}">
         ${badges.join('')}
+        <button class="lib-preview-btn mono" data-preview-case="${c.id}" aria-label="معاينة سريعة" title="معاينة سريعة">ⓘ</button>
         <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
         <div class="body">
           <h4>${c.title}</h4>
           <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>
+          ${c.teaser ? `<p class="lib-teaser">${c.teaser}</p>` : ''}
+          ${statusHTML}
           ${priceHTML}
+          ${actionsHTML}
         </div>
         ${lockOverlay}
       </div>
@@ -331,15 +421,97 @@ function showLibrary(){
   });
 
   document.querySelectorAll('.lib-card').forEach(card=>{
-    card.addEventListener('click', ()=>{
-      const caseData = CASES_REGISTRY.find(c=>c.id === card.dataset.case);
+    card.addEventListener('click', (e)=>{
+      const caseData = CASES_REGISTRY.find(c => c.id === card.dataset.case);
+      // زرار المعاينة السريعة (ⓘ) — بيفتح تفاصيل القضية من غير ما يدخلها
+      const previewBtn = e.target.closest('[data-preview-case]');
+      if(previewBtn){
+        e.stopPropagation();
+        openCasePreview(caseData, isCaseLocked(caseData));
+        return;
+      }
       if(card.dataset.locked === 'true'){
         if(card.dataset.lockReason === 'premium') openPurchasePopup(caseData);
         return;
       }
+      // أزرار "إعادة من الأول" و"إعادة اللعب" بتمسح التقدّم الأول قبل الدخول
+      const restartBtn = e.target.closest('[data-restart-case], [data-replay-case]');
+      if(restartBtn){
+        e.stopPropagation();
+        if(!confirm('هيتم مسح تقدّمك الحالي في القضية دي وتبدأ من الأول. متأكد؟')) return;
+        clearLocalProgress(caseData.id);
+        enterCase(caseData);
+        return;
+      }
+      // زرار "استكمل التحقيق" أو أي كليك تاني على الكارت — بيدخل عادي (بيرجّع تقدّمك المحفوظ لو موجود)
       enterCase(caseData);
     });
   });
+}
+
+/* ============================================================
+   CASE QUICK PREVIEW — نظرة سريعة على القضية من غير ما تدخلها
+   ============================================================ */
+function openCasePreview(caseData, lock){
+  const c = caseData;
+  gaTrack('case_preview', {
+    case_id: String(c.id || ''),
+    case_title: String(c.title || ''),
+    case_no: String(c.caseNo || ''),
+    case_premium: c.isPremium ? 'yes' : 'no',
+    locked: lock && lock.locked ? 'yes' : 'no',
+  });
+  const priceHTML = (c.isPremium && c.price)
+    ? `<div class="lib-price mono" style="margin-top:10px; font-size:16px;">${c.oldPrice ? `<span class="old">${c.oldPrice}</span> ` : ''}${c.price}</div>`
+    : '';
+  const tags = [];
+  if(c.isPremium) tags.push('PREMIUM');
+  if(c.contentWarning) tags.push('+18');
+  if(c.seriesId) tags.push(`الحلقة ${c.seriesOrder}`);
+  const tagsHTML = tags.length ? `<div class="mono" style="color:var(--amber); font-size:11px; letter-spacing:.06em; margin-bottom:8px;">${tags.join(' · ')}</div>` : '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:420px; padding:0; overflow:hidden;">
+      <div style="aspect-ratio:16/9; overflow:hidden; position:relative;">
+        <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" style="width:100%; height:100%; object-fit:cover;">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(24,28,37,.92) 100%);"></div>
+        <button id="previewClose" class="prologue-back-btn mono" style="position:absolute; top:12px; left:12px; padding:6px 10px;">✕</button>
+      </div>
+      <div style="padding:18px 20px 22px;">
+        ${tagsHTML}
+        <h3 style="margin-bottom:4px;">${c.title}</h3>
+        <div class="mono dim" style="font-size:12px; margin-bottom:12px;">${c.caseNo} · ${c.subtitle}</div>
+        <p style="font-size:14px; line-height:1.8; color:var(--ink-dim);">${c.teaser || ''}</p>
+        <div style="display:flex; gap:14px; margin-top:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-dim);">
+          <span>⏱ ${c.estMinutes} دقيقة</span>
+          <span>🎚 ${c.difficulty}</span>
+          <span>🕵️ ${c.suspects.length} مشتبه بيهم</span>
+          <span>🔍 ${c.evidence.length} دليل</span>
+        </div>
+        ${priceHTML}
+        <button class="btn" id="previewEnter" style="width:100%; margin-top:16px;">
+          ${lock.locked && lock.reason==='premium' ? 'اشترِ القضية ←' : lock.locked ? 'خلّص الحلقة اللي قبلها الأول' : 'ابدأ التحقيق ←'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#previewClose').addEventListener('click', ()=>overlay.remove());
+  const enterBtn = overlay.querySelector('#previewEnter');
+  if(lock.locked && lock.reason==='series'){
+    enterBtn.disabled = true;
+    enterBtn.style.opacity = '.5';
+    enterBtn.style.cursor = 'not-allowed';
+  } else {
+    enterBtn.addEventListener('click', ()=>{
+      overlay.remove();
+      if(lock.locked && lock.reason==='premium') openPurchasePopup(c);
+      else enterCase(c);
+    });
+  }
 }
 
 /* ============================================================
@@ -347,6 +519,11 @@ function showLibrary(){
    ============================================================ */
 
 function openPurchasePopup(caseData){
+  gaTrack('purchase_view', {
+    case_id: String(caseData.id || ''),
+    case_title: String(caseData.title || ''),
+    price_label: String(caseData.price || ''),
+  });
   const waText = encodeURIComponent(
     caseData.price
       ? `عايز أشتري قضية "${caseData.title}" (${caseData.price})`
@@ -381,6 +558,16 @@ function openPurchasePopup(caseData){
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
   overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
+  const waPurchaseBtn = overlay.querySelector('a[href^="https://wa.me/"]');
+  if(waPurchaseBtn){
+    waPurchaseBtn.addEventListener('click', ()=>{
+      gaTrack('purchase_whatsapp_click', {
+        case_id: String(caseData.id || ''),
+        case_title: String(caseData.title || ''),
+        price_label: String(caseData.price || ''),
+      });
+    });
+  }
 
   overlay.querySelector('#redeemBtn').addEventListener('click', async ()=>{
     const input = overlay.querySelector('#redeemInput');
@@ -394,12 +581,20 @@ function openPurchasePopup(caseData){
     btn.disabled = false;
     btn.textContent = 'افتح القضية';
     if(ok){
+      gaTrack('redeem_success', {
+        case_id: String(caseData.id || ''),
+        case_title: String(caseData.title || ''),
+      });
       msg.textContent = 'تمام! القضية اتفتحت.';
       msg.style.color = 'var(--signal)';
       addUnlockedId(caseData.id);
       app.unlockedIds = getUnlockedIds();
       setTimeout(()=>{ overlay.remove(); showLibrary(); }, 900);
     } else {
+      gaTrack('redeem_failed', {
+        case_id: String(caseData.id || ''),
+        case_title: String(caseData.title || ''),
+      });
       msg.textContent = 'الكود غلط أو مستخدم قبل كده.';
       msg.style.color = 'var(--danger)';
     }
@@ -445,15 +640,19 @@ function showNamePrompt(onDone){
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') overlay.querySelector('#nameConfirm').click(); });
 }
 
-function enterCase(caseData){
+function enterCase(caseData, opts={}){
   if(!getPlayerName()){
-    showNamePrompt(()=>enterCase(caseData));
+    showNamePrompt(()=>enterCase(caseData, opts));
     return;
   }
   CASE = caseData;
   setActiveCase(caseData.id);
   game = freshGameState();
   game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
+
+  if(opts.historyMode !== 'none'){
+    try{ history.pushState({ view:'case', caseId: caseData.id }, '', location.href); }catch(e){}
+  }
 
   const saved = loadLocalProgress(CASE.id);
   if(saved){
@@ -486,6 +685,21 @@ function enterCase(caseData){
   // سواء قضية جديدة أو تقدّم متسجل قبل كده (بيتم دمجها بهدوء من غير toast)
   ensureSceneEvidence();
 
+  gaTrack(saved ? 'case_resume' : 'case_start', {
+    difficulty: String(CASE.difficulty || ''),
+    est_minutes: Number(CASE.estMinutes) || 0,
+    evidence_total: CASE.evidence.length,
+    suspect_total: CASE.suspects.length,
+  });
+
+  // لو فيه تقدّم محفوظ فعلاً (يعني إنت مستكمل مش بادئ من جديد)، ادخل غرفة
+  // التحقيق على طول من غير ما تعيد شاشة الانترو والمقدمة تاني من الأول
+  if(saved){
+    app.view = 'case';
+    mountGameShell();
+    return;
+  }
+
   if(CASE.contentWarning) showContentWarning();
   else showCaseSplash();
 }
@@ -510,8 +724,7 @@ function showContentWarning(){
   });
   document.getElementById('warnBack').addEventListener('click', ()=>{
     document.getElementById('warnGate').remove();
-    clearActiveCase();
-    showLibrary();
+    returnToLibraryFromCase();
   });
 }
 
@@ -547,6 +760,7 @@ function showCaseSplash(){
   appRoot.innerHTML = '';
   document.body.insertAdjacentHTML('beforeend', `
     <div id="splash" class="splash" tabindex="0" role="button" aria-label="اضغط للبدء">
+      <button id="splashBackBtn" class="prologue-back-btn mono">← الأرشيف</button>
       <div class="splash-caseno mono">${CASE.caseNo} — ${CASE.subtitle}</div>
       <h1 class="splash-title flicker">${CASE.title}</h1>
       <div class="splash-sub mono">قضية جريمة تفاعلية</div>
@@ -560,6 +774,11 @@ function showCaseSplash(){
   };
   splash.addEventListener('click', dismiss);
   splash.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') dismiss(); });
+  document.getElementById('splashBackBtn').addEventListener('click', e=>{
+    e.stopPropagation();
+    splash.remove();
+    returnToLibraryFromCase();
+  });
 }
 
 let prologueSkip = null;
@@ -583,6 +802,7 @@ function startPrologue(){
   document.body.insertAdjacentHTML('beforeend', `
     <div id="prologue" class="prologue" style="display:flex;">
       <div class="prologue-bg" id="prologueBg"></div>
+      <button id="prologueBackBtn" class="prologue-back-btn mono">← الأرشيف</button>
       <button id="prologueSfxToggle" class="prologue-sfx-btn mono" aria-label="كتم/تشغيل الصوت">${sfxEnabled() ? '🔊' : '🔇'}</button>
       <div class="prologue-content" id="prologueContent">
         <div class="prologue-scene mono" id="prologueScene"></div>
@@ -608,6 +828,11 @@ function startPrologue(){
     setSfxEnabled(!sfxEnabled());
     e.target.textContent = sfxEnabled() ? '🔊' : '🔇';
     if(sfxEnabled()) startAmbience(CASE.introAmbience || DEFAULT_INTRO_AMBIENCE);
+  });
+  document.getElementById('prologueBackBtn').addEventListener('click', e=>{
+    e.stopPropagation();
+    document.getElementById('prologue').remove();
+    returnToLibraryFromCase();
   });
 }
 
@@ -643,6 +868,9 @@ function showPrologueSlide(i){
 }
 
 function endPrologue(){
+  gaTrack('prologue_complete', {
+    slide_count: CASE.prologue ? CASE.prologue.length : 0,
+  });
   const p = document.getElementById('prologue');
   p.classList.add('hide');
   setTimeout(()=>{ p.remove(); mountGameShell(); }, 500);
@@ -683,12 +911,7 @@ function mountGameShell(){
   document.getElementById('settingsBtn').addEventListener('click', openSettings);
   document.getElementById('pointsInfoBtn').addEventListener('click', ()=>showPointsInfo());
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
-    stopAmbience();
-    persistProgress();
-    clearActiveCase();
-    app.unlockedIds = getUnlockedIds();
-    app.completedIds = getCompletedIds();
-    showLibrary();
+    returnToLibraryFromCase();
   });
   render();
   if(!localStorage.getItem('ca_points_info_seen')){
@@ -812,6 +1035,11 @@ function giveHint(){
     }
   }
   game.hintsUsed++;
+  gaTrack('hint_used', {
+    hint_number: game.hintsUsed,
+    evidence_count: game.collected.size,
+    evidence_total: CASE.evidence.length,
+  });
   persistProgress();
   showToast(msg, 'rumor');
   addScore(-5, 'استخدام تلميح', { silent:true });
@@ -968,6 +1196,13 @@ function collect(id, opts={}){
   if(!game.collected.has(id)){
     game.collected.add(id);
     const ev = evidenceById(id);
+    gaTrack('evidence_collected', {
+      evidence_id: String(id),
+      evidence_title: ev ? String(ev.title || '') : '',
+      evidence_critical: ev && ev.crit ? 'yes' : 'no',
+      evidence_count: game.collected.size,
+      evidence_total: CASE.evidence.length,
+    });
     if(!opts.silent){
       if(ev) showToast('دليل جديد: ' + ev.title, ev.crit ? 'danger' : 'amber');
       maybeShowVillageRumor();
@@ -1396,11 +1631,13 @@ function attemptLink(a, b){
   if(combo && !game.collected.has(combo.resultId)){
     collect(combo.resultId, { silent:true }); // فيه توست مخصص تحت بدل رسالة "دليل جديد" العامة
     showToast('🧩 الربط صح! اكتشفت: ' + evidenceById(combo.resultId).title, 'combo');
+    gaTrack('evidence_link_success', { result_evidence_id: String(combo.resultId) });
     addScore(6, 'ربطت أدلة ناقصة ببعض', { silent:true });
   } else if(combo){
     showToast('الربط ده اتعمل قبل كده.', 'rumor');
   } else {
     showToast('الدليلين دول مش مرتبطين ببعض — جرب تركيبة تانية.', 'danger');
+    gaTrack('evidence_link_failed');
     addScore(-2, 'ربط أدلة غلط', { silent:true });
   }
   linkMode = false;
@@ -1463,6 +1700,7 @@ function handleWaveClick(e){
     feedback.textContent = '✓ ظبطت المقطع. الموجة دي مكررة حرفيًا من دقيقة قبل كده.';
     feedback.className = 'wave-feedback ok';
     game.audioSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'audio' });
     addScore(10, 'حللت التحليل الصوتي', { silent:true });
 
     const wave = buildWave();
@@ -1553,6 +1791,7 @@ function handleContradictionClick(id){
     feedback.textContent = '✓ لقيت التناقض الصح!';
     feedback.className = 'wave-feedback ok';
     game.contradictionSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'contradiction' });
     triggerFlash('good');
     addScore(10, 'كشفت التناقض', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
@@ -1632,6 +1871,7 @@ function handleCamClick(e){
     feedback.textContent = `✓ ظبطت اللحظة الصح (${label}).`;
     feedback.className = 'wave-feedback ok';
     game.cameraSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'camera' });
     triggerFlash('good');
     addScore(10, 'حددت لحظة الكاميرا الصح', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
@@ -1699,6 +1939,7 @@ function submitTimeline(){
     feedback.textContent = '✓ رتبتها صح! كده بقت الصورة واضحة.';
     feedback.className = 'wave-feedback ok';
     game.timelineSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'timeline' });
     triggerFlash('good');
     addScore(10, 'رتّبت الخط الزمني صح', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
@@ -1836,6 +2077,16 @@ function computeEnding(){
       addScore(game.points, 'مكافأة كفاءة — نقاط تحقيق فاضلة', { silent:true });
     }
 
+    gaTrack('case_complete', {
+      ending: game.ending,
+      accused_suspect_id: String(game.accSuspect || ''),
+      evidence_count: game.collected.size,
+      evidence_total: CASE.evidence.length,
+      hints_used: game.hintsUsed,
+      score: game.score,
+      points_left: game.points == null ? -1 : game.points,
+    });
+
     game.screen='ending';
     persistProgress();
     render();
@@ -1866,6 +2117,18 @@ async function submitScoreToLeaderboard(){
   renderLeaderboardBox();
 }
 
+// ألقاب إبداعية لأول 5 محققين في كل قضية — بعد كده رقم ترتيب عادي
+const LEADERBOARD_TITLES = [
+  '🥇 المحقق الأسطوري',
+  '🥈 العقل المدبر',
+  '🥉 صياد الأدلة',
+  '🕵️ خبير التحقيق',
+  '🔍 عين الصقر',
+];
+function leaderboardRankLabel(i){
+  return LEADERBOARD_TITLES[i] || `#${i+1}`;
+}
+
 async function renderLeaderboardBox(){
   const box = document.getElementById('leaderboardBox');
   if(!box) return;
@@ -1882,8 +2145,8 @@ async function renderLeaderboardBox(){
     }
     const myId = getVisitorId();
     box.innerHTML = rows.map((r,i)=>`
-      <div class="lb-row ${r.visitor_id===myId?'me':''}">
-        <span class="lb-rank mono">#${i+1}</span>
+      <div class="lb-row ${r.visitor_id===myId?'me':''} ${i<5?'lb-top':''}">
+        <span class="lb-rank mono">${leaderboardRankLabel(i)}</span>
         <span class="lb-name">${(r.player_name||'محقق مجهول')}</span>
         <span class="lb-score mono">${r.score}</span>
       </div>
@@ -1965,6 +2228,11 @@ function attachPanelEvents(){
       if(game.interrogated[s.id].has(idx)) return;
       game.interrogated[s.id].add(idx);
       const item = s.questions[idx];
+      gaTrack('interrogation_question', {
+        suspect_id: String(s.id || ''),
+        suspect_name: String(s.name || ''),
+        question_number: idx + 1,
+      });
       btn.disabled = true;
 
       const transcript = document.getElementById('transcript');
@@ -2009,6 +2277,11 @@ function attachPanelEvents(){
       btn.disabled = true;
 
       const ev = evidenceById(evId);
+      gaTrack('suspect_confronted', {
+        suspect_id: String(s.id || ''),
+        suspect_name: String(s.name || ''),
+        evidence_id: String(evId || ''),
+      });
       // رد فعل مخصص لو القضية عرّفته في suspect.confrontations، وإلا رد عام
       let reaction = 'بيبص على الدليل شوية، بس مبيديش رد واضح عليه.';
       let unlockId = null;
@@ -2101,6 +2374,10 @@ function attachPanelEvents(){
     if(targets.size !== 1) return;
     game.accSuspect = [...targets][0];
     game.accEvidence = new Set(Object.keys(game.connections));
+    gaTrack('accusation_submitted', {
+      suspect_id: String(game.accSuspect || ''),
+      evidence_count: game.accEvidence.size,
+    });
     if(CASE.theoryBuilder && CASE.theoryBuilder.enabled){
       persistProgress();
       game.screen='theory';
@@ -2112,6 +2389,7 @@ function attachPanelEvents(){
 
   const restartBtn = document.querySelector('[data-restart]');
   if(restartBtn) restartBtn.addEventListener('click', ()=>{
+    gaTrack('case_restart', { previous_ending: game.ending || 'incomplete' });
     game = freshGameState();
     game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
     ensureSceneEvidence();
@@ -2120,10 +2398,7 @@ function attachPanelEvents(){
   });
   const backLibBtn = document.querySelector('[data-back-to-lib]');
   if(backLibBtn) backLibBtn.addEventListener('click', ()=>{
-    clearActiveCase();
-    app.unlockedIds = getUnlockedIds();
-    app.completedIds = getCompletedIds();
-    showLibrary();
+    returnToLibraryFromCase();
   });
 }
 
