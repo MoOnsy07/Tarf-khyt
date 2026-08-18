@@ -99,6 +99,9 @@ function freshGameState(){
     timelineOrder: (CASE && CASE.timelinePuzzle && CASE.timelinePuzzle.enabled) ? shuffleArray(CASE.timelinePuzzle.events.map(e=>e.id)) : [],
     timelineSolved:false,
     theoryAnswers:{},      // questionId -> optionId — إجابات بناء نظرية الجريمة (اختياري، CASE.theoryBuilder)
+    score:0,                // نقاط تسجيل الأداء (Score) — منفصلة عن نقاط التحقيق، بتتسجل في الليدربورد العام آخر القضية
+    scoreLog:[],             // سجل بسيط لكل حركة أثّرت في الـ score، بيتعرض في دفتر التحقيق
+    secretsFound:new Set(), // IDs الأسرار/المكافآت المخفية اللي اتكشفت بالفعل (evidence بـ bonusPoints)
   };
 }
 
@@ -161,6 +164,27 @@ function clearActiveCase(){
 }
 function getActiveCase(){
   return localStorage.getItem(ACTIVE_CASE_KEY);
+}
+
+/* ============================================================
+   PLAYER IDENTITY — لهوية الليدربورد العام بس (مفيش حسابات حقيقية)
+   ============================================================ */
+const VISITOR_ID_KEY = 'ca_visitor_id';
+function getVisitorId(){
+  let id = localStorage.getItem(VISITOR_ID_KEY);
+  if(!id){
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2));
+    localStorage.setItem(VISITOR_ID_KEY, id);
+  }
+  return id;
+}
+
+const PLAYER_NAME_KEY = 'ca_player_name';
+function getPlayerName(){
+  return localStorage.getItem(PLAYER_NAME_KEY);
+}
+function setPlayerName(name){
+  localStorage.setItem(PLAYER_NAME_KEY, name.trim().slice(0,30));
 }
 
 /* ============================================================
@@ -386,7 +410,46 @@ function openPurchasePopup(caseData){
    ENTER A CASE
    ============================================================ */
 
+/* ============================================================
+   NAME PROMPT — بيتعرض مرة واحدة بس، قبل أول قضية، عشان يتسجل
+   اسمك في الليدربورد العام. ممكن "تخطي" ويتحطلك اسم افتراضي.
+   ============================================================ */
+function showNamePrompt(onDone){
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="tag" style="color:var(--signal);">🕵️ قبل ما تبدأ</div>
+      <h3>اختار لقبك</h3>
+      <p class="dim">اللقب ده هيظهر في الليدربورد العام لما تحل قضية. تقدر تسيبه ومتحطش اسمك الحقيقي.</p>
+      <input type="text" id="nameInput" placeholder="مثلاً: المحقق سامي" maxlength="30" style="width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); padding:11px 14px; border-radius:3px; text-align:center; margin:14px 0 10px;">
+      <button class="btn" id="nameConfirm" style="width:100%;">يلا نبدأ ←</button>
+      <button class="btn ghost" id="nameSkip" style="width:100%; margin-top:8px;">تخطي (اسم عشوائي)</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector('#nameInput');
+  input.focus();
+  const finish = (name)=>{
+    setPlayerName(name);
+    overlay.remove();
+    onDone();
+  };
+  overlay.querySelector('#nameConfirm').addEventListener('click', ()=>{
+    const v = input.value.trim();
+    finish(v || ('محقق-' + Math.floor(1000+Math.random()*9000)));
+  });
+  overlay.querySelector('#nameSkip').addEventListener('click', ()=>{
+    finish('محقق-' + Math.floor(1000+Math.random()*9000));
+  });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') overlay.querySelector('#nameConfirm').click(); });
+}
+
 function enterCase(caseData){
+  if(!getPlayerName()){
+    showNamePrompt(()=>enterCase(caseData));
+    return;
+  }
   CASE = caseData;
   setActiveCase(caseData.id);
   game = freshGameState();
@@ -411,6 +474,9 @@ function enterCase(caseData){
     if(saved.timelineOrder && saved.timelineOrder.length) game.timelineOrder = saved.timelineOrder;
     game.timelineSolved = !!saved.timelineSolved;
     game.theoryAnswers = saved.theoryAnswers || {};
+    game.score = saved.score || 0;
+    game.scoreLog = saved.scoreLog || [];
+    game.secretsFound = new Set(saved.secretsFound || []);
   } else if(!CASE.isPremium){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -466,6 +532,9 @@ function persistProgress(){
     timelineOrder: game.timelineOrder,
     timelineSolved: game.timelineSolved,
     theoryAnswers: game.theoryAnswers,
+    score: game.score,
+    scoreLog: game.scoreLog,
+    secretsFound: [...game.secretsFound],
   });
 }
 
@@ -587,6 +656,7 @@ function mountGameShell(){
   const pointsHTML = CASE.investigationPoints != null
     ? `<span class="status-dot" style="background:var(--danger); box-shadow:0 0 8px var(--danger);"></span><span id="ptsCount" class="mono">${game.points}</span> نقاط تحقيق`
     : '';
+  const scoreHTML = `<span class="status-dot" style="background:var(--signal); box-shadow:0 0 8px var(--signal);"></span><span id="scoreCount" class="mono">${game.score}</span> نقاط أداء`;
   appRoot.innerHTML = `
     <div class="masthead">
       <div>
@@ -597,9 +667,11 @@ function mountGameShell(){
         <button class="btn ghost" id="backToLibrary" style="font-size:12px; padding:6px 12px;">← الأرشيف</button>
         <button class="btn ghost" id="settingsBtn" style="font-size:12px; padding:6px 12px;">⚙️ إعدادات</button>
         <button class="btn ghost" id="hintBtn" style="font-size:12px; padding:6px 12px;">💡 تلميح</button>
+        <button class="btn ghost" id="pointsInfoBtn" style="font-size:12px; padding:6px 10px;" title="نظام النقاط ايه؟">؟</button>
         <span class="status-dot"></span>
         <span id="evCount" class="mono">0 / ${CASE.evidence.length}</span> أدلة مجمّعة
         ${pointsHTML}
+        ${scoreHTML}
       </div>
     </div>
     <div class="tabs" id="tabs"></div>
@@ -609,6 +681,7 @@ function mountGameShell(){
   document.getElementById('notebookFab').addEventListener('click', openNotebook);
   document.getElementById('hintBtn').addEventListener('click', giveHint);
   document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('pointsInfoBtn').addEventListener('click', ()=>showPointsInfo());
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
     stopAmbience();
     persistProgress();
@@ -618,6 +691,38 @@ function mountGameShell(){
     showLibrary();
   });
   render();
+  if(!localStorage.getItem('ca_points_info_seen')){
+    showPointsInfo();
+    localStorage.setItem('ca_points_info_seen', '1');
+  }
+}
+
+/* ============================================================
+   POINTS INFO — شرح نظام النقاط، بيظهر تلقائي أول مرة، وبعدين
+   متاح من زرار "؟" في أي وقت.
+   ============================================================ */
+function showPointsInfo(){
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  const hasPoints = CASE.investigationPoints != null;
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="tag" style="color:var(--signal);">📓 نظام النقاط</div>
+      <h3>ازاي بتشتغل النقاط هنا؟</h3>
+      <div style="text-align:right; line-height:2; font-size:14px; color:var(--ink-dim);">
+        ${hasPoints ? `
+        <p><span style="color:var(--danger);">● نقاط التحقيق</span> — رصيد بتصرفه في الأسئلة ومواجهة المشتبه بيهم بالأدلة. كل سؤال أو مواجهة بتاخد نقطة. لو خلصت، لوحة الاتهام بتتفتح تلقائيًا عشان تقدر تقدّم اتهامك بأي وقت.</p>
+        ` : ''}
+        <p><span style="color:var(--signal);">● نقاط الأداء (Score)</span> — بتتسجل من كل حاجة تعملها: تجمع دليل بتكسب، تربط أدلة صح بتكسب أكتر، تحل لغز بتكسب، تستخدم تلميح أو تغلط بتخسر. آخر القضية اتهامك (صح/جزئي/غلط) بيدّيك أكبر تأثير على النقاط دي.</p>
+        <p>🔎 بعض القضايا فيها <strong>أسرار مخفية</strong> — لو اكتشفتها بتكسب نقاط تحقيق إضافية فورًا.</p>
+        <p>نقاط الأداء النهائية بتتسجل في <strong>الليدربورد العام</strong> باللقب اللي اخترته، وتقدر تقارن نفسك بمحققين تانيين حلّوا نفس القضية.</p>
+      </div>
+      <button class="btn" id="pointsInfoClose" style="width:100%; margin-top:14px;">فهمت، يلا نحقق ←</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#pointsInfoClose').addEventListener('click', ()=>overlay.remove());
 }
 
 /* ============================================================
@@ -636,6 +741,27 @@ function render(){
 function updatePointsUI(){
   const el = document.getElementById('ptsCount');
   if(el) el.textContent = game.points;
+  const scoreEl = document.getElementById('scoreCount');
+  if(scoreEl) scoreEl.textContent = game.score;
+}
+
+/* ============================================================
+   SCORE — نظام تسجيل نقاط منفصل عن رصيد نقاط التحقيق.
+   كل حركة مهمة في القضية (صح أو غلط) بتأثر فيه، وهو اللي بيتبعت
+   للّيدربورد العام آخر القضية. القيمة ممكن تكون موجبة أو سالبة.
+   ============================================================ */
+function addScore(delta, reason, opts={}){
+  if(delta === 0) return;
+  game.score += delta;
+  game.scoreLog.push({ delta, reason, at: Date.now() });
+  updatePointsUI();
+  persistProgress();
+  if(opts.silent) return;
+  if(delta > 0){
+    showToast(`+${delta} نقطة — ${reason}`, 'score-up');
+  } else {
+    showToast(`${delta} نقطة — ${reason}`, 'score-down');
+  }
 }
 
 // بتحاول تخصم نقطة تحقيق (سؤال استجواب أو مواجهة بدليل). لو القضية مالهاش نظام نقاط
@@ -643,11 +769,13 @@ function updatePointsUI(){
 function spendPoint(){
   if(CASE.investigationPoints == null) return true;
   if(game.points <= 0){
-    showToast('خلصت نقاط التحقيق — قدّم اتهامك بناءً على اللي جمعته لحد دلوقتي.', 'danger');
+    showToast('خلصت نقاط التحقيق — لوحة الاتهام بقت متاحة، قدّم اتهامك بناءً على اللي جمعته.', 'danger');
+    renderTabs();
     return false;
   }
   game.points--;
   updatePointsUI();
+  if(game.points <= 0) renderTabs(); // فتح لوحة الاتهام فورًا لما آخر نقطة تتصرف
   return true;
 }
 
@@ -686,6 +814,7 @@ function giveHint(){
   game.hintsUsed++;
   persistProgress();
   showToast(msg, 'rumor');
+  addScore(-5, 'استخدام تلميح', { silent:true });
 }
 
 function typeText(el, text, speed, onDone){
@@ -712,7 +841,10 @@ function renderTabs(){
   const timelineAvailable = CASE.timelinePuzzle && CASE.timelinePuzzle.enabled;
   const timelineUnlockId = evidenceThatUnlocks('unlocksTimeline');
   const timelineUnlocked = timelineAvailable && (!timelineUnlockId || game.collected.has(timelineUnlockId));
-  const accUnlocked = game.collected.size >= Math.max(Math.min(5, CASE.evidence.length), Math.ceil(CASE.evidence.length * 0.75));
+  const outOfPoints = CASE.investigationPoints != null && game.points <= 0;
+  // لوحة الاتهام بتتفتح لما تجمع نسبة كافية من الأدلة، أو أول ما نقاط التحقيق تخلص —
+  // عشان اللاعب ميتحبسش في القضية من غير أي خطوة يقدر يعملها لو خلّصت النقاط بدري.
+  const accUnlocked = outOfPoints || game.collected.size >= Math.max(Math.min(5, CASE.evidence.length), Math.ceil(CASE.evidence.length * 0.75));
   const defs = [
     {id:'briefing', label:'ملف القضية'},
     {id:'evidence', label:'لوحة الأدلة'},
@@ -835,10 +967,24 @@ function avatarMarkup(s, cls){
 function collect(id, opts={}){
   if(!game.collected.has(id)){
     game.collected.add(id);
+    const ev = evidenceById(id);
     if(!opts.silent){
-      const ev = evidenceById(id);
       if(ev) showToast('دليل جديد: ' + ev.title, ev.crit ? 'danger' : 'amber');
       maybeShowVillageRumor();
+    }
+    // أسرار مخفية — أي دليل عليه bonusPoints بيرجّع نقاط تحقيق فورًا لما يتلقى،
+    // بالإضافة لنقاط score، عشان يكافئ الاستكشاف الدقيق (CASE.evidence[].bonusPoints)
+    if(ev && ev.bonusPoints && !game.secretsFound.has(id)){
+      game.secretsFound.add(id);
+      if(CASE.investigationPoints != null && game.points != null){
+        game.points += ev.bonusPoints;
+        updatePointsUI();
+        renderTabs();
+      }
+      showToast(`🔎 سر مكتشف! +${ev.bonusPoints} نقاط تحقيق`, 'score-up');
+    }
+    if(!opts.silent && ev){
+      addScore(ev.crit ? 6 : 4, 'دليل جديد: ' + ev.title, { silent:true });
     }
     persistProgress();
     checkEvidenceCombinations();
@@ -886,7 +1032,7 @@ function showToast(text, tone){
     document.body.appendChild(wrap);
   }
   const t = document.createElement('div');
-  t.className = 'toast' + (tone==='danger' ? ' danger' : tone==='rumor' ? ' rumor' : tone==='combo' ? ' combo' : '');
+  t.className = 'toast' + (tone==='danger' ? ' danger' : tone==='rumor' ? ' rumor' : tone==='combo' ? ' combo' : tone==='score-up' ? ' score-up' : tone==='score-down' ? ' score-down' : '');
   t.textContent = text;
   wrap.appendChild(t);
   setTimeout(()=>t.remove(), 3400);
@@ -1248,12 +1394,14 @@ function handleLinkSelect(id){
 function attemptLink(a, b){
   const combo = (CASE.evidenceCombinations||[]).find(c=>c.parts.length===2 && c.parts.includes(a) && c.parts.includes(b));
   if(combo && !game.collected.has(combo.resultId)){
-    collect(combo.resultId);
+    collect(combo.resultId, { silent:true }); // فيه توست مخصص تحت بدل رسالة "دليل جديد" العامة
     showToast('🧩 الربط صح! اكتشفت: ' + evidenceById(combo.resultId).title, 'combo');
+    addScore(6, 'ربطت أدلة ناقصة ببعض', { silent:true });
   } else if(combo){
     showToast('الربط ده اتعمل قبل كده.', 'rumor');
   } else {
     showToast('الدليلين دول مش مرتبطين ببعض — جرب تركيبة تانية.', 'danger');
+    addScore(-2, 'ربط أدلة غلط', { silent:true });
   }
   linkMode = false;
   linkSelected = [];
@@ -1315,6 +1463,7 @@ function handleWaveClick(e){
     feedback.textContent = '✓ ظبطت المقطع. الموجة دي مكررة حرفيًا من دقيقة قبل كده.';
     feedback.className = 'wave-feedback ok';
     game.audioSolved = true;
+    addScore(10, 'حللت التحليل الصوتي', { silent:true });
 
     const wave = buildWave();
     const w=900,h=200,step=w/wave.length;
@@ -1405,12 +1554,14 @@ function handleContradictionClick(id){
     feedback.className = 'wave-feedback ok';
     game.contradictionSolved = true;
     triggerFlash('good');
+    addScore(10, 'كشفت التناقض', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
     persistProgress();
     setTimeout(()=>render(), 1300);
   } else {
     feedback.textContent = '✗ الاتنين دول مش متناقضين فعلًا، جرب تشكيلة تانية.';
     feedback.className = 'wave-feedback bad';
+    addScore(-2, 'اختيار تناقض غلط', { silent:true });
     setTimeout(()=>{
       game.contradictionSelected = [];
       render(); game.screen='contradiction';
@@ -1482,11 +1633,13 @@ function handleCamClick(e){
     feedback.className = 'wave-feedback ok';
     game.cameraSolved = true;
     triggerFlash('good');
+    addScore(10, 'حددت لحظة الكاميرا الصح', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
     setTimeout(()=>render(), 1300);
   } else {
     feedback.textContent = `✗ ${label} — لسه مش الوقت الصح، جرّب مكان تاني على الخط.`;
     feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تحديد وقت كاميرا غلط', { silent:true });
   }
 }
 
@@ -1547,12 +1700,14 @@ function submitTimeline(){
     feedback.className = 'wave-feedback ok';
     game.timelineSolved = true;
     triggerFlash('good');
+    addScore(10, 'رتّبت الخط الزمني صح', { silent:true });
     (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
     persistProgress();
     setTimeout(()=>render(), 1300);
   } else {
     feedback.textContent = '✗ الترتيب لسه مش صح، راجع الأحداث تاني.';
     feedback.className = 'wave-feedback bad';
+    addScore(-2, 'ترتيب خط زمني غلط', { silent:true });
   }
 }
 
@@ -1674,11 +1829,69 @@ function computeEnding(){
     else if(correctSuspect) game.ending='partial';
     else game.ending='bad';
 
+    // نتيجة الاتهام هي أكبر حدث في الـ score، وبعده مكافأة كفاءة على أي نقاط تحقيق فضلت من غير ما تتصرف
+    const endingScore = game.ending==='good' ? 50 : game.ending==='partial' ? 20 : -25;
+    addScore(endingScore, game.ending==='good' ? 'اتهام صح وحاسم' : game.ending==='partial' ? 'اتهام صح بس ناقص أدلة' : 'اتهام غلط', { silent:true });
+    if(CASE.investigationPoints != null && game.points > 0){
+      addScore(game.points, 'مكافأة كفاءة — نقاط تحقيق فاضلة', { silent:true });
+    }
+
     game.screen='ending';
     persistProgress();
     render();
     triggerFlash(game.ending);
+    submitScoreToLeaderboard();
   }, 1500);
+}
+
+/* ============================================================
+   LEADERBOARD — بعد كل قضية بتتبعت نتيجتك للـ Supabase (لو الاتصال شغال)،
+   وشاشة النهاية بتعرض أفضل 10 نتائج لنفس القضية.
+   ============================================================ */
+async function submitScoreToLeaderboard(){
+  if(typeof submitScore !== 'function') return; // supabase-client.js مش متحمّل
+  try{
+    await submitScore({
+      caseId: CASE.id,
+      visitorId: getVisitorId(),
+      playerName: getPlayerName() || 'محقق مجهول',
+      score: game.score,
+      pointsLeft: game.points,
+      hintsUsed: game.hintsUsed,
+      endingId: game.ending,
+    });
+  }catch(err){
+    console.error('submitScoreToLeaderboard failed', err);
+  }
+  renderLeaderboardBox();
+}
+
+async function renderLeaderboardBox(){
+  const box = document.getElementById('leaderboardBox');
+  if(!box) return;
+  box.innerHTML = `<p class="dim mono" style="font-size:12px;">جارِ تحميل الليدربورد...</p>`;
+  if(typeof fetchLeaderboard !== 'function'){
+    box.innerHTML = `<p class="dim" style="font-size:12px;">الليدربورد مش متاح دلوقتي.</p>`;
+    return;
+  }
+  try{
+    const rows = await fetchLeaderboard(CASE.id, 10);
+    if(!rows.length){
+      box.innerHTML = `<p class="dim" style="font-size:12px;">كن أول واحد يدخل الليدربورد على القضية دي!</p>`;
+      return;
+    }
+    const myId = getVisitorId();
+    box.innerHTML = rows.map((r,i)=>`
+      <div class="lb-row ${r.visitor_id===myId?'me':''}">
+        <span class="lb-rank mono">#${i+1}</span>
+        <span class="lb-name">${(r.player_name||'محقق مجهول')}</span>
+        <span class="lb-score mono">${r.score}</span>
+      </div>
+    `).join('');
+  }catch(err){
+    console.error('renderLeaderboardBox failed', err);
+    box.innerHTML = `<p class="dim" style="font-size:12px;">تعذّر تحميل الليدربورد.</p>`;
+  }
 }
 
 /* ============================================================
@@ -1703,6 +1916,11 @@ function endingHTML(){
     ${paragraphs}
     ${hint}
     ${bonus}
+    <div class="score-final mono">نقاط أدائك في القضية دي: <strong>${game.score}</strong></div>
+    <div class="lb-box">
+      <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:8px;">🏆 الليدربورد — طرف الخيط</h4>
+      <div id="leaderboardBox"><p class="dim mono" style="font-size:12px;">جارِ تحميل الليدربورد...</p></div>
+    </div>
     ${classificationNoteHTML()}
     ${redHerringNoteHTML()}
     ${theoryNoteHTML()}

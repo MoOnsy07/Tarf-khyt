@@ -191,6 +191,16 @@ body{
 .ending-title.partial{ color:var(--amber); }
 .ending-title.bad{ color:var(--danger); }
 
+.score-final{ margin-top:16px; font-size:14px; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:4px; padding:10px 14px; display:inline-block; }
+.score-final strong{ color:var(--signal); font-size:16px; }
+.lb-box{ margin-top:18px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:14px 16px; }
+.lb-row{ display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.lb-row:last-child{ border-bottom:none; }
+.lb-row.me{ color:var(--amber); font-weight:700; }
+.lb-rank{ width:32px; color:var(--ink-dim); flex-shrink:0; }
+.lb-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lb-score{ color:var(--signal); }
+
 .stamp{ display:inline-block; border:3px solid; padding:8px 22px; font-weight:900; font-size:22px; letter-spacing:.06em; border-radius:5px; transform:rotate(-5deg); margin-bottom:16px; }
 .stamp.good{ color:var(--signal); border-color:var(--signal); }
 .stamp.partial{ color:var(--amber); border-color:var(--amber); }
@@ -394,6 +404,8 @@ body{
 /* Extended evidence: partial/combinable evidence tag + combo toast tone */
 .tag.partial{ color:var(--signal); font-size:10px; font-family:'JetBrains Mono',monospace; margin-top:2px; letter-spacing:.03em; }
 .toast.combo{ border-color:var(--signal); color:var(--signal); }
+.toast.score-up{ border-color:var(--signal); color:var(--signal); }
+.toast.score-down{ border-color:var(--danger-dim); color:var(--danger); }
 
 /* Phase 2: manual evidence linking selection state */
 .ev-card.link-selected{ border-color:var(--signal); box-shadow:0 0 0 1px var(--signal); }
