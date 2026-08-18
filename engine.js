@@ -150,6 +150,19 @@ function saveLocalProgress(caseId, progress){
   if(progress.ending) addCompletedId(caseId);
 }
 
+// آخر قضية كانت مفتوحة — بتتسجل عشان لو المستخدم عمل ريفريش
+// وهو لسه بيحقق، نرجّعه لنفس القضية بدل ما نرميه على الأرشيف
+const ACTIVE_CASE_KEY = 'ca_active_case';
+function setActiveCase(caseId){
+  localStorage.setItem(ACTIVE_CASE_KEY, caseId);
+}
+function clearActiveCase(){
+  localStorage.removeItem(ACTIVE_CASE_KEY);
+}
+function getActiveCase(){
+  return localStorage.getItem(ACTIVE_CASE_KEY);
+}
+
 /* ============================================================
    FONT SIZE — تفضيل حجم الخط، محفوظ ومطبّق على شكل zoom عام
    بيغطي كل عناصر المنصة من غير ما نحتاج نعيد كتابة الـ CSS كله
@@ -178,7 +191,16 @@ function boot(){
   app.unlockedIds = getUnlockedIds();
   app.completedIds = getCompletedIds();
   applyFontSize();
-  showLibrary();
+
+  // لو كان فيه قضية شغالة قبل الريفريش، رجّع المستخدم لها تاني بدل الأرشيف
+  const activeCaseId = getActiveCase();
+  const activeCase = activeCaseId ? CASES_REGISTRY.find(c => c.id === activeCaseId) : null;
+  if(activeCase && !isCaseLocked(activeCase).locked){
+    enterCase(activeCase);
+  } else {
+    clearActiveCase();
+    showLibrary();
+  }
 }
 
 /* ============================================================
@@ -366,6 +388,7 @@ function openPurchasePopup(caseData){
 
 function enterCase(caseData){
   CASE = caseData;
+  setActiveCase(caseData.id);
   game = freshGameState();
   game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
 
@@ -421,6 +444,7 @@ function showContentWarning(){
   });
   document.getElementById('warnBack').addEventListener('click', ()=>{
     document.getElementById('warnGate').remove();
+    clearActiveCase();
     showLibrary();
   });
 }
@@ -588,6 +612,7 @@ function mountGameShell(){
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
     stopAmbience();
     persistProgress();
+    clearActiveCase();
     app.unlockedIds = getUnlockedIds();
     app.completedIds = getCompletedIds();
     showLibrary();
@@ -1877,6 +1902,7 @@ function attachPanelEvents(){
   });
   const backLibBtn = document.querySelector('[data-back-to-lib]');
   if(backLibBtn) backLibBtn.addEventListener('click', ()=>{
+    clearActiveCase();
     app.unlockedIds = getUnlockedIds();
     app.completedIds = getCompletedIds();
     showLibrary();
