@@ -302,6 +302,13 @@ body{
 .lib-filter.active{ border-color:var(--amber); color:var(--amber); background:#241d0f; }
 .lib-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px; }
 .lib-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:6px; overflow:hidden; cursor:pointer; transition:.2s; position:relative; }
+
+.lib-card.coming-soon{ cursor:default; }
+.lib-card.coming-soon:hover{ transform:none; border-color:var(--line); }
+.lib-card.coming-soon .cover img{ filter:grayscale(75%) brightness(.55); }
+.lib-card.coming-soon .body{ opacity:.5; }
+.lib-lock-overlay.coming-soon-overlay{ background:rgba(10,12,18,.5); }
+.lib-lock-overlay.coming-soon-overlay div{ letter-spacing:.05em; font-family:'JetBrains Mono',monospace; color:var(--ink-dim); }
 .lib-card:hover{ border-color:var(--amber-dim); transform:translateY(-3px); }
 .lib-preview-btn{
   position:absolute; top:8px; right:8px; z-index:3;

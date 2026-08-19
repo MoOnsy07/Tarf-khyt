@@ -16,6 +16,21 @@ const app = {
 
 const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ضغطة "تحميل المزيد" 
 
+// القضايا اللي أصولها البصرية (بورتريهات الشخصيات + صور الأدلة) مكتملة فعلاً
+// وجاهزة للعب بتجربة كاملة. أي قضية تانية بتتعرض معتّمة وعليها "قريبًا" في
+// المكتبة، لحد ما نضيف الصور بتاعتها هنا. حدّث القائمة دي كل ما قضية تخلص.
+const READY_CASE_IDS = new Set([
+  'buffalo-case',
+  'dark-testimony',
+  'final-testament',
+  'last-episode',
+  'leaked-video',
+  'missing-bride',
+]);
+function isCaseReady(c){
+  return READY_CASE_IDS.has(c.id);
+}
+
 // تسميات التصنيفات — ضيف هنا أي تصنيف جديد تستخدمه في CASE.categories
 const CATEGORY_LABELS = {
   murder:'قتل', theft:'سرقة', comedy:'فكاهية', disappearance:'اختفاء',
@@ -393,6 +408,9 @@ function showLibrary(){
         sorted.sort((a,b)=> orderIndex.get(b.id) - orderIndex.get(a.id));
       }
     }
+    // القضايا الجاهزة (أصولها البصرية مكتملة) دايمًا الأول، وبعدين "قريبًا"،
+    // مع الحفاظ على ترتيب الفرز المختار جوه كل مجموعة (sort مستقرة في JS الحديث)
+    sorted.sort((a,b)=> (isCaseReady(b)?1:0) - (isCaseReady(a)?1:0));
     return sorted;
   }
 
@@ -406,6 +424,7 @@ function showLibrary(){
 
   const cards = visibleCases.map(c=>{
     const lock = isCaseLocked(c);
+    const ready = isCaseReady(c);
     const badges = [];
     if(c.isPremium){
       const tier = getPremiumTier(c);
@@ -424,16 +443,21 @@ function showLibrary(){
           ? `<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">${c.price ? 'اضغط للشراء — '+c.price : 'اضغط للشراء'}</span></div>`
           : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
       </div>` : '';
+    const comingSoonOverlay = !ready ? `
+      <div class="lib-lock-overlay coming-soon-overlay">
+        <div style="font-size:22px;">⏳</div>
+        <div>قريبًا</div>
+      </div>` : '';
 
     // حالة القضية: لسه مبتدأش / قيد التحقيق / مكتملة — وكل حالة ليها زرار مناسب
-    const progress = !lock.locked ? loadLocalProgress(c.id) : null;
+    const progress = (!lock.locked && ready) ? loadLocalProgress(c.id) : null;
     const isCompleted = !!(progress && progress.ending);
     const evidenceTotal = c.evidence.length;
     const evidenceCollected = progress && progress.collected ? progress.collected.length : 0;
     const pct = evidenceTotal ? Math.round((evidenceCollected/evidenceTotal)*100) : 0;
     let statusHTML = '';
     let actionsHTML = '';
-    if(!lock.locked){
+    if(!lock.locked && ready){
       if(isCompleted){
         const endingLabel = progress.ending==='good' ? 'نجحت في القضية' : progress.ending==='partial' ? 'حل جزئي' : 'اتهام غلط';
         const endingTone = progress.ending==='good' ? 'good' : progress.ending==='partial' ? 'partial' : 'bad';
@@ -449,10 +473,10 @@ function showLibrary(){
     }
 
     return `
-      <div class="lib-card ${c.isPremium ? 'premium' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}">
+      <div class="lib-card ${c.isPremium ? 'premium' : ''} ${!ready ? 'coming-soon' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="${ready}">
         ${badges.join('')}
         <button class="lib-preview-btn mono" data-preview-case="${c.id}" aria-label="معاينة سريعة" title="معاينة سريعة">ⓘ</button>
-        <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
+        <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">${!ready ? comingSoonOverlay : lockOverlay}</div>
         <div class="body">
           <h4>${c.title}</h4>
           <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>
@@ -461,7 +485,6 @@ function showLibrary(){
           ${priceHTML}
           ${actionsHTML}
         </div>
-        ${lockOverlay}
       </div>
     `;
   }).join('') || `<p class="dim" style="grid-column:1/-1; text-align:center; padding:30px 0;">${app.librarySearch ? 'مفيش نتايج مطابقة للبحث.' : 'مفيش قضايا في التصنيف ده لسه.'}</p>`;
@@ -503,6 +526,7 @@ function showLibrary(){
         <option value="hardest" ${app.librarySort==='hardest'?'selected':''}>الأصعب</option>
         ${hasPremium ? `<option value="price" ${app.librarySort==='price'?'selected':''}>الأعلى سعرًا</option>` : ''}
       </select>
+      <a href="leaderboard.html" class="btn ghost mono lib-leaderboard-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🏆 لوحة المتصدرين</a>
     </div>
 
     <div class="lib-filters-scroll"><div class="lib-filters">${filterBar}</div></div>
@@ -566,11 +590,15 @@ function showLibrary(){
   document.querySelectorAll('.lib-card').forEach(card=>{
     card.addEventListener('click', (e)=>{
       const caseData = CASES_REGISTRY.find(c => c.id === card.dataset.case);
-      // زرار المعاينة السريعة (ⓘ) — بيفتح تفاصيل القضية من غير ما يدخلها
+      // زرار المعاينة السريعة (ⓘ) — بيفتح تفاصيل القضية من غير ما يدخلها، متاح حتى لو "قريبًا"
       const previewBtn = e.target.closest('[data-preview-case]');
       if(previewBtn){
         e.stopPropagation();
         openCasePreview(caseData, isCaseLocked(caseData));
+        return;
+      }
+      // قضايا "قريبًا" — لسه مفيش صور كافية، امنع الدخول أو الشراء لحد ما تكتمل
+      if(card.dataset.ready === 'false'){
         return;
       }
       if(card.dataset.locked === 'true'){
