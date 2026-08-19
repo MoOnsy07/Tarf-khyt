@@ -102,6 +102,7 @@ function freshGameState(){
   return {
     screen:'briefing',
     lastTabIndex:0,
+    startedAt: Date.now(), // وقت بداية القضية — بيتستخدم لحساب مدة الحل للنظام العام
     collected:new Set(),
     interrogated:{},
     audioSolved:false,
@@ -2201,8 +2202,27 @@ function computeEnding(){
     persistProgress();
     render();
     triggerFlash(game.ending);
-    submitScoreToLeaderboard();
+    submitScoreToLeaderboard();       // ليدربورد القضية دي بس (case_scores)
+    submitToGlobalLeaderboard();      // الليدربورد العام عبر كل القضايا (leaderboard_entries)
   }, 1500);
+}
+
+/* ============================================================
+   الليدربورد العام — عبر كل القضايا (اسم مستعار + عدد قضايا +
+   إجمالي نقاط + أسرع وقت). منفصل تمامًا عن case_scores فوق،
+   بيتعرض في صفحة leaderboard.html لوحدها.
+   ============================================================ */
+function submitToGlobalLeaderboard(){
+  if(typeof Leaderboard === 'undefined') return; // leaderboard.js مش متحمّل
+  if(game.ending !== 'good') return; // بيتسجل بس لما القضية تتحل صح بالكامل
+  const solveTimeSeconds = game.startedAt ? Math.round((Date.now() - game.startedAt) / 1000) : 0;
+  Leaderboard.submitScore({
+    caseId: CASE.id,
+    caseTitle: CASE.title,
+    points: CASE.investigationPoints != null ? CASE.investigationPoints : 0,
+    solveTimeSeconds,
+    endingType: 'good',
+  }).catch(err => console.error('submitToGlobalLeaderboard failed', err));
 }
 
 /* ============================================================
