@@ -375,7 +375,7 @@ function showLibrary(){
     }
 
     return `
-      <div class="lib-card" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}">
+      <div class="lib-card ${c.isPremium ? 'premium' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}">
         ${badges.join('')}
         <button class="lib-preview-btn mono" data-preview-case="${c.id}" aria-label="معاينة سريعة" title="معاينة سريعة">ⓘ</button>
         <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
