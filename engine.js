@@ -8,8 +8,13 @@ const app = {
   view: 'loading',      // loading | library | case
   unlockedIds: [],
   completedIds: [],
-  libraryFilter: 'all', // فلتر المكتبة الحالي
+  libraryFilter: 'all',   // فلتر المكتبة الحالي
+  librarySearch: '',      // نص البحث الحالي
+  librarySort: 'newest',  // ترتيب المكتبة: newest | shortest | hardest | price
+  libraryShown: 18,       // عدد الكروت المعروضة حاليًا (تحميل تدريجي)
 };
+
+const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ضغطة "تحميل المزيد" 
 
 // تسميات التصنيفات — ضيف هنا أي تصنيف جديد تستخدمه في CASE.categories
 const CATEGORY_LABELS = {
@@ -306,6 +311,8 @@ function isCaseLocked(caseData){
   return { locked:false };
 }
 
+let librarySearchDebounce = null;
+
 function showLibrary(){
   app.view = 'library';
 
@@ -327,11 +334,45 @@ function showLibrary(){
     return (c.categories||[]).includes(app.libraryFilter);
   }
 
+  function matchesSearch(c){
+    const q = app.librarySearch.trim().toLowerCase();
+    if(!q) return true;
+    const haystack = [c.title, c.teaser, c.subtitle, c.caseNo]
+      .filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(q);
+  }
+
+  function sortCases(list){
+    const sorted = [...list];
+    switch(app.librarySort){
+      case 'shortest':
+        sorted.sort((a,b)=> (a.estMinutes||0) - (b.estMinutes||0));
+        break;
+      case 'hardest': {
+        const rank = {'سهلة':0, 'متوسطة':1, 'صعبة':2};
+        sorted.sort((a,b)=> (rank[b.difficulty]??0) - (rank[a.difficulty]??0));
+        break;
+      }
+      case 'price':
+        sorted.sort((a,b)=> (b.isPremium?(b.price?parseFloat(b.price):0):0) - (a.isPremium?(a.price?parseFloat(a.price):0):0));
+        break;
+      case 'newest':
+      default: {
+        // الأحدث = ترتيب عكسي لمصفوفة CASES_REGISTRY نفسها (آخر ما اتضاف يظهر الأول)
+        const orderIndex = new Map(CASES_REGISTRY.map((c,i)=>[c.id,i]));
+        sorted.sort((a,b)=> orderIndex.get(b.id) - orderIndex.get(a.id));
+      }
+    }
+    return sorted;
+  }
+
   const filterBar = filters.map(f=>
     `<button class="lib-filter ${app.libraryFilter===f.key?'active':''}" data-filter="${f.key}">${f.label}</button>`
   ).join('');
 
-  const visibleCases = CASES_REGISTRY.filter(matchesFilter);
+  const allMatching = sortCases(CASES_REGISTRY.filter(c => matchesFilter(c) && matchesSearch(c)));
+  const visibleCases = allMatching.slice(0, app.libraryShown);
+  const hasMore = allMatching.length > visibleCases.length;
 
   const cards = visibleCases.map(c=>{
     const lock = isCaseLocked(c);
@@ -390,7 +431,15 @@ function showLibrary(){
         ${lockOverlay}
       </div>
     `;
-  }).join('') || `<p class="dim" style="grid-column:1/-1; text-align:center; padding:30px 0;">مفيش قضايا في التصنيف ده لسه.</p>`;
+  }).join('') || `<p class="dim" style="grid-column:1/-1; text-align:center; padding:30px 0;">${app.librarySearch ? 'مفيش نتايج مطابقة للبحث.' : 'مفيش قضايا في التصنيف ده لسه.'}</p>`;
+
+  const resultsCountLabel = `${allMatching.length} قضية${app.librarySearch || app.libraryFilter!=='all' ? ' مطابقة' : ' في الأرشيف'}`;
+
+  const loadMoreHTML = hasMore
+    ? `<div style="text-align:center; margin-top:22px;">
+         <button class="btn ghost mono" id="lib-load-more">حمّل المزيد (${allMatching.length - visibleCases.length} باقي) ↓</button>
+       </div>`
+    : '';
 
   appRoot.innerHTML = `
     <div class="lib-hero">
@@ -409,17 +458,78 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
-    <div class="lib-filters">${filterBar}</div>
+
+    <div class="lib-toolbar">
+      <div class="lib-search-wrap">
+        <span class="lib-search-icon mono">⌕</span>
+        <input type="text" id="lib-search" class="lib-search-input" placeholder="دوّر باسم القضية..." value="${app.librarySearch.replace(/"/g,'&quot;')}" autocomplete="off">
+      </div>
+      <select id="lib-sort" class="lib-sort-select mono">
+        <option value="newest" ${app.librarySort==='newest'?'selected':''}>الأحدث</option>
+        <option value="shortest" ${app.librarySort==='shortest'?'selected':''}>الأقصر مدة</option>
+        <option value="hardest" ${app.librarySort==='hardest'?'selected':''}>الأصعب</option>
+        ${hasPremium ? `<option value="price" ${app.librarySort==='price'?'selected':''}>الأعلى سعرًا</option>` : ''}
+      </select>
+    </div>
+
+    <div class="lib-filters-scroll"><div class="lib-filters">${filterBar}</div></div>
+
+    <div class="lib-results-count mono">${resultsCountLabel}</div>
+
     <div class="lib-grid">${cards}</div>
+
+    ${loadMoreHTML}
   `;
 
+  // ------- الفلاتر -------
   document.querySelectorAll('.lib-filter').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       app.libraryFilter = btn.dataset.filter;
+      app.libraryShown = LIBRARY_PAGE_SIZE; // نرجع لأول صفحة عند تغيير الفلتر
       showLibrary();
     });
   });
 
+  // ------- البحث (مع تأخير بسيط عشان الأداء وقت الكتابة) -------
+  const searchInput = document.getElementById('lib-search');
+  if(searchInput){
+    searchInput.addEventListener('input', (e)=>{
+      const value = e.target.value;
+      clearTimeout(librarySearchDebounce);
+      librarySearchDebounce = setTimeout(()=>{
+        app.librarySearch = value;
+        app.libraryShown = LIBRARY_PAGE_SIZE;
+        showLibrary();
+        // نرجّع الفوكس للمربع بعد إعادة الرسم عشان المستخدم يكمل يكتب عادي
+        const refocused = document.getElementById('lib-search');
+        if(refocused){
+          refocused.focus();
+          refocused.selectionStart = refocused.selectionEnd = refocused.value.length;
+        }
+      }, 300);
+    });
+  }
+
+  // ------- الترتيب -------
+  const sortSelect = document.getElementById('lib-sort');
+  if(sortSelect){
+    sortSelect.addEventListener('change', (e)=>{
+      app.librarySort = e.target.value;
+      app.libraryShown = LIBRARY_PAGE_SIZE;
+      showLibrary();
+    });
+  }
+
+  // ------- تحميل المزيد -------
+  const loadMoreBtn = document.getElementById('lib-load-more');
+  if(loadMoreBtn){
+    loadMoreBtn.addEventListener('click', ()=>{
+      app.libraryShown += LIBRARY_PAGE_SIZE;
+      showLibrary();
+    });
+  }
+
+  // ------- كروت القضايا -------
   document.querySelectorAll('.lib-card').forEach(card=>{
     card.addEventListener('click', (e)=>{
       const caseData = CASES_REGISTRY.find(c => c.id === card.dataset.case);
