@@ -145,6 +145,18 @@ function freshGameState(){
     score:0,                // نقاط تسجيل الأداء (Score) — منفصلة عن نقاط التحقيق، بتتسجل في الليدربورد العام آخر القضية
     scoreLog:[],             // سجل بسيط لكل حركة أثّرت في الـ score، بيتعرض في دفتر التحقيق
     secretsFound:new Set(), // IDs الأسرار/المكافآت المخفية اللي اتكشفت بالفعل (evidence بـ bonusPoints)
+
+    // === 7 آليات الألغاز الجديدة (كلها عامة — مدفوعة بالكامل من بيانات القضية) ===
+    dnaLabSolved:false,
+    alibiGridSolved:false,
+    ledgerAuditSolved:false,
+    polygraphSolved:false,
+    polygraphAsked:new Set(),        // suspectId — المشتبه بيهم اللي اتسألوا فعلاً وظهرت قراءتهم
+    floorPlanSolved:false,
+    floorPlanPreviewSuspect:null,    // suspectId — المسار المعروض حاليًا على المخطط قبل التأكيد
+    witnessReliabilitySolved:false,
+    handwritingSolved:false,
+    handwritingSelected:[],          // أسماء الحقول (angle/pressure/spacing) اللي اللاعب علّم عليها كفرق
   };
 }
 
@@ -809,6 +821,15 @@ function enterCase(caseData, opts={}){
     game.score = saved.score || 0;
     game.scoreLog = saved.scoreLog || [];
     game.secretsFound = new Set(saved.secretsFound || []);
+    game.dnaLabSolved = !!saved.dnaLabSolved;
+    game.alibiGridSolved = !!saved.alibiGridSolved;
+    game.ledgerAuditSolved = !!saved.ledgerAuditSolved;
+    game.polygraphSolved = !!saved.polygraphSolved;
+    game.polygraphAsked = new Set(saved.polygraphAsked || []);
+    game.floorPlanSolved = !!saved.floorPlanSolved;
+    game.witnessReliabilitySolved = !!saved.witnessReliabilitySolved;
+    game.handwritingSolved = !!saved.handwritingSolved;
+    game.handwritingSelected = saved.handwritingSelected || [];
   } else if(!CASE.isPremium){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -882,6 +903,15 @@ function persistProgress(){
     score: game.score,
     scoreLog: game.scoreLog,
     secretsFound: [...game.secretsFound],
+    dnaLabSolved: game.dnaLabSolved,
+    alibiGridSolved: game.alibiGridSolved,
+    ledgerAuditSolved: game.ledgerAuditSolved,
+    polygraphSolved: game.polygraphSolved,
+    polygraphAsked: [...game.polygraphAsked],
+    floorPlanSolved: game.floorPlanSolved,
+    witnessReliabilitySolved: game.witnessReliabilitySolved,
+    handwritingSolved: game.handwritingSolved,
+    handwritingSelected: game.handwritingSelected,
   });
 }
 
@@ -1086,7 +1116,7 @@ function showPointsInfo(){
    RENDER ROOT
    ============================================================ */
 
-const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','contradiction','timeline','accusation','theory','ending'];
+const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','contradiction','timeline','dnaLab','alibiGrid','ledgerAudit','polygraph','floorPlan','witnessReliability','handwriting','accusation','theory','ending'];
 
 function render(){
   renderTabs();
@@ -1164,6 +1194,20 @@ function giveHint(){
       msg = `💡 جرب تبويب "${CASE.contradictionPuzzle.tabLabel || 'التناقضات'}".`;
     } else if(CASE.timelinePuzzle && CASE.timelinePuzzle.enabled && (CASE.timelinePuzzle.resultEvidenceIds||[]).includes(missing.id)){
       msg = `💡 جرب تبويب "${CASE.timelinePuzzle.tabLabel || 'الخط الزمني'}".`;
+    } else if(CASE.dnaLabPuzzle && CASE.dnaLabPuzzle.enabled && (CASE.dnaLabPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.dnaLabPuzzle.tabLabel || 'تحليل معملي'}".`;
+    } else if(CASE.alibiGridPuzzle && CASE.alibiGridPuzzle.enabled && (CASE.alibiGridPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.alibiGridPuzzle.tabLabel || 'جدول الحجج الزمنية'}".`;
+    } else if(CASE.ledgerAuditPuzzle && CASE.ledgerAuditPuzzle.enabled && (CASE.ledgerAuditPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.ledgerAuditPuzzle.tabLabel || 'تدقيق السجلات'}".`;
+    } else if(CASE.polygraphPuzzle && CASE.polygraphPuzzle.enabled && (CASE.polygraphPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.polygraphPuzzle.tabLabel || 'كشف الكذب'}".`;
+    } else if(CASE.floorPlanPuzzle && CASE.floorPlanPuzzle.enabled && (CASE.floorPlanPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.floorPlanPuzzle.tabLabel || 'المخطط'}".`;
+    } else if(CASE.witnessReliabilityPuzzle && CASE.witnessReliabilityPuzzle.enabled && (CASE.witnessReliabilityPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.witnessReliabilityPuzzle.tabLabel || 'تقييم الشهادات'}".`;
+    } else if(CASE.handwritingPuzzle && CASE.handwritingPuzzle.enabled && (CASE.handwritingPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.handwritingPuzzle.tabLabel || 'تحليل خط اليد'}".`;
     } else {
       msg = '💡 كمّل تستكشف لوحة الأدلة والمشتبه بيهم كويس.';
     }
@@ -1203,6 +1247,35 @@ function renderTabs(){
   const timelineAvailable = CASE.timelinePuzzle && CASE.timelinePuzzle.enabled;
   const timelineUnlockId = evidenceThatUnlocks('unlocksTimeline');
   const timelineUnlocked = timelineAvailable && (!timelineUnlockId || game.collected.has(timelineUnlockId));
+
+  const dnaLabAvailable = CASE.dnaLabPuzzle && CASE.dnaLabPuzzle.enabled;
+  const dnaLabUnlockId = evidenceThatUnlocks('unlocksDnaLab');
+  const dnaLabUnlocked = dnaLabAvailable && (!dnaLabUnlockId || game.collected.has(dnaLabUnlockId));
+
+  const alibiGridAvailable = CASE.alibiGridPuzzle && CASE.alibiGridPuzzle.enabled;
+  const alibiGridUnlockId = evidenceThatUnlocks('unlocksAlibiGrid');
+  const alibiGridUnlocked = alibiGridAvailable && (!alibiGridUnlockId || game.collected.has(alibiGridUnlockId));
+
+  const ledgerAuditAvailable = CASE.ledgerAuditPuzzle && CASE.ledgerAuditPuzzle.enabled;
+  const ledgerAuditUnlockId = evidenceThatUnlocks('unlocksLedgerAudit');
+  const ledgerAuditUnlocked = ledgerAuditAvailable && (!ledgerAuditUnlockId || game.collected.has(ledgerAuditUnlockId));
+
+  const polygraphAvailable = CASE.polygraphPuzzle && CASE.polygraphPuzzle.enabled;
+  const polygraphUnlockId = evidenceThatUnlocks('unlocksPolygraph');
+  const polygraphUnlocked = polygraphAvailable && (!polygraphUnlockId || game.collected.has(polygraphUnlockId));
+
+  const floorPlanAvailable = CASE.floorPlanPuzzle && CASE.floorPlanPuzzle.enabled;
+  const floorPlanUnlockId = evidenceThatUnlocks('unlocksFloorPlan');
+  const floorPlanUnlocked = floorPlanAvailable && (!floorPlanUnlockId || game.collected.has(floorPlanUnlockId));
+
+  const witnessReliabilityAvailable = CASE.witnessReliabilityPuzzle && CASE.witnessReliabilityPuzzle.enabled;
+  const witnessReliabilityUnlockId = evidenceThatUnlocks('unlocksWitnessReliability');
+  const witnessReliabilityUnlocked = witnessReliabilityAvailable && (!witnessReliabilityUnlockId || game.collected.has(witnessReliabilityUnlockId));
+
+  const handwritingAvailable = CASE.handwritingPuzzle && CASE.handwritingPuzzle.enabled;
+  const handwritingUnlockId = evidenceThatUnlocks('unlocksHandwriting');
+  const handwritingUnlocked = handwritingAvailable && (!handwritingUnlockId || game.collected.has(handwritingUnlockId));
+
   const outOfPoints = CASE.investigationPoints != null && game.points <= 0;
   // لوحة الاتهام بتتفتح لما تجمع نسبة كافية من الأدلة، أو أول ما نقاط التحقيق تخلص —
   // عشان اللاعب ميتحبسش في القضية من غير أي خطوة يقدر يعملها لو خلّصت النقاط بدري.
@@ -1216,6 +1289,13 @@ function renderTabs(){
   if(cameraAvailable) defs.push({id:'camera', label: (CASE.cameraPuzzle.tabLabel || 'تحليل الكاميرات'), locked: !cameraUnlocked});
   if(contraAvailable) defs.push({id:'contradiction', label: (CASE.contradictionPuzzle.tabLabel || 'التناقضات'), locked: !contraUnlocked});
   if(timelineAvailable) defs.push({id:'timeline', label: (CASE.timelinePuzzle.tabLabel || 'الخط الزمني'), locked: !timelineUnlocked});
+  if(dnaLabAvailable) defs.push({id:'dnaLab', label: (CASE.dnaLabPuzzle.tabLabel || 'تحليل معملي'), locked: !dnaLabUnlocked});
+  if(alibiGridAvailable) defs.push({id:'alibiGrid', label: (CASE.alibiGridPuzzle.tabLabel || 'جدول الحجج الزمنية'), locked: !alibiGridUnlocked});
+  if(ledgerAuditAvailable) defs.push({id:'ledgerAudit', label: (CASE.ledgerAuditPuzzle.tabLabel || 'تدقيق السجلات'), locked: !ledgerAuditUnlocked});
+  if(polygraphAvailable) defs.push({id:'polygraph', label: (CASE.polygraphPuzzle.tabLabel || 'كشف الكذب'), locked: !polygraphUnlocked});
+  if(floorPlanAvailable) defs.push({id:'floorPlan', label: (CASE.floorPlanPuzzle.tabLabel || 'المخطط'), locked: !floorPlanUnlocked});
+  if(witnessReliabilityAvailable) defs.push({id:'witnessReliability', label: (CASE.witnessReliabilityPuzzle.tabLabel || 'تقييم الشهادات'), locked: !witnessReliabilityUnlocked});
+  if(handwritingAvailable) defs.push({id:'handwriting', label: (CASE.handwritingPuzzle.tabLabel || 'تحليل خط اليد'), locked: !handwritingUnlocked});
   defs.push({id:'accusation', label:'لوحة التحقيق', locked: !accUnlocked});
 
   tabsEl.innerHTML = defs.map(d=>{
@@ -1256,6 +1336,13 @@ function renderPanel(){
   else if(game.screen==='camera') el.innerHTML = cameraHTML();
   else if(game.screen==='contradiction') el.innerHTML = contradictionHTML();
   else if(game.screen==='timeline') el.innerHTML = timelineHTML();
+  else if(game.screen==='dnaLab') el.innerHTML = dnaLabHTML();
+  else if(game.screen==='alibiGrid') el.innerHTML = alibiGridHTML();
+  else if(game.screen==='ledgerAudit') el.innerHTML = ledgerAuditHTML();
+  else if(game.screen==='polygraph') el.innerHTML = polygraphHTML();
+  else if(game.screen==='floorPlan') el.innerHTML = floorPlanHTML();
+  else if(game.screen==='witnessReliability') el.innerHTML = witnessReliabilityHTML();
+  else if(game.screen==='handwriting') el.innerHTML = handwritingHTML();
   else if(game.screen==='accusation') el.innerHTML = accusationHTML();
   else if(game.screen==='theory') el.innerHTML = theoryHTML();
   else if(game.screen==='ending') el.innerHTML = endingHTML();
@@ -2095,6 +2182,455 @@ function submitTimeline(){
 }
 
 /* ============================================================
+   أدوات مشتركة للألغاز الجديدة
+   ============================================================ */
+function puzzleSuspectName(id){
+  const s = suspectById(id);
+  return s ? s.name : id;
+}
+
+/* ============================================================
+   DNA / MATERIAL LAB PUZZLE (generic — driven by CASE.dnaLabPuzzle)
+   قارن تسلسل العينة بتسلسل كل مشتبه فيه، ودوّر على التطابق
+   ============================================================ */
+
+function dnaLabHTML(){
+  const cfg = CASE.dnaLabPuzzle;
+  const label = cfg.tabLabel || 'تحليل معملي';
+  if(game.dnaLabSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const sampleChips = cfg.sampleSequence.map(v=>`<span class="mono seq-chip">${v}</span>`).join('');
+  const rows = Object.entries(cfg.suspectSequences).map(([sid, seq])=>{
+    const chips = seq.map(v=>`<span class="mono seq-chip">${v}</span>`).join('');
+    return `
+      <div class="board-chip" data-dnalab="${sid}" style="text-align:right; margin-bottom:8px; cursor:pointer;">
+        <div style="font-weight:700; margin-bottom:6px;">${puzzleSuspectName(sid)}</div>
+        <div class="seq-row">${chips}</div>
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <div style="margin-bottom:14px;">
+      <div class="mono" style="font-size:11px; color:var(--ink-dim); margin-bottom:6px;">العينة الأصلية</div>
+      <div class="seq-row">${sampleChips}</div>
+    </div>
+    <div class="divider"></div>
+    <p class="dim mono" style="font-size:11px; margin-bottom:10px;">اضغط على المشتبه فيه اللي تسلسله بيتطابق مع العينة</p>
+    <div id="dnaLabList">${rows}</div>
+    <div class="wave-feedback" id="dnaLabFeedback"></div>
+  `;
+}
+
+function handleDnaLabClick(sid){
+  const cfg = CASE.dnaLabPuzzle;
+  const feedback = document.getElementById('dnaLabFeedback');
+  if(sid === cfg.correctSuspectId){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'التطابق صح!');
+    feedback.className = 'wave-feedback ok';
+    game.dnaLabSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'dnaLab' });
+    triggerFlash('good');
+    addScore(10, 'طابقت العينة صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ التسلسل مش مطابق للعينة، جرب مشتبه فيه تاني.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'مطابقة عينة غلط', { silent:true });
+  }
+}
+
+/* ============================================================
+   ALIBI GRID PUZZLE (generic — driven by CASE.alibiGridPuzzle)
+   قارن جدول أماكن كل مشتبه فيه عبر فترات زمنية، ودوّر على التناقض
+   ============================================================ */
+
+function alibiGridHTML(){
+  const cfg = CASE.alibiGridPuzzle;
+  const label = cfg.tabLabel || 'جدول الحجج الزمنية';
+  if(game.alibiGridSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const headCells = cfg.timeSlots.map(t=>`<th class="mono">${t}</th>`).join('');
+  const rows = Object.entries(cfg.suspectClaims).map(([sid, claims])=>{
+    const cells = claims.map((c,i)=>`<td data-alibi-suspect="${sid}" data-alibi-slot="${i}">${c}</td>`).join('');
+    return `<tr><td class="alibi-name">${puzzleSuspectName(sid)}</td>${cells}</tr>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <div style="overflow-x:auto;">
+      <table class="alibi-grid" id="alibiGridTable">
+        <thead><tr><th></th>${headCells}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p class="dim mono" style="font-size:11px; margin-top:10px;">اضغط على الخانة اللي فيها التناقض</p>
+    <div class="wave-feedback" id="alibiGridFeedback"></div>
+  `;
+}
+
+function handleAlibiGridClick(sid, slotIdx){
+  const cfg = CASE.alibiGridPuzzle;
+  const feedback = document.getElementById('alibiGridFeedback');
+  if(sid === cfg.contradictingSuspectId && slotIdx === cfg.contradictionSlotIndex){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'لقيت التناقض!');
+    feedback.className = 'wave-feedback ok';
+    game.alibiGridSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'alibiGrid' });
+    triggerFlash('good');
+    addScore(10, 'كشفت تناقض الجدول الزمني', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ الخانة دي مش فيها تناقض واضح، جرب خانة تانية.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تحديد خانة غلط', { silent:true });
+  }
+}
+
+/* ============================================================
+   LEDGER AUDIT PUZZLE (generic — driven by CASE.ledgerAuditPuzzle)
+   راجع صفوف السجل ودوّر على الصف المريب
+   ============================================================ */
+
+function ledgerAuditHTML(){
+  const cfg = CASE.ledgerAuditPuzzle;
+  const label = cfg.tabLabel || 'تدقيق السجلات';
+  if(game.ledgerAuditSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const rows = cfg.ledgerRows.map((row,i)=>{
+    return `
+      <div class="board-chip" data-ledger="${i}" style="display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; cursor:pointer;">
+        <span class="mono" style="color:var(--ink-dim); min-width:60px;">${row.account}</span>
+        <span style="flex:1; text-align:right;">${row.name}</span>
+        <span class="mono" style="color:var(--amber);">${row.amount}</span>
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <div id="ledgerAuditList">${rows}</div>
+    <div class="wave-feedback" id="ledgerAuditFeedback"></div>
+  `;
+}
+
+function handleLedgerAuditClick(rowIdx){
+  const cfg = CASE.ledgerAuditPuzzle;
+  const row = cfg.ledgerRows[rowIdx];
+  const feedback = document.getElementById('ledgerAuditFeedback');
+  if(row && row.account === cfg.correctAccountId){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'لقيت الحساب المريب!');
+    feedback.className = 'wave-feedback ok';
+    game.ledgerAuditSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'ledgerAudit' });
+    triggerFlash('good');
+    addScore(10, 'دققت السجل صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ الصف ده مش المريب فعلاً، راجع باقي السجل.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تحديد سجل غلط', { silent:true });
+  }
+}
+
+/* ============================================================
+   POLYGRAPH PUZZLE (generic — driven by CASE.polygraphPuzzle)
+   اسأل كل مشتبه فيه نفس السؤال وراقب قراءة التذبذب
+   ============================================================ */
+
+function polygraphHTML(){
+  const cfg = CASE.polygraphPuzzle;
+  const label = cfg.tabLabel || 'كشف الكذب';
+  if(game.polygraphSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const rows = Object.entries(cfg.suspectReadings).map(([sid, reading])=>{
+    const asked = game.polygraphAsked.has(sid);
+    if(!asked){
+      return `
+        <div class="board-chip" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:700;">${puzzleSuspectName(sid)}</span>
+          <button class="btn ghost" data-polygraph-ask="${sid}">اسأل</button>
+        </div>`;
+    }
+    const pct = Math.max(0, Math.min(100, reading));
+    const tone = pct > cfg.truthThreshold ? 'var(--danger)' : 'var(--signal)';
+    return `
+      <div class="board-chip" style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:700;">${puzzleSuspectName(sid)}</span>
+          <button class="btn" data-polygraph-accuse="${sid}">اتهم بالكذب</button>
+        </div>
+        <div class="poly-bar"><div class="poly-fill" style="width:${pct}%; background:${tone};"></div></div>
+        <div class="mono" style="font-size:11px; color:${tone}; margin-top:4px;">مستوى التذبذب: ${pct}%</div>
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <p style="margin-bottom:14px; font-weight:700;">"${cfg.question}"</p>
+    <div id="polygraphList">${rows}</div>
+    <div class="wave-feedback" id="polygraphFeedback"></div>
+  `;
+}
+
+function handlePolygraphAsk(sid){
+  game.polygraphAsked.add(sid);
+  persistProgress();
+  render(); game.screen='polygraph';
+}
+
+function handlePolygraphAccuse(sid){
+  const cfg = CASE.polygraphPuzzle;
+  const feedback = document.getElementById('polygraphFeedback');
+  if(sid === cfg.correctSuspectId){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'ده اللي بيكذب!');
+    feedback.className = 'wave-feedback ok';
+    game.polygraphSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'polygraph' });
+    triggerFlash('good');
+    addScore(10, 'كشفت الكذب صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ قراءته مش أعلى قراءة، فيه حد تاني بيكذب أكتر.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'اتهام كشف كذب غلط', { silent:true });
+  }
+}
+
+/* ============================================================
+   FLOOR PLAN PUZZLE (generic — driven by CASE.floorPlanPuzzle)
+   اختار مشتبه فيه لتتبع مساره على المخطط، وأكد اختيارك
+   ============================================================ */
+
+function floorPlanHTML(){
+  const cfg = CASE.floorPlanPuzzle;
+  const label = cfg.tabLabel || 'المخطط';
+  if(game.floorPlanSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const roomChips = cfg.rooms.map(r=>`<span class="board-chip" style="cursor:default; margin:0 4px 8px 0; display:inline-block;">${r}</span>`).join('');
+  const preview = game.floorPlanPreviewSuspect;
+  const rows = Object.keys(cfg.suspectPaths).map(sid=>{
+    const active = preview === sid ? 'selected' : '';
+    const path = cfg.suspectPaths[sid];
+    const pathHTML = preview === sid
+      ? `<div class="mono" style="font-size:12px; color:var(--amber); margin-top:8px;">${path.join(' ← ')}</div>
+         <button class="btn" data-floorplan-confirm="${sid}" style="margin-top:10px;">أكد: ده اللي وصل للمكان الحساس</button>`
+      : '';
+    return `
+      <div class="board-chip ${active}" data-floorplan-preview="${sid}" style="text-align:right; margin-bottom:8px; cursor:pointer;">
+        <div style="font-weight:700;">${puzzleSuspectName(sid)}</div>
+        ${pathHTML}
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <div class="mono" style="font-size:11px; color:var(--ink-dim); margin-bottom:8px;">غرف المكان</div>
+    <div style="margin-bottom:14px;">${roomChips}</div>
+    <div class="divider"></div>
+    <p class="dim mono" style="font-size:11px; margin-bottom:10px;">اضغط على مشتبه فيه عشان تتبع مساره</p>
+    <div id="floorPlanList">${rows}</div>
+    <div class="wave-feedback" id="floorPlanFeedback"></div>
+  `;
+}
+
+function handleFloorPlanPreview(sid){
+  game.floorPlanPreviewSuspect = (game.floorPlanPreviewSuspect === sid) ? null : sid;
+  render(); game.screen='floorPlan';
+}
+
+function handleFloorPlanConfirm(sid){
+  const cfg = CASE.floorPlanPuzzle;
+  const feedback = document.getElementById('floorPlanFeedback');
+  if(sid === cfg.correctSuspectId){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'ده اللي كان يقدر يوصل!');
+    feedback.className = 'wave-feedback ok';
+    game.floorPlanSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'floorPlan' });
+    triggerFlash('good');
+    addScore(10, 'تتبعت المسار صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ المسار ده مش بيوصل للمكان الحساس، جرب مشتبه فيه تاني.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تتبع مسار غلط', { silent:true });
+    game.floorPlanPreviewSuspect = null;
+    setTimeout(()=>{ render(); game.screen='floorPlan'; }, 1100);
+  }
+}
+
+/* ============================================================
+   WITNESS RELIABILITY PUZZLE (generic — driven by CASE.witnessReliabilityPuzzle)
+   قارن شهادتين وحدد مين شهادته أقل مصداقية
+   ============================================================ */
+
+function witnessReliabilityHTML(){
+  const cfg = CASE.witnessReliabilityPuzzle;
+  const label = cfg.tabLabel || 'تقييم الشهادات';
+  if(game.witnessReliabilitySolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const cards = cfg.testimonies.map(t=>{
+    return `
+      <div class="board-chip" data-witness="${t.suspectId}" style="text-align:right; margin-bottom:10px; cursor:pointer;">
+        <div style="font-weight:700; margin-bottom:6px;">${puzzleSuspectName(t.suspectId)}</div>
+        <div style="line-height:1.8;">${t.text}</div>
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <p class="dim mono" style="font-size:11px; margin-bottom:10px;">اضغط على الشهادة اللي شايفها أقل مصداقية (الكذب)</p>
+    <div id="witnessList">${cards}</div>
+    <div class="wave-feedback" id="witnessFeedback"></div>
+  `;
+}
+
+function handleWitnessClick(sid){
+  const cfg = CASE.witnessReliabilityPuzzle;
+  const feedback = document.getElementById('witnessFeedback');
+  if(sid === cfg.correctSuspectId){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'شهادته هي الأقل مصداقية فعلاً!');
+    feedback.className = 'wave-feedback ok';
+    game.witnessReliabilitySolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'witnessReliability' });
+    triggerFlash('good');
+    addScore(10, 'قيّمت الشهادات صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ الشهادة دي أقرب للحقيقة، راجع التفاصيل تاني.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تقييم شهادة غلط', { silent:true });
+  }
+}
+
+/* ============================================================
+   HANDWRITING PUZZLE (generic — driven by CASE.handwritingPuzzle)
+   قارن توقيع مرجعي بتوقيع الوصية/الملاحظة، وحدد نقاط الاختلاف
+   ============================================================ */
+
+const HANDWRITING_FIELD_LABELS = { angle:'الزاوية', pressure:'ضغط القلم', spacing:'تباعد الحروف' };
+
+function handwritingFieldValue(v){
+  return typeof v === 'number' ? (v + '°') : v;
+}
+
+function handwritingHTML(){
+  const cfg = CASE.handwritingPuzzle;
+  const label = cfg.tabLabel || 'تحليل خط اليد';
+  if(game.handwritingSolved){
+    return `
+      <h2>${label} — مكتمل</h2>
+      <p>${cfg.resultText}</p>
+      <div class="divider"></div>
+      <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
+    `;
+  }
+  const fields = Object.keys(cfg.referenceSignature);
+  const rows = fields.map(f=>{
+    const sel = game.handwritingSelected.includes(f) ? 'selected' : '';
+    return `
+      <div class="board-chip ${sel}" data-handwriting="${f}" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer;">
+        <span style="font-weight:700;">${HANDWRITING_FIELD_LABELS[f] || f}</span>
+        <span class="mono" style="color:var(--ink-dim);">مرجع: ${handwritingFieldValue(cfg.referenceSignature[f])}</span>
+        <span class="mono" style="color:var(--amber);">العينة: ${handwritingFieldValue(cfg.willSignature[f])}</span>
+      </div>`;
+  }).join('');
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText}</p>
+    <div class="divider"></div>
+    <p class="dim mono" style="font-size:11px; margin-bottom:10px;">علّم على الصفات اللي شايفها مختلفة بين التوقيعين، ولو مفيش فرق أكّد التحليل من غير ما تعلّم على حاجة</p>
+    <div id="handwritingList">${rows}</div>
+    <button class="btn" id="submitHandwriting" style="margin-top:16px;">تأكيد التحليل</button>
+    <div class="wave-feedback" id="handwritingFeedback"></div>
+  `;
+}
+
+function toggleHandwritingField(f){
+  const sel = game.handwritingSelected;
+  if(sel.includes(f)) game.handwritingSelected = sel.filter(x=>x!==f);
+  else sel.push(f);
+  persistProgress();
+  render(); game.screen='handwriting';
+}
+
+function submitHandwriting(){
+  const cfg = CASE.handwritingPuzzle;
+  const expected = cfg.discrepancyPoints || [];
+  const chosen = game.handwritingSelected;
+  const correct = expected.length === chosen.length && expected.every(f=>chosen.includes(f));
+  const feedback = document.getElementById('handwritingFeedback');
+  if(correct){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'التحليل صح!');
+    feedback.className = 'wave-feedback ok';
+    game.handwritingSolved = true;
+    gaTrack('puzzle_solved', { puzzle_type:'handwriting' });
+    triggerFlash('good');
+    addScore(10, 'حللت خط اليد صح', { silent:true });
+    (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+    persistProgress();
+    setTimeout(()=>render(), 1300);
+  } else {
+    feedback.textContent = '✗ التحليل مش دقيق كفاية، راجع الصفات تاني.';
+    feedback.className = 'wave-feedback bad';
+    addScore(-2, 'تحليل خط يد غلط', { silent:true });
+  }
+}
+
+/* ============================================================
    THEORY BUILDER (optional — driven by CASE.theoryBuilder)
    بديل شاشة الاتهام البسيطة: قبل ما تقفل القضية، اللاعب يفسّر
    الدافع/الطريقة/التوقيت باختياره من مجموعة خيارات لكل عنصر
@@ -2506,6 +3042,48 @@ function attachPanelEvents(){
   document.querySelectorAll('[data-contra]').forEach(chip=>{
     chip.addEventListener('click', ()=> handleContradictionClick(chip.dataset.contra));
   });
+
+  document.querySelectorAll('[data-dnalab]').forEach(chip=>{
+    chip.addEventListener('click', ()=> handleDnaLabClick(chip.dataset.dnalab));
+  });
+
+  document.querySelectorAll('[data-alibi-suspect]').forEach(cell=>{
+    cell.addEventListener('click', ()=> handleAlibiGridClick(cell.dataset.alibiSuspect, parseInt(cell.dataset.alibiSlot,10)));
+  });
+
+  document.querySelectorAll('[data-ledger]').forEach(row=>{
+    row.addEventListener('click', ()=> handleLedgerAuditClick(parseInt(row.dataset.ledger,10)));
+  });
+
+  document.querySelectorAll('[data-polygraph-ask]').forEach(btn=>{
+    btn.addEventListener('click', ()=> handlePolygraphAsk(btn.dataset.polygraphAsk));
+  });
+  document.querySelectorAll('[data-polygraph-accuse]').forEach(btn=>{
+    btn.addEventListener('click', ()=> handlePolygraphAccuse(btn.dataset.polygraphAccuse));
+  });
+
+  document.querySelectorAll('[data-floorplan-preview]').forEach(chip=>{
+    chip.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-floorplan-confirm]')) return;
+      handleFloorPlanPreview(chip.dataset.floorplanPreview);
+    });
+  });
+  document.querySelectorAll('[data-floorplan-confirm]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      handleFloorPlanConfirm(btn.dataset.floorplanConfirm);
+    });
+  });
+
+  document.querySelectorAll('[data-witness]').forEach(chip=>{
+    chip.addEventListener('click', ()=> handleWitnessClick(chip.dataset.witness));
+  });
+
+  document.querySelectorAll('[data-handwriting]').forEach(chip=>{
+    chip.addEventListener('click', ()=> toggleHandwritingField(chip.dataset.handwriting));
+  });
+  const submitHandwritingBtn = document.getElementById('submitHandwriting');
+  if(submitHandwritingBtn) submitHandwritingBtn.addEventListener('click', submitHandwriting);
 
   document.querySelectorAll('[data-board-ev]').forEach(chip=>{
     chip.addEventListener('click', ()=>{
