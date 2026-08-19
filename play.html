@@ -66,6 +66,11 @@
 
   .mono { font-family: 'JetBrains Mono', monospace; direction: ltr; display: inline-block; }
 
+  /* البانر لما يتحط تحت لوجو الأرشيف */
+  .bundle-home-banner {
+    margin: 22px auto 30px;
+  }
+
   .banner {
     max-width: 920px;
     margin: 0 auto;
@@ -244,6 +249,136 @@
   }
   .footer-note .thread-dot { color: var(--thread); }
 
+
+  /* ===== Mobile package teaser + modal ===== */
+  .bundle-mobile-teaser {
+    display: none;
+  }
+
+  .bundle-mobile-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(5, 7, 12, 0.78);
+    backdrop-filter: blur(7px);
+    padding: 18px 12px;
+    overflow-y: auto;
+  }
+
+  .bundle-mobile-modal.open {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .bundle-mobile-modal-inner {
+    width: min(100%, 560px);
+    margin: auto;
+    position: relative;
+  }
+
+  .bundle-mobile-close {
+    position: sticky;
+    top: 0;
+    margin: 0 0 10px auto;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: #141922;
+    color: var(--ink);
+    font-size: 22px;
+    font-family: inherit;
+    cursor: pointer;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+  }
+
+  @media (max-width: 600px) {
+    /* اخفي البانر الكامل تحت اللوجو على الموبايل */
+    .bundle-home-banner {
+      display: none !important;
+    }
+
+    /* الكارت الصغير البديل */
+    .bundle-mobile-teaser {
+      display: block;
+      margin: 14px 14px 18px;
+      border: 1px solid rgba(224,164,88,0.35);
+      background:
+        radial-gradient(circle at 85% 15%, rgba(244,200,105,0.12), transparent 34%),
+        linear-gradient(145deg, #211c16 0%, #1b202a 100%);
+      border-radius: 12px;
+      padding: 14px 15px;
+      cursor: pointer;
+      box-shadow: 0 8px 26px rgba(0,0,0,0.24);
+      text-align: right;
+    }
+
+    .bundle-mobile-teaser-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .bundle-mobile-teaser-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 3px;
+    }
+
+    .bundle-mobile-teaser-sub {
+      font-size: 12px;
+      color: var(--ink-dim);
+      line-height: 1.55;
+    }
+
+    .bundle-mobile-teaser-arrow {
+      flex: 0 0 auto;
+      color: var(--amber);
+      font-size: 20px;
+      transform: rotate(180deg);
+    }
+
+    /* البانر داخل الـPopup يبقى مناسب للموبايل */
+    .bundle-mobile-modal .banner {
+      display: block !important;
+      width: 100%;
+      margin: 0;
+      padding: 28px 14px 20px;
+      border-radius: 12px;
+    }
+
+    .bundle-mobile-modal .header {
+      margin-bottom: 22px;
+    }
+
+    .bundle-mobile-modal .tiers {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .bundle-mobile-modal .tier,
+    .bundle-mobile-modal .tier:first-child,
+    .bundle-mobile-modal .tier:last-child {
+      border-radius: 8px;
+      border-left: 1px solid var(--line);
+    }
+
+    .bundle-mobile-modal .thread-row {
+      display: none;
+    }
+
+    .bundle-mobile-modal .fingerprint-bg {
+      width: 320px;
+      height: 320px;
+    }
+  }
+
   @media (max-width: 600px) {
     .tiers { grid-template-columns: 1fr; gap: 14px; }
     .tier, .tier:first-child, .tier:last-child { border-radius: 8px; border-left: 1px solid var(--line); }
@@ -252,6 +387,7 @@
 
 </style>
 
+<template id="bundleBannerTemplate">
 <div class="banner">
   <svg class="fingerprint-bg" viewBox="0 0 200 200" aria-hidden="true">
     <path d="M100,20 C50,20 20,60 20,100 C20,150 50,180 100,180"/>
@@ -297,6 +433,7 @@
     <span class="thread-dot">●</span> اختار القضايا اللي عايزها، وابعت طلبك على واتساب <span class="thread-dot">●</span>
   </div>
 </div>
+</template>
 
 <div id="app"></div>
 <!-- Supabase client library (بس للأكواد، مفيش حسابات) -->
@@ -435,5 +572,117 @@
 <!-- المحرك العام (بيشتغل مع أي قضية في CASES_REGISTRY) -->
 <script src="leaderboard.js"></script>
 <script src="engine.js"></script>
+
+
+<script>
+/* الباقات:
+   - PC: البانر الكامل تحت لوجو "طرف الخيط"
+   - Mobile: كارت صغير تحت اللوجو يفتح Popup بالباقات
+*/
+(function () {
+  const appRoot = document.getElementById('app');
+  const tpl = document.getElementById('bundleBannerTemplate');
+  if (!appRoot || !tpl) return;
+
+  function buildMobileModalIfNeeded() {
+    let modal = document.getElementById('bundleMobileModal');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'bundleMobileModal';
+    modal.className = 'bundle-mobile-modal';
+    modal.setAttribute('aria-hidden', 'true');
+
+    const inner = document.createElement('div');
+    inner.className = 'bundle-mobile-modal-inner';
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'bundle-mobile-close';
+    close.setAttribute('aria-label', 'إغلاق الباقات');
+    close.textContent = '×';
+
+    const fragment = tpl.content.cloneNode(true);
+    const banner = fragment.querySelector('.banner');
+
+    inner.appendChild(close);
+    if (banner) inner.appendChild(banner);
+    modal.appendChild(inner);
+    document.body.appendChild(modal);
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    close.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    return modal;
+  }
+
+  function openMobileModal() {
+    const modal = buildMobileModalIfNeeded();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function placePackagesUnderLogo() {
+    const hero = appRoot.querySelector('.lib-hero');
+
+    // جوه القضية مفيش lib-hero، فمفيش بانر ولا كارت.
+    if (!hero) return;
+
+    // PC full banner
+    if (!appRoot.querySelector('.bundle-home-banner')) {
+      const fragment = tpl.content.cloneNode(true);
+      const banner = fragment.querySelector('.banner');
+      if (banner) {
+        banner.classList.add('bundle-home-banner');
+        hero.insertAdjacentElement('afterend', banner);
+      }
+    }
+
+    // Mobile compact teaser: insert after hero and before full banner visually.
+    if (!appRoot.querySelector('.bundle-mobile-teaser')) {
+      const teaser = document.createElement('button');
+      teaser.type = 'button';
+      teaser.className = 'bundle-mobile-teaser';
+      teaser.innerHTML = `
+        <div class="bundle-mobile-teaser-top">
+          <div>
+            <div class="bundle-mobile-teaser-title">🎁 باقات القضايا</div>
+            <div class="bundle-mobile-teaser-sub">وفّر لما تشتري أكتر — شوف العروض والباقات المتاحة</div>
+          </div>
+          <div class="bundle-mobile-teaser-arrow">←</div>
+        </div>
+      `;
+      teaser.addEventListener('click', openMobileModal);
+
+      const fullBanner = appRoot.querySelector('.bundle-home-banner');
+      if (fullBanner) hero.insertAdjacentElement('afterend', teaser);
+      else hero.insertAdjacentElement('afterend', teaser);
+    }
+  }
+
+  placePackagesUnderLogo();
+
+  // showLibrary() يعيد بناء #app، فارجع العناصر تلقائيًا بعد كل رجوع للأرشيف.
+  const observer = new MutationObserver(function () {
+    placePackagesUnderLogo();
+  });
+
+  observer.observe(appRoot, { childList: true });
+})();
+</script>
 </body>
 </html>
