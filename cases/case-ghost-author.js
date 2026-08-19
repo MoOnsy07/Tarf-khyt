@@ -341,3 +341,16 @@ const CASE_GHOST_AUTHOR = {
    by side on a desk, magnifying glass nearby, forensic analysis
    style, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_GHOST_AUTHOR;
+  const s = c.suspects.find(x => x.id === 'sameh_writer');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "جيت أقابله فعلًا عشان أطالب بحقي واسمي، واتخانقنا بالكلام. موضوع السم في العسل خطير، لكن وجودي هنا وكوني الكاتب الحقيقي مش معناه إني حطيته."';
+    }
+  }
+  c.conclusiveRequired = 4;
+})();

@@ -212,7 +212,7 @@ const CASE_DARK_TESTIMONY = {
 
   correctSuspectId: 'karim',
   conclusiveEvidenceIds: ['ring', 'witness', 'ring_witness_link', 'pastcomplaint', 'cam_verified', 'contradiction_noted_dark'],
-  conclusiveRequired: 3,
+  conclusiveRequired: 4,
 
   theoryBuilder: {
     enabled: true,

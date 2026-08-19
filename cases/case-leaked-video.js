@@ -287,3 +287,16 @@ const CASE_LEAKED_VIDEO = {
     }
   }
 };
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LEAKED_VIDEO;
+  const m = c.suspects.find(s => s.id === 'maya');
+  if (m) {
+    const q = m.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بتتوتر) "الجهاز بتاعي كان عليه الملفات فعلًا، وده يحرجني، بس الجهاز كان بيتساب في مكان الشغل وناس تانية كان ممكن توصل له. أنا مش هاعترف بحاجة لمجرد بصمة جهاز."';
+    }
+  }
+  c.conclusiveRequired = 4;
+})();

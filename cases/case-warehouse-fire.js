@@ -345,3 +345,34 @@ const CASE_WAREHOUSE_FIRE = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_WAREHOUSE_FIRE;
+  c.evidenceCombinations = [];
+  if (c.floorPlanPuzzle) {
+    c.floorPlanPuzzle.resultText = 'المخطط يثبت إن فريد كان يقدر يوصل لنقطة الاشتعال من المدخل الجانبي من غير المرور بالحراسة. ده يثبت فرصة الوصول فقط.';
+    c.floorPlanPuzzle.resultEvidenceIds = ['farid_route_access'];
+  }
+  const ev = id => c.evidence.find(e => e.id === id);
+  if (!ev('farid_route_access')) {
+    c.evidence.push({
+      id:'farid_route_access', tag:'من مخطط المخزن', crit:true,
+      title:'مسار وصول فريد لنقطة الاشتعال', img:null,
+      short:'الممر الجانبي يتيح الوصول لنقطة بداية الحريق بعيدًا عن الحراسة',
+      full:'مخطط المخزن يثبت إن فريد كان يقدر يدخل من الممر الجانبي ويصل لنقطة بداية الحريق من غير المرور على رضا. ده يثبت الإمكانية، مش التنفيذ وحده.',
+      unlocked:false, order:90
+    });
+  }
+  const f = c.suspects.find(s => s.id === 'colleague_farid');
+  if (f) {
+    const q = f.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'عربيتك كانت قرب المخزن، وإنت عارف إن سعيد رجع، والمخطط يثبت إنك تقدر تدخل من الممر الجانبي. تفسر ده إزاي؟';
+      q.requires = ['farid_knew_saeed_present','farid_car_seen','farid_route_access'];
+      q.a = '(بيسكت) "كنت قريب من المكان فعلًا وعرفت إن سعيد رجع، لكن ده مش اعتراف إني ولعت المخزن. لازم تثبتوا مين استخدم مادة الاشتعال."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['fire_investigator_report','farid_knew_saeed_present','farid_car_seen','farid_route_access'];
+  c.conclusiveRequired = 4;
+})();

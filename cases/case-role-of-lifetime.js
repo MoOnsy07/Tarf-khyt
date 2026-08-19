@@ -353,3 +353,20 @@ const CASE_ROLE_OF_LIFETIME = {
    with highlighted matching phrases, forensic analysis style, no
    text, no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_ROLE_OF_LIFETIME;
+  const k = c.suspects.find(s => s.id === 'journalist_kareem');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت وقت طويل) "أنا أعرف تفاصيل عن راغب أكتر مما قلت، والفيديوهات مرتبطة بجهازي فعلًا. لكن هوية راغب ومحاولة تعطيل التصوير حاجتين مختلفتين، ولازم تثبتوا إن أنا اللي عبثت بالمعدة."';
+    }
+  }
+  if (c.cipherPuzzle) {
+    c.cipherPuzzle.resultText = 'الرسالة المشفرة تكشف إن داليا كانت بتحاول تحذر أنور من شخص قريب من ملف راغب. الرسالة توجه التحقيق، لكنها مش اعتراف ولا دليل قتل.';
+  }
+  c.conclusiveEvidenceIds = ['decoded_message','video_metadata_link','rig_tamper_footage','writing_style_match'];
+  c.conclusiveRequired = 4;
+})();

@@ -301,3 +301,21 @@ const CASE_SECOND_FACE = {
   });
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_SECOND_FACE;
+  c.evidenceCombinations = [];
+  if (c.witnessReliabilityPuzzle) {
+    c.witnessReliabilityPuzzle.resultText = 'شهادة الجار محددة في التوقيت والمكان وبتكسر أليبي خالد إنه فضل في البيت. ده يثبت وجوده قرب العمارة، مش الاختفاء نفسه.';
+  }
+  const k = c.suspects.find(s => s.id === 'obsessed_fan_khaled_f');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتوتر) "رحت العمارة فعلًا عشان أحاول أقابلها بعد الفيديو، لكن هي رفضت. الحساب المزيف غلط مني، ووجودي هناك يثبت إني كذبت، مش إني أخدتها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['sherif_f_client','khaled_f_dm_contact','khaled_f_seen_building'];
+  c.conclusiveRequired = 3;
+})();

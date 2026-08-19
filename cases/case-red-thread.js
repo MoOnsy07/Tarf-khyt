@@ -341,3 +341,18 @@ const CASE_RED_THREAD = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_RED_THREAD;
+  c.evidenceCombinations = [];
+  const k = c.suspects.find(s => s.id === 'investor_kamal');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "دخلت فعلًا أكلم ياسمين لأنها كانت مهدداني بموضوع الفلوس، لكن خرجت وسيبتها. الخيط والـDNA لازم يثبتوا حصل إيه بعد كده بدل ما تعتمدوا على دافعي بس."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['kamal_secret','kamal_backdoor_seen','dna_sample_thread'];
+  c.conclusiveRequired = 3;
+})();

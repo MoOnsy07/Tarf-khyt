@@ -160,21 +160,21 @@ const CASE_CODED_MESSAGE = {
   cipherPuzzle: {
     enabled: true,
     tabLabel: 'فك الشفرة',
-    introText: 'الرسالة مكتوبة بشفرة استبدال؛ كل رقم فيها بيرمز لحرف معين. جرّب تستخدم تاريخ ميلاد نور كمفتاح فك الشفرة.',
+    introText: 'الرسالة مكتوبة بشفرة استبدال مرتبطة بتفصيلة شخصية تخص نور. راجع المعلومات اللي يعرفها المقربون منها وحدد المفتاح قبل فك الأرقام.',
     cipherText: '13-15-11-5-14 / 22-9-12-12-1',
     cipherKey: 'birthdate-substitution',
     solutionText: 'مخزن فيلا',
     resultText: 'فكيت الشفرة! الرسالة بتشاور على "مخزن فيلا" — مكان قريب من فيلا العيلة القديمة كانت سعاد بتشتغل فيه زمان.',
-    resultEvidenceIds: ['yara_c_seen_villa'],
+    resultEvidenceIds: ['ransom_note'],
   },
 
   evidenceCombinations: [
-    { parts:['yara_c_debt','atef_c_questioned'], resultId:'yara_c_seen_villa' },
+    { parts:['yara_c_debt','atef_c_questioned'], resultId:'yara_c_debt' },
   ],
 
   correctSuspectId: 'private_tutor_yara_c',
-  conclusiveEvidenceIds: ['yara_c_debt', 'yara_c_seen_villa', 'atef_c_questioned'],
-  conclusiveRequired: 3,
+  conclusiveEvidenceIds: ['ransom_note', 'yara_c_debt', 'yara_c_seen_villa', 'atef_c_questioned'],
+  conclusiveRequired: 4,
 
   theoryBuilder: {
     enabled: true,

@@ -310,7 +310,7 @@ const CASE_LAST_LAUGH = {
     short:'أعلى تذبذب ظهر عند ماهر لما أنكر وجوده قرب المسرح',
     full:'نتيجة كشف الكذب دعمت شهادة فريق العمل وأظهرت تذبذب قوي عند ماهر لما أنكر دخوله الكواليس قبل البروفة.', unlocked:false, order:90 });
   c.polygraphPuzzle.resultEvidenceIds = ['maher_polygraph_lie'];
-  c.conclusiveEvidenceIds = ['maher_rivalry','maher_seen_backstage_l','maher_polygraph_lie'];
+  c.conclusiveEvidenceIds = ['maher_rivalry','maher_seen_backstage_l','poisoned_prop_cup'];
   const m=c.suspects.find(s=>s.id==='rival_writer_maher');
   if(m && !m.questions.some(q=>q.closesInterrogation)) m.questions.push({
     q:'فريق المسرح شافك في الكواليس، وكشف الكذب فضح إنكارك، وإنت عندك دافع واضح بعد استبعاد نصك. لمست كوباية المشهد؟',
@@ -319,4 +319,25 @@ const CASE_LAST_LAUGH = {
   });
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: دافع ماهر، وجوده في الكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
 
+})();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_LAUGH;
+  if (c.polygraphPuzzle) {
+    c.polygraphPuzzle.enabled = false;
+    c.polygraphPuzzle.resultEvidenceIds = [];
+  }
+  c.evidence = c.evidence.filter(e => e.id !== 'maher_polygraph_lie');
+  c.evidenceCombinations = [];
+  const m = c.suspects.find(s => s.id === 'rival_writer_maher');
+  if (m) {
+    const q = m.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'إنت اعترفت إنك كنت في الكواليس رغم إنك حاولت تقلل من وجودك هناك، وعندك خلاف واضح مع بهاء. لمست كوباية المشهد؟';
+      q.requires = ['maher_rivalry','maher_seen_backstage_l','poisoned_prop_cup'];
+      q.a = '(بيتضايق) "كنت في الكواليس فعلًا، بس ما لمستش الكوباية. وجودي هناك وخلافي معاه مش كفاية تقولوا إني سممته."';
+    }
+  }
+  c.conclusiveRequired = 3;
 })();

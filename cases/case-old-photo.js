@@ -319,3 +319,28 @@ const CASE_OLD_PHOTO = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: خلاف نعيم، كونه آخر شخص مع كمال، واعتراف رمزي كشاهد، قبل ما تتهم.';
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_OLD_PHOTO;
+  c.correctSuspectId = 'business_partner_naeem';
+  const r = c.suspects.find(s => s.id === 'childhood_friend_ramzy');
+  if (r) {
+    const q = r.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيصمت طويل) "أنا كتبت الجملة فعلًا لأني شفت خناقة قوية بين نعيم وكمال قرب المية. وقتها خفت أتكلم، وفضلت ساكت السنين دي كلها. اللي شفته يخليني أشك في نعيم، لكن أنا ما شفتش لحظة الغرق نفسها بوضوح."';
+    }
+  }
+  const n = c.suspects.find(s => s.id === 'business_partner_naeem');
+  if (n) {
+    const q = n.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتضايق) "اتخانقنا على الفلوس فعلًا وكنت آخر واحد معاه. لكن رمزي نفسه بيقول إنه ما شافش لحظة الغرق بوضوح. لو هتتهمني لازم تثبت أكتر من كده."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['naeem_business_dispute','naeem_last_seen','handwriting_match_ramzy'];
+  c.conclusiveRequired = 3;
+  if (c.handwritingPuzzle) {
+    c.handwritingPuzzle.resultText = 'الخط على ظهر الصورة بيتطابق مع دفتر رمزي. ده يثبت إنه صاحب الملاحظة القديمة، لكنه يحوله لشاهد على الشبهة لا للقاتل تلقائيًا.';
+  }
+})();

@@ -301,3 +301,18 @@ const CASE_OVERBILLED = {
   });
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_OVERBILLED;
+  c.evidenceCombinations = [];
+  const r = c.suspects.find(s => s.id === 'business_partner_raafat');
+  if (r) {
+    const q = r.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "فضلت بعد الإغلاق فعلًا عشان أحاول أقنع فتحي يديني فرصة أرجع الفلوس. اتخانقنا، وبعدها سبت المكان. التلاعب المالي ثابت، لكن القتل محتاج دليل مستقل."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['raafat_kickback','raafat_stayed_late','mounir_heard_argument','supplier_overbilling_proven'];
+  c.conclusiveRequired = 4;
+})();

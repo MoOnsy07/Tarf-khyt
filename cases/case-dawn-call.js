@@ -330,3 +330,19 @@ const CASE_DAWN_CALL = {
   });
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_DAWN_CALL;
+  c.evidenceCombinations = [];
+  const f = c.suspects.find(s => s.id === 'business_partner_fadi');
+  if (f) {
+    const q = f.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'حسن قال إنك عرضت عليه فلوس عشان يعمل خلل في الفرامل، والخلاف والموعد النهائي بيدوك دافع واضح. ردك إيه؟';
+      q.a = '(بيتنفس بعصبية) "حسن بيحاول ينقذ نفسه ويرميني في الموضوع. آه كان بينا خلاف وصفقة، لكن أنا ماطلبتش قتل علاء ولا العبث بعربيته."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['fadi_dispute','hassan_tampering_request','fadi_deadline'];
+  c.conclusiveRequired = 3;
+})();

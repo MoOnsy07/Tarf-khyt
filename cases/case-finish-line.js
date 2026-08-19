@@ -310,3 +310,24 @@ const CASE_FINISH_LINE = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: صفقة الرعاية، وجود تامر قرب المعسكر، والتطابق الكيميائي، قبل ما تتهم.';
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FINISH_LINE;
+  if (c.dnaLabPuzzle) {
+    c.dnaLabPuzzle.resultText = 'التركيب الكيميائي للمادة في زجاجة منير مطابق لعينة موجودة ضمن متعلقات تامر. التطابق يربطه بالمادة، لكنه محتاج دافع وربط بالواقعة نفسها.';
+    c.dnaLabPuzzle.resultEvidenceIds = ['tamer_f_chemical_match'];
+  }
+  c.evidenceCombinations = [];
+  const t = c.suspects.find(s => s.id === 'sponsor_rep_tamer_f');
+  if (t) {
+    const q = t.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'العينة اللي في متعلقاتك مطابقة للمادة الموجودة في زجاجة منير، وعندك مصلحة مباشرة في فوز خالد. تفسر التطابق إزاي؟';
+      q.requires = ['tamer_f_sponsorship','tamer_f_chemical_match'];
+      q.a = '(بيتوتر) "العينة دي ممكن تكون وصلت لحاجتي من تجهيزات المعسكر أو من حد تاني. أنا ماحطتش حاجة في زجاجة منير، ومش هاعترف بحاجة لمجرد التطابق."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['doping_report_f','tamer_f_sponsorship','tamer_f_chemical_match'];
+  c.conclusiveRequired = 3;
+})();

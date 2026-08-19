@@ -326,3 +326,18 @@ const CASE_OLD_ESTATE = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_OLD_ESTATE;
+  c.evidenceCombinations = [];
+  const y = c.suspects.find(s => s.id === 'nephew_youssef_o');
+  if (y) {
+    const q = y.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "قربت من طبق وليد فعلًا وأنا بساعد على السفرة، وكنت غضبان من الوصية. لكن ده مش اعتراف إني حطيت السم. لازم تثبتوا التلوث ومسار وصولي للطبق."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['youssef_o_exclusion','witness_youssef_near_plate','poisoned_plate'];
+  c.conclusiveRequired = 3;
+})();

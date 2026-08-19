@@ -101,7 +101,7 @@ const CASE_CLOSED_FILE = {
         { q:'علاقتك بأبوك حامد كانت متأثرة بالقضية القديمة؟', unlockId:'tarek_f_family_burden',
           a:'"طول حياتي وأنا عايش تحت ظل شكوك الناس في أبويا، ده دمر سمعة العيلة كلها."' },
         { q:'شاهد أكد إنك كنت في المدينة وقت الجريمة، مش بره زي ما قلت — عايز تفسر؟', requires:['tarek_f_family_burden','hamed_knew_reopening','nasser_reputation_risk'], closesInterrogation:true,
-          a:'(بيصمت طويل) "خفت إن القضية تتفتح تاني وتدمر اللي اتبقى من سمعة عيلتنا. رحت أقابل فتحي أقنعه يوقف، بس الموقف خرج عن السيطرة."' },
+          a:'(بيصمت طويل) "أيوه كنت في المدينة، وروحت لفتحي عشان أقنعه يوقف فتح الملف. اتخانقنا بالكلام، بس سيبته حي ومشيت. لو عندكم دليل غير كده هاتوه."' },
       ]
     },
   ],
@@ -164,8 +164,8 @@ const CASE_CLOSED_FILE = {
   ledgerAuditPuzzle: {
     enabled: true,
     tabLabel: 'تدقيق ملف القضية القديمة',
-    introText: 'راجع ملاحظات فتحي القديمة والجديدة جنب بعض، ودوّر على الاسم اللي بيتكرر في كل مرحلة من مراحل تحقيقه الجديد.',
-    resultText: 'الاسم المتكرر في كل ملاحظات فتحي الأخيرة هو طارق، ابن المشتبه به الأساسي القديم.',
+    introText: 'راجع ملاحظات فتحي القديمة والجديدة جنب بعض، وحدد مين من المرتبطين بالقضية القديمة رجع اسمه يظهر بشكل غير معتاد في الأسابيع الأخيرة.',
+    resultText: 'ملاحظات فتحي الأخيرة بتبين إن طارق رجع يظهر أكتر من مرة في مسار التحقيق الجديد. دي قرينة تبرر مراجعة تحركاته، مش إدانة لوحدها.',
     ledgerRows: [
       { account:'ملاحظة 1', name:'حامد - المشتبه الأساسي', amount:'قديم', suspicious:false },
       { account:'ملاحظة 2', name:'طارق - زيارات متكررة', amount:'جديد', suspicious:true },
@@ -181,7 +181,7 @@ const CASE_CLOSED_FILE = {
     enabled: true,
     tabLabel: 'تحليل ملاحظات فتحي',
     introText: 'قارن آخر ملاحظة كتبها فتحي بخط يده المرتجف قبل مقتله مباشرة بعينات خط المشتبه بيهم، ودوّر على أي تلميح لهوية الزائر الأخير.',
-    resultText: 'الملاحظة الأخيرة بتذكر اسم طارق بشكل صريح كآخر زائر قبل الحادثة.',
+    resultText: 'الملاحظة الأخيرة تشير إن فتحي كان مستني زيارة مرتبطة بعيلة حامد قبل الحادثة. لازم تتقارن بالشهادة والتحركات قبل تحديد هوية الزائر.',
     referenceSignature: { angle: 20, pressure: 'heavy', spacing: 'wide' },
     willSignature: { angle: 20, pressure: 'heavy', spacing: 'wide' },
     discrepancyPoints: [],
@@ -190,7 +190,7 @@ const CASE_CLOSED_FILE = {
   },
 
   evidenceCombinations: [
-    { parts:['nasser_reputation_risk','tarek_f_family_burden'], resultId:'witness_tarek_f_seen' },
+    { parts:['hamed_knew_reopening','tarek_f_family_burden'], resultId:'tarek_f_family_burden' },
   ],
 
   correctSuspectId: 'hamed_son_tarek_f',

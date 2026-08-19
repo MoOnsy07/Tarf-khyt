@@ -320,3 +320,23 @@ const CASE_LAST_BELL = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: مسار الفلوس، اعتراف وائل بالشبكة، وشهادة عم راتب، قبل ما تتهم.';
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_BELL;
+  c.evidenceCombinations = [];
+  const w = c.suspects.find(s => s.id === 'teacher_wael');
+  if (w) {
+    const q = w.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "اتخانقنا فعلًا لأني كنت عايزه يأجل البلاغ، لكن سيبته ومشيت. الفلوس والشجار يثبتوا إني متورط في شبكة التسريب، مش إنهم يثبتوا القتل لوحدهم."';
+    }
+  }
+  if (c.evidence.some(e => e.id === 'wael_money_trail')) {
+    c.conclusiveEvidenceIds = ['wael_scheme','rateb_observation','wael_money_trail','exam_pattern_records'];
+    c.conclusiveRequired = 4;
+  } else {
+    c.conclusiveEvidenceIds = ['wael_scheme','rateb_observation','exam_pattern_records'];
+    c.conclusiveRequired = 3;
+  }
+})();

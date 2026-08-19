@@ -328,3 +328,34 @@ const CASE_SUSPICIOUS_TRANSFER = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_SUSPICIOUS_TRANSFER;
+  const ev = id => c.evidence.find(e => e.id === id);
+  if (!ev('sameh_ledger_link')) {
+    c.evidence.push({
+      id:'sameh_ledger_link', tag:'من تدقيق الحسابات', crit:true,
+      title:'الحساب الوهمي مرتبط بقريب سامح', img:null,
+      short:'الحساب المشبوه 4471 مسجل باسم قريب مباشر لسامح',
+      full:'التدقيق كشف إن الحساب الوهمي المتكرر في التحويلات مسجل باسم قريب مباشر لسامح. ده يربطه بمسار الأموال بشكل مستقل عن مجرد وجوده في المبنى.',
+      unlocked:false, order:90
+    });
+  }
+  if (c.ledgerAuditPuzzle) {
+    c.ledgerAuditPuzzle.resultText = 'الحساب 4471 مرتبط بقريب سامح، وده يربطه مباشرة بمسار التحويلات المشبوهة.';
+    c.ledgerAuditPuzzle.resultEvidenceIds = ['sameh_ledger_link'];
+  }
+  c.evidenceCombinations = [];
+  const s = c.suspects.find(x => x.id === 'clerk_sameh');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'اسم قريبك ظاهر على الحساب الوهمي، وسجل الدخول يثبت وجودك رغم الإجازة. قابلت هيثم الليلة دي؟';
+      q.requires = ['sameh_present','sameh_ledger_link','ledger_pattern'];
+      q.a = '(بيسكت) "قابلته واتكلمنا عن اللي اكتشفه، آه. لكن أنا مش هاعترف بمكانه أو إني أجبرته على حاجة من غير دليل مباشر."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['ledger_pattern','sameh_present','sameh_ledger_link','youssef_details'];
+  c.conclusiveRequired = 4;
+})();

@@ -315,3 +315,17 @@ const CASE_NO_WITNESS_NIGHT = {
    forensic evidence photography style, no text, no watermark,
    photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_NO_WITNESS_NIGHT;
+  const k = c.suspects.find(s => s.id === 'kareem_lookalike');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "أنا اللي كنت لابس جاكيت عصام وخرجت من الممر، وده كان تصرف جبان مني لأني خفت من الشبهة. لكن تحديد اللي حصل جوه المكان لازم يعتمد على باقي الأدلة، مش الجاكيت لوحده."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['uber_receipt','camera_maintenance_log','clock_offset_confirmed','jacket_seen_on_cam'];
+  c.conclusiveRequired = 4;
+})();

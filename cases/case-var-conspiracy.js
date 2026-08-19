@@ -300,3 +300,42 @@ const CASE_VAR_CONSPIRACY = {
    corridor with a man's silhouette entering a door, grainy
    surveillance footage look, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_VAR_CONSPIRACY;
+  if (c.cameraPuzzle) {
+    c.cameraPuzzle.introText = 'راجع كاميرا الممر من 10 مساءً لحد 12، وحدد أي دخول لأوضة الـVAR بعد رجوع الحكم لمراجعة السجلات.';
+    c.cameraPuzzle.resultText = 'التسجيل يكشف دخول رامي أوضة الـVAR الساعة 11:47 وخروجه 11:56. ده يثبت وجوده في النافذة الحرجة، لكنه مش إدانة لوحده.';
+  }
+  c.evidenceCombinations = [];
+  const ev = id => c.evidence.find(e => e.id === id);
+  if (!ev('betting_data_proof')) {
+    // already present in most builds; safeguard only
+  }
+  const r = c.suspects.find(s => s.id === 'ramy_data_feed');
+  if (r) {
+    if (!r.questions.some(q => q.unlockId === 'betting_data_proof')) {
+      r.questions.push({
+        q:'تحليل توقيت الرهانات متطابق مع إشارات الفيد الداخلي اللي كنت مسؤول عنها. تفسر التطابق؟',
+        requires:['data_feed_role','betting_network_hint'],
+        unlockId:'betting_data_proof',
+        a:'(بيتوتر) "أنا مسؤول عن الفيد، لكن أكتر من نظام بياخد منه بيانات. التطابق محتاج يثبت مين سربها فعلًا."'
+      });
+    }
+    if (!r.questions.some(q => q.unlockId === 'admin_token_trace')) {
+      r.questions.push({
+        q:'سجل الأمان ربط جلسة الإدارة المؤقتة بجهازك وقت حذف الـ17 ثانية. ليه جهازك؟',
+        requires:['var_camera_footage','var_gap_explained'],
+        unlockId:'admin_token_trace',
+        a:'(بيصمت) "الجهاز كان متوصل بالنظام، لكن لازم تثبتوا إني أنا اللي فعّلت الجلسة مش مجرد إن العملية خرجت منه."'
+      });
+    }
+    const q = r.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت طويل) "الأدلة بتثبت إني كنت جوه الأوضة وإن جهازي اتستخدم. لكن مش هاعترف بالجريمة قبل ما تثبتوا إيه حصل في المواجهة نفسها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['var_camera_footage','betting_data_proof','admin_token_trace','var_gap_explained'];
+  c.conclusiveRequired = 4;
+})();

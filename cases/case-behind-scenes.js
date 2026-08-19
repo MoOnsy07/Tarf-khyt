@@ -166,8 +166,8 @@ const CASE_BEHIND_SCENES = {
   cameraPuzzle: {
     enabled: true,
     tabLabel: 'مراجعة كاميرات الاستوديو',
-    introText: 'كاميرات الاستوديو بتغطي من الساعة 8 مساءً (بعد نهاية التصوير) لحد 12 بالليل. دوّر على اللحظة اللي رشا بتدخل فيها غرفة رنا الخاصة، حوالي الساعة 10:30.',
-    resultText: 'ظبطت اللحظة الصح. الكاميرا بتوضح رشا داخلة غرفة رنا حوالي الساعة 10:30، بعد ساعات العمل الرسمية بوقت طويل.',
+    introText: 'كاميرات الاستوديو بتغطي من 8 مساءً لحد 12 بالليل. راجع الفترة بعد انتهاء التصوير وحدد أي دخول غير معتاد لغرفة رنا أو منطقة تجهيزاتها.',
+    resultText: 'لقيت حركة غير معتادة بعد ساعات العمل: رشا داخلة غرفة رنا حوالي 10:30 مساءً. وجودها هناك يفتح خيط تحقيق، لكنه مش إدانة لوحده.',
     startHour24: 20,
     totalMinutes: 240,
     targetMinutes: 150,
@@ -178,7 +178,7 @@ const CASE_BEHIND_SCENES = {
   alibiGridPuzzle: { enabled:false },
 
   evidenceCombinations: [
-    { parts:['rasha_stakes','rasha_silence_attempt'], resultId:'naguib_cover_request' },
+    { parts:['rasha_stakes','rasha_silence_attempt'], resultId:'rasha_silence_attempt' },
   ],
 
   correctSuspectId: 'production_manager_rasha',
@@ -317,7 +317,7 @@ const CASE_BEHIND_SCENES = {
   if (rasha && !rasha.questions.some(q => q.closesInterrogation)) rasha.questions.push({
     q:'الكاميرا حاطاكي جوه غرفة رنا، وإنتِ عرضتي عليها فلوس وبعدها طلبتي تأجيل التسجيلات. رنا فين؟',
     requires:['naguib_footage','rasha_silence_attempt','naguib_cover_request'], closesInterrogation:true,
-    a:'(بتسكت شوية) "حبستها في مخزن تجهيزات تابع للاستوديو عشان أكسب وقت وأمنعها توصل للإعلام. ماكانش ينفع الموضوع يخرج بره قبل ما الإدارة تقرر تعمل إيه."'
+    a:'(بتسكت شوية) "دخلت غرفتها فعلًا عشان أدور على نسخة الشكوى وأفهم هي ناوية تعمل إيه. موضوع اختفائها مالوش علاقة بيا، وأي كلام غير كده محتاج دليل."'
   });
   c.teaser = 'رنا اتهمت منتج البرنامج بسلوك خطير، وتاني يوم اختفت من الكواليس. بين الكاميرات والضغوط اللي حصلت بعد الشكوى، مين كان عنده سبب يخليها تسكت؟';
 

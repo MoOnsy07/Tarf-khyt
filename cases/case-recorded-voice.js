@@ -311,3 +311,18 @@ const CASE_RECORDED_VOICE = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_RECORDED_VOICE;
+  c.evidenceCombinations = [];
+  const h = c.suspects.find(s => s.id === 'corrupt_official_hany');
+  if (h) {
+    const q = h.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتوتر) "حاولت أخوفها بالرسائل عشان تسكت عن الملف، وده غلط. لكن اختفاؤها بعد البرنامج مش دليل إني أنا اللي أخدتها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['hany_exposure','voice_match_hany','threatening_voice_messages'];
+  c.conclusiveRequired = 3;
+})();

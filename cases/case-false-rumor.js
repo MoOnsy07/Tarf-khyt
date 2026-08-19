@@ -325,3 +325,21 @@ const CASE_FALSE_RUMOR = {
    a laptop screen showing layer analysis and highlighted mismatched
    pixels, dark mode UI, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FALSE_RUMOR;
+  const y = c.suspects.find(s => s.id === 'yasmin_ex');
+  if (y) {
+    const q = y.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بتتوتر) "الصورة القديمة فعلًا عندي، والرقم ده اتستخدم قبل كده في حاجات تخصني، بس ده مش اعتراف إني أنا اللي ركبت الصورة أو بعتها. أثبتوا مين كان ماسك الرقم وقتها."';
+    }
+  }
+  c.conclusiveRequired = 4;
+  if (c.matchPuzzle) {
+    const item = c.matchPuzzle.rightItems?.find(x => x.id === 'r_source');
+    if (item) item.text = 'أقوى ارتباط تقني بمصدر الصورة';
+    c.matchPuzzle.resultText = 'الربط بيحط ياسمين عند أقوى مسار تقني للصورة، وروان عند مرحلة النشر، وسلمى خارج مكان الصورة أصلًا. النتيجة تقوّي الاشتباه لكنها ما تستبدلش باقي الأدلة.';
+  }
+})();

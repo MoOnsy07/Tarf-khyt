@@ -338,3 +338,41 @@ const CASE_SHIFTING_PAINTING = {
    standing near a storage building entrance at dusk, grainy
    surveillance footage look, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_SHIFTING_PAINTING;
+  c.evidenceCombinations = [];
+  if (c.matchPuzzle) {
+    c.matchPuzzle.rightItems = c.matchPuzzle.rightItems.map(x =>
+      x.id === 'r_culprit' ? {...x, text:'الشخص اللي عنده أقوى دافع للوصول للوحة بعد تسريب الاكتشاف'} : x
+    );
+    c.matchPuzzle.resultText = 'الربط يوضح الأدوار والدوافع: فادي اكتشف الطبقة، رامي سرّب المعلومة، وحسام كان عنده مصلحة واضحة في الوصول للوحة. تحديد القاتل نفسه محتاج الأدلة المادية.';
+    c.matchPuzzle.resultEvidenceIds = [];
+  }
+  const h = c.suspects.find(s => s.id === 'hossam_collector');
+  if (h) {
+    if (!h.questions.some(q => q.unlockId === 'nearby_shop_video')) {
+      h.questions.push({
+        q:'راجعت كاميرا محل قريب من المخزن، وهي بتظهر عربية شبه عربيتك في التوقيت الحرج. كنت هناك؟',
+        requires:['hossam_heard'],
+        unlockId:'nearby_shop_video',
+        a:'(بيتردد) "عديت من المنطقة فعلًا، بس ده مش معناه إني دخلت المخزن."'
+      });
+    }
+    if (!h.questions.some(q => q.unlockId === 'coat_fiber_match')) {
+      h.questions.push({
+        q:'الألياف اللي اتجمعت من الرف المكسور مطابقة لنوع قماش جاكيتك. تفسر وجودها؟',
+        requires:['nearby_shop_video','fingerprint_door'],
+        unlockId:'coat_fiber_match',
+        a:'(بيتوتر) "لو كنت قربت من المكان قبل كده ممكن ألياف تنتقل، لكن ده مش اعتراف بالجريمة."'
+      });
+    }
+    const q = h.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "جيت أكلمه عن اللوحة فعلًا وكذبت في موضوع دخولي. حصل بينا خلاف، لكن أنا مش هاعترف إني قتلته لمجرد إن الأدلة بتثبت وجودي."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['fingerprint_door','nearby_shop_video','coat_fiber_match','hossam_heard'];
+  c.conclusiveRequired = 4;
+})();

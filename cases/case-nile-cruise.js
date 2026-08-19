@@ -316,3 +316,21 @@ const CASE_NILE_CRUISE = {
   });
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_NILE_CRUISE;
+  c.evidenceCombinations = [];
+  const f = c.suspects.find(s => s.id === 'business_associate_fady_n');
+  if (f) {
+    const q = f.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "دخلت كابينته فعلًا عشان نتكلم في الخلاف المالي، واتخانقنا بالكلام. خرجت بعدها لوحدي. الكاميرا وشهادة أشرف تثبت زيارتي، مش مصير منصور بعد ما مشيت."';
+    }
+  }
+  if (c.floorPlanPuzzle) {
+    c.floorPlanPuzzle.resultText = 'المخطط يوضح إن فادي كان عنده مسار وصول مناسب لكابينة منصور بعيدًا عن جزء من تغطية الكاميرا. ده يثبت الفرصة، مش الجريمة.';
+  }
+  c.conclusiveEvidenceIds = ['fady_n_visit','corridor_camera_footage','ashraf_n_observation'];
+  c.conclusiveRequired = 3;
+})();

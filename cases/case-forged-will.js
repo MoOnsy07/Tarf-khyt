@@ -327,3 +327,30 @@ const CASE_FORGED_WILL = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: تحليل الخط، أرشيف التوقيعات، واعتراف نبيل بالدفع، قبل ما تتهم.';
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FORGED_WILL;
+  const n = c.suspects.find(s => s.id === 'family_friend_nabil');
+  if (n) {
+    const q = n.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت طويل) "أخدت فلوس عشان أمضي كشاهد على ورقة أنا ما شفتش فؤاد بيوقعها. الشخص اللي رتب الموضوع كان عنده وصول لملفات التوقيعات، لكن لازم تثبتوا هويته من الأدلة مش من كلامي لوحده."';
+    }
+  }
+  const ev = c.evidence.find(e => e.id === 'nabil_paid_by_sherif');
+  if (ev) {
+    ev.title = 'نبيل تقاضى مالًا مقابل شهادة كاذبة';
+    ev.short = 'نبيل اعترف إنه أخذ مبلغًا ليشهد على وصية لم ير فؤاد يوقعها';
+    ev.full = 'نبيل اعترف إنه تلقى مبلغًا مقابل توقيعه كشاهد على وصية لم يشاهد فؤاد يوقعها. الاعتراف يثبت وجود ترتيب داخلي للتزوير، لكنه لا يكفي وحده لتحديد المدبر.';
+  }
+  const sh = c.suspects.find(s => s.id === 'accountant_sherif_w');
+  if (sh) {
+    const q = sh.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتوتر) "أنا عندي وصول للأرشيف فعلًا، وده جزء من شغلي. لكن تحليل الخط واعتراف نبيل ما يثبتوش إني أنا اللي كتبت الوصية من غير رابط مباشر إضافي."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['sherif_w_signature_access','handwriting_analysis_w','nabil_paid_by_sherif','signature_discrepancy'];
+  c.conclusiveRequired = 4;
+})();

@@ -315,3 +315,17 @@ const CASE_LOST_WALLET = {
    on a laptop, highlighted withdrawal entry, soft indoor lighting,
    no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LOST_WALLET;
+  c.briefing.heroCaption = 'CASE 012 — بعد اختفاء 40 مليون جنيه';
+  c.conclusiveRequired = 4;
+  const h = c.suspects.find(s => s.id === 'hazem');
+  if (h) {
+    const q = h.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيصمت) "مالك لمحلي إن فيه مشكلة تقنية ممكن تحصل ونصحني أقلل مخاطرتي. أنا سحبت فلوسي، بس ماكنتش عارف إن المشروع كله هينهار الليلة دي."';
+    }
+  }
+})();

@@ -102,7 +102,7 @@ const CASE_BRIBERY = {
         { q:'التبرع ده موثق رسميًا في حسابات الكلية؟', unlockId:'donation_missing',
           a:'"المفروض أيوه. د. أمين هو اللي إداني بيانات التحويل وقاللي إن الحساب تابع لجهة بتتعامل مع الكلية."' },
         { q:'راجعنا حسابات الكلية الرسمية، ومفيش أي تبرع مسجل باسمك — الفلوس راحت فين؟', requires:['donation_claim','donation_missing'], closesInterrogation:true,
-          a:'(بيسكت شوية) "التحويل ماكانش لحساب الكلية فعلًا. أمين هو اللي بعتلي بيانات حساب مكتب استشارات وقاللي بعدها إن مكان زياد اتظبط. أنا فهمت المقابل الحقيقي وسكت."' },
+          a:'(بيسكت شوية) "اكتشفت بعدين إن التحويل مش داخل حسابات الكلية. البيانات جاتلي من جهة اتقاللي إنها بتتعامل مع الإدارة، وبعد التحويل اتقاللي إن ملف زياد اتحسم. ماعنديش ورقة تقول إن ده كان ثمن القبول."' },
       ]
     },
   ],
@@ -181,10 +181,10 @@ const CASE_BRIBERY = {
       { id:'l_raafat', text:'مهندس رأفت' },
     ],
     rightItems: [
-      { id:'r_bribe_taker', text:'المسؤول اللي استلم الرشوة ووثّق موافقة وهمية' },
+      { id:'r_bribe_taker', text:'صاحب الصلاحية النهائية على اعتماد الاستثناء' },
       { id:'r_innocent_executor', text:'موظفة منفذة بحسن نية، مالهاش صلاحية قرار' },
       { id:'r_beneficiary', text:'المستفيد من القرار، بدون تورط مباشر' },
-      { id:'r_bribe_giver', text:'الشخص اللي دفع الرشوة فعليًا' },
+      { id:'r_bribe_giver', text:'صاحب التحويل المالي المشكوك في غرضه' },
     ],
     correctPairs: [
       ['l_amin','r_bribe_taker'],
@@ -192,7 +192,7 @@ const CASE_BRIBERY = {
       ['l_ziad','r_beneficiary'],
       ['l_raafat','r_bribe_giver'],
     ],
-    resultText: 'ربطت الأدوار صح: د. أمين استغل صلاحياته وعدّل القبول، رأفت دفع المبلغ وهو فاهم المقابل، زياد استفاد من القرار من غير دليل إنه رتبه بنفسه، وهبة نفذت إدخال البيانات بصلاحيات محدودة.',
+    resultText: 'ربطت الأدوار الإدارية والمالية: أمين صاحب صلاحية الاعتماد، رأفت صاحب التحويل، زياد المستفيد، وهبة منفذة إدخال البيانات. لسه لازم تربط التحويل بالتعديل غير الموثق قبل توجيه الاتهام.',
     resultEvidenceIds: ['donation_missing'],
   },
 
@@ -202,7 +202,7 @@ const CASE_BRIBERY = {
 
   correctSuspectId: 'dr_amin',
   conclusiveEvidenceIds: ['system_entry_log', 'donation_missing', 'contradiction_noted_bribery', 'father_connection'],
-  conclusiveRequired: 3,
+  conclusiveRequired: 4,
 
   theoryBuilder: {
     enabled: true,

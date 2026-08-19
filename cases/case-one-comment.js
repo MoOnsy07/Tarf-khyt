@@ -315,3 +315,19 @@ const CASE_ONE_COMMENT = {
   c.teaser = 'زياد قال جملة عابرة في فيديو جديد، وبعد ساعات اتلاقى ميت في الاستوديو. تعليق واحد لمس سر قديم عند شخص كان مستعد يعمل أي حاجة عشان مايرجعش للسطح.';
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_ONE_COMMENT;
+  const g = c.suspects.find(s => s.id === 'anonymous_commenter_gaser');
+  if (g) {
+    const q = g.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتوتر) "أيوه كنت في المدينة ورحت أواجه زياد، وكنت غضبان جدًا. لكن سيبته حي ومشيت. كوني كذبت في مكاني مش معناه إني قتلته."';
+    }
+  }
+  if (c.witnessReliabilityPuzzle) {
+    c.witnessReliabilityPuzzle.resultText = 'شهادة الجار أدق في المكان والتوقيت من رواية جاسر، فبتكسر أليبي السفر. دي قرينة حضور مهمة، لكنها مش إدانة لوحدها.';
+  }
+  c.conclusiveRequired = 3;
+})();

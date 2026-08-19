@@ -311,3 +311,22 @@ const CASE_LAST_CALL = {
    a computer screen showing two highlighted matching segments, dark
    mode UI, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_CALL;
+  c.evidenceCombinations = [
+    { parts:['recordings_archive','audio_composite_proof'], resultId:'fuad_prepared_it' }
+  ];
+  const r = c.suspects.find(s => s.id === 'assistant_rasha');
+  if (r) {
+    const q = r.questions.find(q => !q.unlockId && !q.requires);
+    if (q) {
+      q.q = 'ممكن نراجع سجل بوابة الجراج في توقيت الوفاة؟';
+      q.unlockId = 'parking_entry_log';
+      q.a = '"أيوه، الإدارة عندها سجل آلي للبوابة. هطلعهولكم، لأنه أدق من ذاكرة أي شاهد."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['partnership_conflict','fuad_prepared_it','forensic_report','parking_entry_log'];
+  c.conclusiveRequired = 4;
+})();

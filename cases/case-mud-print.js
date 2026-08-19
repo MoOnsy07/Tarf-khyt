@@ -338,3 +338,18 @@ const CASE_MUD_PRINT = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_MUD_PRINT;
+  c.evidenceCombinations = [];
+  const b = c.suspects.find(s => s.id === 'apprentice_bassel');
+  if (b) {
+    const q = b.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتأثر) "كنت في المدينة فعلًا وزرت سامية قبلها، وعارف مكان حاجات سيد القديمة. لكن ده كله ما يثبتش إني استخدمت القفاز أو قتلت فتحي."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['bassel_dna_in_glove','bassel_seen_city','samia_gloves'];
+  c.conclusiveRequired = 3;
+})();

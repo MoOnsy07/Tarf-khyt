@@ -328,3 +328,32 @@ const CASE_SECRET_CLINIC = {
   });
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_SECRET_CLINIC;
+  c.dnaLabPuzzle.enabled = false;
+  c.dnaLabPuzzle.resultEvidenceIds = [];
+  c.evidenceCombinations = [];
+
+  const s = c.suspects.find(x => x.id === 'unlicensed_doctor_sabry');
+  if (s) {
+    if (!s.questions.some(q => q.unlockId === 'hospital_admission_record')) {
+      s.questions.push({
+        q:'بعد ما النزيف زاد، نقلت إيمان لأي مستشفى أو مركز طبي؟',
+        requires:['sabry_complication'],
+        unlockId:'hospital_admission_record',
+        a:'(بيتردد) "خرجت بيها لمكان طبي قريب عشان تتلحق. استخدمت اسم مختلف عشان مايتكشفش موضوع العيادة، وده كان قرار غلط."'
+      });
+    }
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'سجل المستشفى باسم مستعار مطابق لحالة إيمان، وغادة ما شافتهاش تخرج سليمة. ليه أخفيت مكانها؟';
+      q.a = '(بيسكت) "كنت خايف من انكشاف العيادة والترخيص. أخفيت مكانها عن أهلها، لكن هدفي وقتها كان ألحق المضاعفات، مش أضيّعها."';
+    }
+  }
+
+  c.correctSuspectId = 'unlicensed_doctor_sabry';
+  c.conclusiveEvidenceIds = ['sabry_no_license','sabry_complication','ghada_saw_leaving','hospital_admission_record'];
+  c.conclusiveRequired = 4;
+})();

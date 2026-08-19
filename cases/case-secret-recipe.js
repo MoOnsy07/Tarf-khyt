@@ -305,3 +305,42 @@ const CASE_SECRET_RECIPE = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_SECRET_RECIPE;
+  const ev = id => c.evidence.find(e => e.id === id);
+  if (!ev('mona_chemical_match')) {
+    c.evidence.push({
+      id:'mona_chemical_match', tag:'من التحليل الكيميائي', crit:true,
+      title:'تطابق المادة مع عينة في حقيبة منى', img:null,
+      short:'المادة الموجودة مع منى مطابقة للمادة في المكوّن المسمم',
+      full:'التحليل الكيميائي أثبت تطابق تركيب المادة الموجودة في حقيبة منى مع المادة الموجودة في المكوّن المسمم. التطابق يربطها بالمادة نفسها لكنه لا يثبت وحده لحظة وضعها في الوصفة.',
+      unlocked:false, order:90
+    });
+  }
+  if (c.dnaLabPuzzle) {
+    c.dnaLabPuzzle.resultText = 'التحليل يثبت تطابق المادة الموجودة في حقيبة منى مع المادة الموجودة في المكوّن المسمم. ده دليل مادي مستقل، مش شهادة شاهد.';
+    c.dnaLabPuzzle.resultEvidenceIds = ['mona_chemical_match'];
+  }
+  c.evidenceCombinations = [];
+  const m = c.suspects.find(s => s.id === 'rival_chef_mona_r');
+  if (m) {
+    if (!m.questions.some(q => q.unlockId === 'witness_mona_r_seen')) {
+      m.questions.push({
+        q:'في شاهد من المنطقة قال إنه شافك قريبة من الفيلا الليلة دي، مع إنك قلتي إنك بعيدة تمامًا. تفسري؟',
+        requires:['mona_r_rivalry'],
+        unlockId:'witness_mona_r_seen',
+        a:'(بتتوتر) "عديت من الشارع فعلًا، لكن ما دخلتش المطبخ. كنت فضولية أشوف تجهيزات التصوير مش أكتر."'
+      });
+    }
+    const q = m.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'المادة في حقيبتك مطابقة للمادة المسممة، وشاهد حطك قرب الفيلا. عندك تفسير قبل الاتهام؟';
+      q.requires = ['mona_r_rivalry','witness_mona_r_seen','mona_chemical_match'];
+      q.a = '(بتسكت شوية) "المادة موجودة عندي فعلًا لأني بستخدمها في تجارب وصفات، ووجودي قرب الفيلا كان فضول. الربط بينهم محتاج أكتر من مجرد ظن."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['poisoned_ingredient','mona_r_rivalry','witness_mona_r_seen','mona_chemical_match'];
+  c.conclusiveRequired = 4;
+})();

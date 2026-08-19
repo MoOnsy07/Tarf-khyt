@@ -186,7 +186,7 @@ const CASE_CHARITY_FUNDS = {
 
   correctSuspectId: 'hisham_founder',
   conclusiveEvidenceIds: ['spending_list', 'transfer_note', 'personal_account_link', 'contradiction_noted_charity'],
-  conclusiveRequired: 3,
+  conclusiveRequired: 4,
 
   theoryBuilder: {
     enabled: true,

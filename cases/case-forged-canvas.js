@@ -348,3 +348,16 @@ const CASE_FORGED_CANVAS = {
    gilded frame edge, lying on a marble floor near a doorway, forensic
    evidence photography style, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FORGED_CANVAS;
+  c.conclusiveRequired = 4;
+  const s = c.suspects.find(x => x.id === 'sherif');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت لحظة) "دخلت أكلمه فعلًا وكنت عايز أعرف هيعمل إيه مع المورد القديم. لكن لما خرجت كان منير حي. وجودي عند المكتب يثبت إني كذبت في مكاني، مش إني قتلته."';
+    }
+  }
+})();

@@ -316,3 +316,23 @@ const CASE_LAST_UPDATE = {
   });
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_UPDATE;
+  c.evidenceCombinations = [];
+  const s = c.suspects.find(x => x.id === 'office_manager_salma_u');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) q.unlockId = 'access_log_tamer';
+  }
+  const t = c.suspects.find(x => x.id === 'cofounder_tamer_u');
+  if (t) {
+    const q = t.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "رجعت المكتب فعلًا عشان أحاول أقنعه يأجل التقرير. اتناقشنا، وبعدها مشيت. سجل الدخول يثبت رجوعي، مش إنه يثبت إني قتلته."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['tamer_u_pressure','access_log_tamer','salma_u_last_words'];
+  c.conclusiveRequired = 3;
+})();

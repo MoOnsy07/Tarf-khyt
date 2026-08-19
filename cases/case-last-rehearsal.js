@@ -295,3 +295,21 @@ const CASE_LAST_REHEARSAL = {
    bottles and brushes, backstage lighting, no text, no watermark,
    photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_REHEARSAL;
+  c.evidenceCombinations = [];
+  const k = c.suspects.find(s => s.id === 'khaled_understudy');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'بعد تحليل البخاخ، تم تفتيش شنطة تجهيزاتك ولقينا عبوة فيها نفس المادة. تفسر التطابق إزاي؟';
+      q.requires = ['props_access','throat_spray_analysis'];
+      q.unlockId = 'makeup_kit_match';
+      q.a = '(بيتوتر) "العبوة ضمن أدوات قديمة في الشنطة، ومش فاكر مصدرها. وجود نفس المادة محتاج تفسير، بس أنا ماحطتش حاجة في بخاخ عادل."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['props_access','throat_spray_analysis','makeup_kit_match','director_hint'];
+  c.conclusiveRequired = 4;
+})();

@@ -325,3 +325,20 @@ const CASE_POSTPONED_ENGAGEMENT = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: مكالمة الضغط، كلام تامر عن المقابلة المهمة، وكسر حجة مكان حسن، قبل ما تتهم.';
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_POSTPONED_ENGAGEMENT;
+  c.evidenceCombinations = [];
+  const h = c.suspects.find(s => s.id === 'debt_collector_hassan_p');
+  if (h) {
+    const q = h.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيصمت) "جيت أقابله فعلًا عشان الدين، واتكلمنا بعيد عن العمارة. بعدها مشي لوحده وقال إنه هيحل الموضوع. أنا كذبت في مكاني عشان ماحدش يربطني بالفضيحة."';
+    }
+  }
+  if (c.alibiGridPuzzle) {
+    c.alibiGridPuzzle.resultText = 'الجدول يثبت إن حسن كان قريب من العمارة رغم إنكاره. ده يكسر الأليبي ويثبت فرصة المواجهة، لكنه ما يثبتش وحده إنه تسبب في الاختفاء.';
+  }
+  c.conclusiveRequired = 3;
+})();

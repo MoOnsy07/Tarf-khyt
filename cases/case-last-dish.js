@@ -333,3 +333,13 @@ const CASE_LAST_DISH = {
    professional kitchen counter, soft studio lighting, shallow depth
    of field, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_DISH;
+  c.briefing.heroCaption = 'CASE 010 — ليلة الحلقة النهائية، على الهواء مباشرة';
+  c.conclusiveRequired = 4;
+  if (c.contradictionPuzzle) {
+    c.contradictionPuzzle.resultText = 'نهى قالت إنها ما دخلتش الثلاجة، بينما سجل الكارت يثبت دخولها قبل التقديم بنص ساعة. ده يكسر جزء من روايتها، لكنه لازم يتقارن بالبصمات والدافع وباقي الأدلة.';
+  }
+})();

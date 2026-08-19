@@ -328,3 +328,24 @@ const CASE_FINAL_TESTAMENT = {
     }
   }
 };
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FINAL_TESTAMENT;
+  const k = c.suspects.find(s => s.id === 'karim');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت لحظة) "الورق ده صدمني، آه. بس معرفتي إني ابنه مش معناها إني قتلته. وبصمتي على الشباك ممكن تكون من شغلي في الفيلا قبل كده."';
+    }
+  }
+  if (c.timelinePuzzle) {
+    c.timelinePuzzle.introText = 'رتّب الأحداث المثبتة زمنيًا من غير ما تفترض هوية الفاعل. الهدف تفهم إزاي الغرفة فضلت مقفولة من جوه رغم إن التلاعب حصل قبل دخول الحاج المكتب.';
+    const e1 = c.timelinePuzzle.events?.find(e => e.id === 'e1');
+    const e2 = c.timelinePuzzle.events?.find(e => e.id === 'e2');
+    if (e1) e1.text = 'قبل العشا، شخص عنده معرفة بالفيلا يدخل ناحية المكتب من شباك الحمام من غير ما يظهر عند الباب';
+    if (e2) e2.text = 'قبل رجوع الحاج للمكتب، ترمس الشاي الخاص بيه يتم التلاعب بمحتواه ثم يترك مكانه';
+    c.timelinePuzzle.resultText = 'الخط الزمني حل لغز الغرفة المقفولة: التلاعب حصل قبل ما الحاج يرجع مكتبه، وبعدها هو اللي قفل الباب من جوه. هوية الشخص لسه لازم تتثبت بالبصمة والدافع وباقي الأدلة.';
+  }
+  c.conclusiveRequired = 4;
+})();

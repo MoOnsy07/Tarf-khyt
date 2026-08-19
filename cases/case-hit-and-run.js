@@ -301,3 +301,19 @@ const CASE_HIT_AND_RUN = {
    "Photorealistic close-up of a printed taxi ride receipt on a
    table, soft indoor lighting, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_HIT_AND_RUN;
+  c.evidenceCombinations = [];
+  const k = c.suspects.find(s => s.id === 'karim_friend');
+  if (k) {
+    const q = k.questions.find(q => q.unlockId === 'karim_denial');
+    if (q) {
+      q.unlockId = 'taxi_receipt_fake';
+      q.a = '"أنا رجعت بتاكسي، وده إيصال الرحلة. راجعوا التوقيت بنفسكم لو مش مصدقين."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['nour_saw_partial','taxi_receipt_fake','cam_footage_verified'];
+  c.conclusiveRequired = 3;
+})();

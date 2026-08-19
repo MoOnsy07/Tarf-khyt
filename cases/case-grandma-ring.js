@@ -294,3 +294,17 @@ const CASE_GRANDMA_RING = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_GRANDMA_RING;
+  c.evidenceCombinations = [];
+  const k = c.suspects.find(s => s.id === 'family_friend_kamal_r');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "وقفت عند الطاولة عشان أشوف الخاتم عن قرب، مش أكتر. أنا مهتم بالقطع القديمة فعلًا، لكن ده مش دليل إني أخدته."';
+    }
+  }
+  c.conclusiveRequired = 3;
+})();

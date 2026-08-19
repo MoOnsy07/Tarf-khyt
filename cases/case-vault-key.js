@@ -335,3 +335,31 @@ const CASE_VAULT_KEY = {
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: غياب فارس، مسار الزاوية العمياء، واعتراف ليلى ببيع الكود، قبل ما تتهم.';
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_VAULT_KEY;
+  c.evidenceCombinations = [];
+  if (c.floorPlanPuzzle) {
+    c.floorPlanPuzzle.resultText = 'المخطط يثبت إن فارس كان يقدر يوصل للخزنة عبر الممر الجانبي والزاوية العمياء خلال فترة غيابه. ده يثبت الفرصة، مش السرقة نفسها.';
+    c.floorPlanPuzzle.resultEvidenceIds = ['faris_vault_route'];
+  }
+  const l = c.suspects.find(s => s.id === 'assistant_laila');
+  if (l) {
+    const q = l.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.unlockId = 'laila_code_sale';
+      q.a = '(بتعيط) "أيوه، بعت الكود لفارس مقابل فلوس لأني كنت مديونة. أنا ما دخلتش الخزنة، لكن عارفة إن اللي عملته هو اللي فتح له الباب."';
+    }
+  }
+  const f = c.suspects.find(s => s.id === 'collector_faris');
+  if (f) {
+    const q = f.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'ليلى قالت إنها باعتلك الكود، ومخطط الحركة يثبت إنك كنت تقدر توصل للخزنة في وقت غيابك. ردك؟';
+      q.a = '(بيتوتر) "اشتريت منها معلومة عن الكود فعلًا بدافع الفضول، لكن ده مش اعتراف إني فتحت الخزنة أو أخدت القلادة."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['faris_absence','faris_vault_route','laila_code_sale','empty_vault'];
+  c.conclusiveRequired = 4;
+})();

@@ -342,3 +342,16 @@ const CASE_MISSING_BRIDE = {
     }
   }
 };
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_MISSING_BRIDE;
+  const t = c.suspects.find(s => s.id === 'tawfiq');
+  if (t) {
+    const q = t.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيهدى) "الدين موجود، وأنا كنت مصر إنه يتسدد قبل الجواز. إنكم تعتبروا ده ضغط على قرار نور دي مسؤولية تفسيركم، لكن أنا ما طلبتش منها تختفي ولا أجبرتها تعمل حاجة بإيدي."';
+    }
+  }
+  c.conclusiveRequired = 5;
+})();

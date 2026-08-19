@@ -318,3 +318,25 @@ const CASE_ROOM_307 = {
    "Photorealistic close-up of a hotel phone system call log
    printout, office lighting, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_ROOM_307;
+  c.evidenceCombinations = [];
+  const s = c.suspects.find(x => x.id === 'hotel_reception_sayed');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيبص للصورة) "أيوه، ده نفس الراجل اللي دخلته باعتباره مندوب شركة. أنا فتحت الباب ومشيت. التعرف عليه يثبت دخوله، لكن أنا ما شفتش اللي حصل جوه."';
+    }
+  }
+  const w = c.suspects.find(x => x.id === 'walid_manager');
+  if (w) {
+    const q = w.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيتوتر) "كنت في الفندق فعلًا وقابلت هالة في موضوع الشركة. كذبت عشان ما أدخلش نفسي في المشكلة الزوجية، لكن وجودي هناك لوحده مش معناه إني اعتديت عليها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['room_service_call','financial_dispute','sayed_call_source','corridor_camera_walid'];
+  c.conclusiveRequired = 4;
+})();

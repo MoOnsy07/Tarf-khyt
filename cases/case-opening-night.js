@@ -317,7 +317,7 @@ const CASE_OPENING_NIGHT = {
     full:'نتيجة كشف الكذب أظهرت تذبذب قوي عند طارق لما أنكر وصوله للكواليس والكوباية قبل العرض.', unlocked:false, order:90 });
   c.polygraphPuzzle.resultEvidenceIds = ['tarek_o_polygraph_lie'];
   c.conclusiveEvidenceIds = ['tarek_o_contract','gehad_seen_backstage','tarek_o_polygraph_lie'];
-  const t=c.suspects.find(s=>s.id==='manager_tarek_o'); if(t){const q=t.questions.find(q=>q.closesInterrogation); if(q) q.requires=['tarek_o_contract','gehad_seen_backstage','tarek_o_polygraph_lie'];}
+  const t=c.suspects.find(s=>s.id==='manager_tarek_o'); if(t){const q=t.questions.find(q=>q.closesInterrogation); if(q) q.requires=['tarek_o_contract','gehad_seen_backstage','cup_access_window'];}
   setTheory0('كشف الكذب اللي فضح إنكار طارق + شهادة جهاد اللي حطته في الكواليس قبل العرض + دافعه المالي بسبب عقد سامر الجديد');
   c.endings.good.paragraphs[1] = 'كشف الكذب اللي فضح إنكار طارق، وشهادة جهاد اللي أثبتت دخوله الكواليس قبل العرض، ودافعه المالي المباشر المرتبط بعقد سامر الجديد، كلها أدلة حاصرته بدل الاعتماد على مجرد إن الكوباية كانت متاحة لأكتر من شخص.';
   c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: عقد سامر الجديد، شهادة دخول طارق للكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
@@ -331,4 +331,25 @@ const CASE_OPENING_NIGHT = {
     const item = { q:'دخلت الكواليس قبل بداية العرض؟', requires:['tarek_o_contract'], a:'"لأ، فضلت بره أتابع التنظيم. ماكانش عندي سبب أدخل عند سامر قبل ما يطلع المسرح."' };
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
+})();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_OPENING_NIGHT;
+  if (c.polygraphPuzzle) {
+    c.polygraphPuzzle.enabled = false;
+    const bad = c.polygraphPuzzle.resultEvidenceIds || [];
+    c.evidence = c.evidence.filter(e => !bad.includes(e.id));
+    c.polygraphPuzzle.resultEvidenceIds = [];
+  }
+  c.evidenceCombinations = [];
+  const t = c.suspects.find(s => s.id === 'manager_tarek_o');
+  if (t) {
+    const q = t.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "دخلت الكواليس فعلًا عشان أكلمه عن العقد قبل العرض، لكن ماحطتش حاجة في الكوباية. وجودي هناك ودافعي المالي يخلوني مشتبه، مش مذنب تلقائيًا."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['tarek_o_contract','cup_access_window','poisoned_water_cup'];
+  c.conclusiveRequired = 3;
 })();

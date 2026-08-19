@@ -326,3 +326,43 @@ const CASE_FLAT_12B = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FLAT_12B;
+  const evidence = id => c.evidence.find(e => e.id === id);
+  if (!evidence('saber_identifies_ramy')) {
+    c.evidence.push({
+      id:'saber_identifies_ramy', tag:'من استجواب صابر', crit:true,
+      title:'صابر يتعرف على زائر سلمى', img:null,
+      short:'بعد عرض صور فريق الشغل، صابر تعرّف على رامي باعتباره الزائر اللي شافه قبل الاختفاء',
+      full:'صابر ماكانش فاكر الاسم وقت الاستجواب الأول. بعد ما شاف صور الأشخاص المرتبطين بسلمى، تعرّف على رامي باعتباره الشخص اللي كان بيزور سلمى بصفته زميل من الشغل قرب يوم الاختفاء.',
+      unlocked:false, order:90
+    });
+  }
+  const s = c.suspects.find(x => x.id === 'doorman_saber');
+  if (s && !s.questions.some(q => q.unlockId === 'saber_identifies_ramy')) {
+    s.questions.push({
+      q:'لو وريتك صور زملاء سلمى، تقدر تحدد الشخص اللي كنت بتشوفه بيزورها؟',
+      requires:['saber_visitor_note','ramy_pressure'],
+      unlockId:'saber_identifies_ramy',
+      a:'"أيوه، ده هو رامي. شفته قبل كده داخل لها بصفته من الشغل. ماكنتش أعرف اسمه وقتها."'
+    });
+  }
+  if (c.alibiGridPuzzle) {
+    c.alibiGridPuzzle.resultText = 'الجدول يوضح إن عطل الكاميرا عمل فجوة مهمة في التوقيت، لكنه لوحده مايثبتش إن رامي كان جوه العمارة. محتاج شهادة تحدد هوية الزائر.';
+    c.alibiGridPuzzle.resultEvidenceIds = ['elevator_camera_gap'];
+  }
+  c.evidenceCombinations = [];
+  const r = c.suspects.find(s => s.id === 'coworker_ramy');
+  if (r) {
+    const q = r.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'صابر اتعرف عليك كزائر لسلمى، وده يناقض كلامك إنك كنت في اجتماع بعيد عن العمارة. تفسر وجودك إزاي؟';
+      q.requires = ['ramy_pressure','saber_identifies_ramy','elevator_camera_gap'];
+      q.a = '(بيتلعثم) "عديت عليها فعلًا عشان أتكلم معاها في موضوع الشغل، لكن سيبتها بعدها ومشيت. وجودي عندها مش دليل إني خطفتها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['ramy_pressure','saber_identifies_ramy','elevator_camera_gap','broken_door_lock'];
+  c.conclusiveRequired = 4;
+})();

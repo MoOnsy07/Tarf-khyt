@@ -304,3 +304,18 @@ const CASE_MISSING_TWIN = {
   });
 
 })();
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_MISSING_TWIN;
+  c.evidenceCombinations = [];
+  const k = c.suspects.find(s => s.id === 'twin_karim');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(صوته بيتهز) "اتخانقنا فعلًا في أوضتي بسبب الحسابات واتصاب إصابة بسيطة، وبعدها خرج. أنا خبّيت موضوع الخناقة عشان ما أبانش مشتبه، لكن ماعرفش راح فين بعد كده."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['karim_t_relationship','dna_traces_room','nourhan_plans'];
+  c.conclusiveRequired = 3;
+})();

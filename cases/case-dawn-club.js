@@ -332,3 +332,35 @@ const CASE_DAWN_CLUB = {
   });
 
 })();
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_DAWN_CLUB;
+  if (c.polygraphPuzzle) {
+    c.polygraphPuzzle.enabled = false;
+    c.polygraphPuzzle.resultEvidenceIds = [];
+  }
+  c.evidence = c.evidence.filter(e => e.id !== 'sherif_polygraph_lie');
+  c.evidenceCombinations = [];
+  const m = c.suspects.find(s => s.id === 'girlfriend_mariam_c');
+  if (m) {
+    const q = m.questions.find(q => q.closesInterrogation);
+    if (q) q.unlockId = 'threat_call_record';
+  }
+  const sh = c.suspects.find(s => s.id === 'business_rival_sherif_c');
+  if (sh) {
+    let q = sh.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'إيهاب قال إنك عرضت عليه فلوس يضيف مادة للمشروب، وسجل المكالمة يثبت إنك اتصلت بمريم بعدها. عندك تفسير؟';
+      q.requires = ['ehab_bribe_offer','threat_call_record','toxicology_report_c'];
+      q.a = '(بيتوتر) "إيهاب بيحاول يعلق غلطه فيا، واتصالي بمريم كان عشان أعرف اللي شافته. ده مش اعتراف إني طلبت تسميم عمرو."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['toxicology_report_c','ehab_bribe_offer','threat_call_record'];
+  c.conclusiveRequired = 3;
+  const tq = c.theoryBuilder?.questions?.[0];
+  if (tq) {
+    const o = tq.options.find(x => x.id === tq.correctOptionId);
+    if (o) o.text = 'تقرير السموم + شهادة إيهاب عن عرض المال + سجل مكالمة التهديد لمريم بعد الواقعة';
+  }
+})();

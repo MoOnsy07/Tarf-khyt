@@ -170,7 +170,7 @@ const CASE_DATING_APP = {
     enabled: true,
     tabLabel: 'تقييم الشهادات',
     introText: 'قارن رواية فاروق (صاحب المقهى) برواية علي عن نفس اللحظة، وقيّم مين شهادته أقرب للحقيقة بناءً على وضوح التفاصيل وتناسقها.',
-    resultText: 'رواية فاروق أكثر تفصيلاً وتناسقًا مع كاميرا المقهى الخارجية، وده بيكشف كذب علي في وصفه لنهاية اللقاء.',
+    resultText: 'رواية فاروق أكثر تفصيلاً، وفيها تعارض واضح مع كلام علي عن اتجاه خروجه. النتيجة تبرر مراجعة الكاميرا، لكنها مش إدانة نهائية.',
     testimonies: [
       { suspectId:'dating_match_ali', text:'"مشيت في اتجاه تاني بعد ما مايا خرجت."', reliabilityScore: 25 },
       { suspectId:'cafe_owner_farouk', text:'"الشاب فضل قاعد كام دقيقة زيادة قبل ما يخرج ورا مايا في نفس الاتجاه."', reliabilityScore: 85 },
@@ -180,7 +180,7 @@ const CASE_DATING_APP = {
   },
 
   evidenceCombinations: [
-    { parts:['ali_fake_profile','farouk_observation'], resultId:'cafe_camera_followup' },
+    { parts:['ali_fake_profile','farouk_observation'], resultId:'farouk_observation' },
   ],
 
   correctSuspectId: 'dating_match_ali',
@@ -318,7 +318,7 @@ const CASE_DATING_APP = {
   if (ali && !ali.questions.some(q => q.closesInterrogation)) ali.questions.push({
     q:'إنت قلت إنك مشيت في اتجاه تاني، لكن شهادة فاروق والكاميرا بيأكدوا إنك خرجت ورا مايا. ليه كدبت؟',
     requires:['ali_fake_profile','farouk_observation','cafe_camera_followup'], closesInterrogation:true,
-    a:'(بيتردد قبل ما يسكت) "خفت إنها تفضح البروفايل وتوصل لهويتي الحقيقية. مشيت وراها عشان أوقفها وأتكلم معاها بعيد عن الناس، وبعدها الموضوع خرج مني."'
+    a:'(بيتردد قبل ما يسكت) "أيوه خرجت بعدها بدقايق، بس ده مش معناه إني أذيتها. كنت عايز ألحقها وأشرح موضوع البروفايل قبل ما تحكي لحد. بعد كده كل واحد راح لحاله."'
   });
   c.teaser = 'مايا خرجت لأول مقابلة مع شخص عرفته من تطبيق تعارف، وبعدها اختفت. المشكلة إن الشخص اللي قابلته مش هو الشخص اللي كانت شايفاه على الشاشة.';
 

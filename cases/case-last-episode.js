@@ -312,3 +312,16 @@ const CASE_LAST_EPISODE = {
     }
   }
 };
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_LAST_EPISODE;
+  c.conclusiveRequired = 4;
+  const y = c.suspects.find(s => s.id === 'yassin');
+  if (y) {
+    const q = y.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيهدى) "أيوه، كنت ببيع نسخ من الحلقات من وراه وده غلط كبير. بس ده مش اعتراف إني قتلته. موضوع التسجيل والتوقيت محتاج يثبت مين كان موجود فعلًا وقت الوفاة."';
+    }
+  }
+})();

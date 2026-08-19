@@ -286,3 +286,12 @@ const CASE_ILLUSION_STARTUP = {
    flow chart diagram with circular arrows between accounts, dark
    mode UI, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_ILLUSION_STARTUP;
+  c.conclusiveRequired = 4;
+  if (c.codeLockPuzzle) {
+    c.codeLockPuzzle.resultText = 'السجلات بتوضح إن مدفوعات المستثمرين الجدد كانت المصدر الأساسي للعوائد القديمة، بينما نشاط التوصيل الحقيقي محدود جدًا. ده يثبت نمط مالي هرمي ويحتاج ربطه بصاحب القرار.';
+  }
+})();

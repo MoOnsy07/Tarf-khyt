@@ -317,3 +317,24 @@ const CASE_EXAM_LEAK = {
    showing multiple group chats, generic UI, no text, no watermark,
    photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_EXAM_LEAK;
+  const s = c.suspects.find(x => x.id === 'seif');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت شوية) "أنا وزعتها فعلًا وده غلط مني، بس الرقم اللي بعتها كان مش محفوظ عندي. بعدين عرفت إنه بيتستخدم في مركز أستاذ عادل، إنما مين كان ماسكه وقتها أنا معرفش."';
+    }
+  }
+  if (c.matchPuzzle) {
+    const source = c.matchPuzzle.rightItems?.find(x => x.id === 'r_source');
+    if (source) source.text = 'صاحب النسخة الأقرب لمسار التسريب';
+    c.matchPuzzle.resultText = 'الربط يوضح إن نسخة عادل هي الأقرب للمسار الرقمي، وسيف هو أول موزع واسع، بينما سيد ونادية خارج مسار المصدر. لسه لازم تجمع التتبع والتناقض قبل الحكم النهائي.';
+  }
+  c.evidenceCombinations = [
+    { parts:['adel_number','committee_access'], resultId:'contradiction_noted_exam' }
+  ];
+  c.conclusiveRequired = 4;
+})();

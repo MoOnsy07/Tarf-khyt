@@ -290,3 +290,19 @@ const CASE_DELETED_SCENE = {
    a computer screen, dark mode UI, highlighted segment, no text, no
    watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_DELETED_SCENE;
+  c.evidenceCombinations = [];
+  const h = c.suspects.find(s => s.id === 'editor_hany');
+  if (h) {
+    const q = h.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.unlockId = 'rima_own_recording';
+      q.q = 'بيانات الملف بتوضح إن التسجيل بدأ من جهاز ريما واتنقل لنسخة المونتاج عندك. إيه اللي حصل؟';
+      q.a = '(بيهدى) "ريما هي اللي سجلت الاجتماع كضمانة، وبعدها بعتتلي نسخة أحفظها. ساعدتها تقنيًا في الاحتفاظ بالدليل، لكن مش هاقول أكتر عن مكانها أو تحركاتها من غير ما أتأكد إنها آمنة."';
+    }
+  }
+  c.conclusiveRequired = 4;
+})();

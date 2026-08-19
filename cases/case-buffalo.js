@@ -240,7 +240,7 @@ const CASE_BUFFALO = {
 
   correctSuspectId: 'hosni',
   conclusiveEvidenceIds: ['lock', 'boot', 'debt', 'boot2', 'contradiction_noted_buffalo'],
-  conclusiveRequired: 3,
+  conclusiveRequired: 4,
 
   endings: {
     good: {

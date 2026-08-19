@@ -293,3 +293,24 @@ const CASE_FAKE_AUDIO = {
    interface on a computer screen, highlighted duplicate segment,
    dark mode UI, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_FAKE_AUDIO;
+  const k = c.suspects.find(s => s.id === 'karim_rival');
+  if (k) {
+    const q = k.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.q = 'التحليل أثبت إن التسجيل مركب، والميتاداتا بتربط رفع الملف بحساب تابع لاستوديوك القديم. عندك تفسير قبل ما نوجّه اتهام؟';
+      q.a = '(بيتوتر) "الحساب قديم وكان عليه أكتر من شخص، وكوني بعرف أمنتج صوت مش معناه إني عملت التسجيل. لو عندكم دليل مباشر هاتوه."';
+    }
+  }
+  if (c.audioPuzzle) {
+    c.audioPuzzle.resultText = 'التحليل أثبت إن التسجيل مركب من مقاطع منفصلة، والميتاداتا كشفت إن النسخة المرسلة اترفعت عبر حساب سحابي قديم مرتبط باستوديو كريم. ده خيط رقمي قوي، لكنه محتاج يتقارن بالدافع والخبرة.';
+    c.audioPuzzle.resultEvidenceIds = ['audio_splice_found','upload_account_link'];
+  }
+  c.evidenceCombinations = [
+    { parts:['audio_splice_found','upload_account_link'], resultId:'contradiction_noted_fakeaudio' }
+  ];
+  c.conclusiveRequired = 4;
+})();

@@ -333,3 +333,18 @@ const CASE_VANISHED_WIFE = {
    generic text bubbles, screen glow in dim room, no text, no
    watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_VANISHED_WIFE;
+  c.evidenceCombinations = [];
+  const s = c.suspects.find(x => x.id === 'sherif_husband');
+  if (s) {
+    const q = s.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "أيوه ماقلتش إن الموبايل كان في البيت. كنت خايف تكون سابتني، وخايف الناس تعرف حجم المشاكل بينا. ده يثبت إني أخفيت معلومات، مش إني أذيتها."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['main_phone_found','restricted_movement','travel_plan_messages','safe_confirmation'];
+  c.conclusiveRequired = 4;
+})();

@@ -331,3 +331,17 @@ const CASE_NUMBER_19 = {
    screen showing a highlighted cut segment, dark mode UI, no text,
    no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_NUMBER_19;
+  const a = c.suspects.find(s => s.id === 'coach_ashraf');
+  if (a) {
+    const q = a.questions.find(q => q.closesInterrogation);
+    if (q) {
+      q.a = '(بيسكت) "عمر اكتشف مشكلة في تسجيل سن حسام وواجهني، وأنا حاولت أوقفه عن التصعيد. بعد اختفائه حصلت تصرفات غبية من الإدارة عشان نبعد الشبهة عن الملف، لكن لازم تفرقوا بين التغطية وبين إن حد خطفه."';
+    }
+  }
+  c.conclusiveEvidenceIds = ['age_doubt','gps_location','training_video_cut','omar_safe_message'];
+  c.conclusiveRequired = 4;
+})();

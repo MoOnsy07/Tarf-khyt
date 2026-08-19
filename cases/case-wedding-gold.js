@@ -294,3 +294,27 @@ const CASE_WEDDING_GOLD = {
    found under a table cloth, dim lighting, forensic evidence
    photography style, no text, no watermark, photorealistic"
    ============================================================ */
+
+/* FINAL REVIEW PATCH 2026-08-19 */
+(() => {
+  const c = CASE_WEDDING_GOLD;
+  if (c.timelinePuzzle) {
+    const e3 = c.timelinePuzzle.events.find(e => e.id === 'e3');
+    if (e3) e3.text = 'شخص بيتحرك وسط الضلمة من ناحية ترابيزة إبراهيم ناحية الممر الجانبي القريب من المنصة.';
+    c.timelinePuzzle.resultText = 'ترتيب الأحداث يحدد نافذة السرقة والمسار المحتمل من ناحية ترابيزة إبراهيم للمنصة، لكنه ما يثبتش هوية السارق وحده.';
+  }
+  c.evidenceCombinations = [
+    { parts:['video_clip','reda_witness'], resultId:'route_reconstruction' }
+  ];
+  const i = c.suspects.find(s => s.id === 'ibrahim');
+  if (i && !i.questions.some(q => q.unlockId === 'gold_bag_found')) {
+    i.questions.push({
+      q:'بعد ما اتحدد مسار الحركة، وافقت نفتش متعلقاتك والمكان القريب من ترابيزتك؟',
+      requires:['route_reconstruction','debt_note','ibrahim_seen_near'],
+      unlockId:'gold_bag_found',
+      a:'(بيتوتر) "فتشوا لو عايزين... أنا ماخدتش حاجة."'
+    });
+  }
+  c.conclusiveEvidenceIds = ['ibrahim_seen_near','route_reconstruction','gold_bag_found'];
+  c.conclusiveRequired = 3;
+})();
