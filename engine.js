@@ -3074,14 +3074,42 @@ function attachPanelEvents(){
         suspect_name: String(s.name || ''),
         evidence_id: String(evId || ''),
       });
-      // رد فعل مخصص لو القضية عرّفته في suspect.confrontations، وإلا رد عام
-      let reaction = 'بيبص على الدليل شوية، بس مبيديش رد واضح عليه.';
+      // رد المواجهة: الأول رد مخصص من بيانات القضية، ولو مش موجود نحاول
+      // نستفيد من سؤال الاستجواب المرتبط بنفس الدليل (question.requires).
+      // كده الشخصية ترد بالمعلومة الحقيقية المكتوبة في القضية بدل ما تبص للدليل وتسكت.
+      let reaction = null;
       let unlockId = null;
-      if(s.confrontations && s.confrontations[evId]){
-        reaction = s.confrontations[evId].text;
-        unlockId = s.confrontations[evId].unlockId || null;
-      } else if(s.confrontations && s.confrontations.default){
-        reaction = s.confrontations.default;
+      const confrontation = s.confrontations && s.confrontations[evId];
+
+      if(confrontation){
+        if(typeof confrontation === 'string'){
+          reaction = confrontation;
+        } else {
+          reaction = confrontation.text || confrontation.a || null;
+          unlockId = confrontation.unlockId || null;
+        }
+      }
+
+      if(!reaction){
+        const linkedQuestion = (s.questions || []).find(item=>{
+          const req = Array.isArray(item.requires) ? item.requires : [];
+          return req.includes(evId) && req.every(id=>game.collected.has(id));
+        });
+        if(linkedQuestion){
+          reaction = linkedQuestion.a;
+          unlockId = linkedQuestion.unlockId || null;
+        }
+      }
+
+      if(!reaction && s.confrontations && s.confrontations.default){
+        const fallback = s.confrontations.default;
+        reaction = typeof fallback === 'string' ? fallback : (fallback.text || fallback.a || null);
+        if(!unlockId && fallback && typeof fallback === 'object') unlockId = fallback.unlockId || null;
+      }
+
+      // مفيش صمت بعد كده: حتى الدليل غير المرتبط بالشخصية له رد واضح.
+      if(!reaction){
+        reaction = 'الدليل ده مش بيغيّر كلامي. لو شايف إنه يثبت حاجة ضدي، ورّيني إيه الرابط.';
       }
 
       const transcript = document.getElementById('transcript');
