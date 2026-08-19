@@ -533,3 +533,92 @@ body{
   .toast-wrap{ left:4vw; right:4vw; width:92vw; transform:none; }
   .toast{ white-space:normal; width:100%; box-sizing:border-box; text-align:center; }
 }
+
+
+/* ============================================================
+   تحسين ظهور القضايا البريميوم — إضافة لـ style.css
+   ألصق الكود ده في آخر ملف style.css بتاعك (بعد كل حاجة موجودة)
+   ============================================================ */
+
+:root{
+  /* لون ذهبي مميز للبريميوم، مختلف عن --amber العادي المستخدم
+     في باقي عناصر الواجهة، عشان يبان فرق واضح للعين */
+  --premium-gold: #f4c869;
+  --premium-gold-deep: #b8860b;
+  --premium-glow: 0 0 0 1px rgba(244,200,105,.35), 0 0 28px rgba(244,200,105,.22);
+}
+
+/* ============ الكارت البريميوم — بورد وglow حوالين الكارت كله ============ */
+.lib-card.premium{
+  border: 1px solid rgba(244,200,105,.4);
+  box-shadow: var(--premium-glow);
+  background: linear-gradient(160deg, #2a2415 0%, var(--panel-2) 45%);
+}
+.lib-card.premium:hover{
+  border-color: var(--premium-gold);
+  box-shadow: 0 0 0 1px rgba(244,200,105,.55), 0 0 36px rgba(244,200,105,.32);
+  transform: translateY(-4px);
+}
+
+/* إطار ذهبي رفيع بيلف حوالين صورة الغلاف بس للبريميوم */
+.lib-card.premium .cover{
+  box-shadow: inset 0 0 0 1px rgba(244,200,105,.25);
+}
+
+/* لمعة خفيفة بتعدي على الكارت — تلفت النظر من غير ما تبقى مزعجة */
+.lib-card.premium::before{
+  content:'';
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(120deg, transparent 30%, rgba(244,200,105,.16) 50%, transparent 70%);
+  background-size: 250% 250%;
+  background-position: 200% 0;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference){
+  .lib-card.premium::before{
+    animation: premiumShimmer 5s ease-in-out infinite;
+  }
+  @keyframes premiumShimmer{
+    0%   { background-position: 200% 0; opacity: 0; }
+    45%  { opacity: .8; }
+    60%  { background-position: -50% 0; opacity: 0; }
+    100% { background-position: -50% 0; opacity: 0; }
+  }
+}
+
+/* ============ شارة PREMIUM — شكل "ريبون" بدل البيل العادي ============ */
+.lib-badge.premium{
+  background: linear-gradient(135deg, var(--premium-gold) 0%, var(--premium-gold-deep) 100%);
+  color: #241a02;
+  font-weight: 800;
+  letter-spacing: .04em;
+  box-shadow: 0 2px 10px rgba(184,134,11,.45);
+  display: flex; align-items: center; gap: 4px;
+}
+.lib-badge.premium::before{
+  content: '◆';
+  font-size: 8px;
+}
+
+/* ============ السعر — أوضح وأبرز للقضايا البريميوم ============ */
+.lib-card.premium .lib-price{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--premium-gold) 0%, #e8b84a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lib-card.premium .lib-price .old{
+  -webkit-text-fill-color: var(--ink-dim);
+  color: var(--ink-dim);
+}
+
+/* ============ overlay القفل — لمسة ذهبية للقضايا البريميوم المقفولة ============ */
+.lib-card.premium .lib-lock-overlay{
+  background: linear-gradient(180deg, rgba(10,12,18,.55) 0%, rgba(24,18,4,.82) 100%);
+}
+.lib-card.premium .lib-lock-overlay div span.mono{
+  color: var(--premium-gold) !important;
+}
