@@ -66,6 +66,25 @@
 
   .mono { font-family: 'JetBrains Mono', monospace; direction: ltr; display: inline-block; }
 
+  /* منع لخبطة الأرقام والإنجليزي داخل صفحة RTL */
+  .ltr-token, .tier-label-ltr, .amount {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .ltr-token, .amount {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .tier-label-ltr {
+    display: block;
+    white-space: nowrap;
+  }
+  .tier-price {
+    direction: ltr;
+    unicode-bidi: isolate;
+    white-space: nowrap;
+  }
+
   /* البانر لما يتحط تحت لوجو الأرشيف */
   .bundle-home-banner {
     margin: 22px auto 30px;
@@ -399,30 +418,30 @@
   <div class="header">
     <div class="eyebrow">CASE ARCHIVE — BULK ACCESS</div>
     <h1>كل ما تحقق أكتر، توفّر أكتر</h1>
-    <div class="subtitle">Premium A بـ 25ج · Premium B بـ 15ج — اختار الباقة الأنسب ليك</div>
+    <div class="subtitle"><span class="ltr-token">Premium A · 25ج</span> &nbsp;|&nbsp; <span class="ltr-token">Premium B · 15ج</span> — اختار الباقة الأنسب ليك</div>
   </div>
 
   <div class="tiers">
     <div class="tier">
       <div class="tier-count mono">BUNDLE · 6</div>
-      <div class="tier-label">2 Premium A + 4 Premium B</div>
+      <div class="tier-label tier-label-ltr" dir="ltr">2 Premium A + 4 Premium B</div>
       <div class="tier-price mono">100<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي <span class="mono">110 ج</span> — وفّر 10 ج</div>
+      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">110ج</bdi> — وفّر <bdi class="amount" dir="ltr">10ج</bdi></div>
       <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%206%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%282%20Premium%20A%20%2B%204%20Premium%20B%29%20%D8%A8%D9%80%20100%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
     </div>
     <div class="tier">
       <div class="tier-count mono">BUNDLE · 10</div>
-      <div class="tier-label">4 Premium A + 6 Premium B</div>
+      <div class="tier-label tier-label-ltr" dir="ltr">4 Premium A + 6 Premium B</div>
       <div class="tier-price mono">160<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي <span class="mono">190 ج</span> — وفّر 30 ج</div>
+      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">190ج</bdi> — وفّر <bdi class="amount" dir="ltr">30ج</bdi></div>
       <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%2010%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%284%20Premium%20A%20%2B%206%20Premium%20B%29%20%D8%A8%D9%80%20160%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
     </div>
     <div class="tier best">
       <div class="best-stamp">أفضل قيمة</div>
       <div class="tier-count mono">BUNDLE · 20</div>
-      <div class="tier-label">8 Premium A + 12 Premium B</div>
+      <div class="tier-label tier-label-ltr" dir="ltr">8 Premium A + 12 Premium B</div>
       <div class="tier-price mono">300<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي <span class="mono">380 ج</span> — وفّر 80 ج</div>
+      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">380ج</bdi> — وفّر <bdi class="amount" dir="ltr">80ج</bdi></div>
       <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%2020%20%D9%82%D8%B6%D9%8A%D8%A9%20%288%20Premium%20A%20%2B%2012%20Premium%20B%29%20%D8%A8%D9%80%20300%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب باقة 20 قضية</a>
     </div>
   </div>
