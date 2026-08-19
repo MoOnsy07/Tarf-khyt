@@ -19,8 +19,25 @@ const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ض
 // تسميات التصنيفات — ضيف هنا أي تصنيف جديد تستخدمه في CASE.categories
 const CATEGORY_LABELS = {
   murder:'قتل', theft:'سرقة', comedy:'فكاهية', disappearance:'اختفاء',
-  social:'اجتماعية', scandal:'فضيحة',
+  social:'اجتماعية', scandal:'فضيحة', mystery:'غموض', corruption:'فساد',
+  drama:'دراما', family:'عائلية', sports:'رياضة', fraud:'احتيال',
+  thriller:'تشويق', kidnapping:'خطف', coldcase:'قضية قديمة', digital:'رقمية',
+  accident:'حادث', fashion:'موضة', nightlife:'حياة ليلية', food:'طعام',
+  forgery:'تزوير', arson:'حريق متعمد',
 };
+
+// مش كل tag داخلي لازم يتحول لزر فلتر. القائمة دي متعمدة عشان المكتبة
+// تفضل خفيفة على الموبايل، وباقي القضايا تفضل متاحة من "الكل" والبحث.
+const LIBRARY_FILTER_CATEGORIES = [
+  'murder', 'theft', 'disappearance', 'mystery', 'corruption', 'social', 'comedy'
+];
+
+function getPremiumTier(caseData){
+  if(!caseData || !caseData.isPremium) return null;
+  if(caseData.premiumTier) return String(caseData.premiumTier).toUpperCase();
+  const price = parseFloat(String(caseData.price || '').replace(/[^0-9.]/g,'')) || 0;
+  return price >= 25 ? 'A' : 'B';
+}
 
 let CASE = null;         // القضية الحالية (object)
 let game = null;         // حالة اللعب داخل القضية الحالية
@@ -320,12 +337,12 @@ function showLibrary(){
   // بناء قايمة الفلاتر المتاحة فعليًا (بس اللي عنده قضية واحدة على الأقل)
   const hasFree = CASES_REGISTRY.some(c=>!c.isPremium);
   const hasPremium = CASES_REGISTRY.some(c=>c.isPremium);
-  const usedCategories = [...new Set(CASES_REGISTRY.flatMap(c=>c.categories||[]))];
+  const usedCategories = new Set(CASES_REGISTRY.flatMap(c=>c.categories||[]));
   const filters = [{key:'all', label:'الكل'}];
   if(hasFree) filters.push({key:'free', label:'مجانية'});
   if(hasPremium) filters.push({key:'premium', label:'مدفوعة'});
-  usedCategories.forEach(cat=>{
-    filters.push({key:cat, label: CATEGORY_LABELS[cat] || cat});
+  LIBRARY_FILTER_CATEGORIES.forEach(cat=>{
+    if(usedCategories.has(cat)) filters.push({key:cat, label: CATEGORY_LABELS[cat] || cat});
   });
 
   function matchesFilter(c){
@@ -378,7 +395,10 @@ function showLibrary(){
   const cards = visibleCases.map(c=>{
     const lock = isCaseLocked(c);
     const badges = [];
-    if(c.isPremium) badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
+    if(c.isPremium){
+      const tier = getPremiumTier(c);
+      badges.push(`<span class="lib-badge premium mono">PREMIUM ${tier || ''}</span>`);
+    }
     if(c.isPremium && c.discountLabel) badges.push(`<span class="lib-badge discount mono">${c.discountLabel}</span>`);
     if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
     if(c.contentWarning) badges.push(`<span class="lib-badge adult mono">+18</span>`);
@@ -651,7 +671,7 @@ function openPurchasePopup(caseData){
   overlay.className = 'overlay';
   overlay.innerHTML = `
     <div class="modal">
-      <div class="tag" style="color:var(--amber);">قضية بريميوم</div>
+      <div class="tag" style="color:var(--amber);">قضية بريميوم ${getPremiumTier(caseData) ? `· Premium ${getPremiumTier(caseData)}` : ''}</div>
       <h3>${caseData.title}</h3>
       ${priceHTML}
       <p>تواصل معانا على واتساب لشراء القضية، هتوصلك كود تفتح بيه القضية على طول.</p>
@@ -767,7 +787,9 @@ function enterCase(caseData, opts={}){
 
   const saved = loadLocalProgress(CASE.id);
   if(saved){
-    game.collected = new Set(saved.collected || []);
+    const validEvidenceIds = new Set(CASE.evidence.map(e=>e.id));
+    game.collected = new Set((saved.collected || []).filter(id=>validEvidenceIds.has(id)));
+    if(Number.isFinite(saved.startedAt) && saved.startedAt > 0) game.startedAt = saved.startedAt;
     game.interrogated = {};
     Object.entries(saved.interrogated || {}).forEach(([sid, arr])=>{ game.interrogated[sid] = new Set(arr); });
     game.audioSolved = !!saved.audioSolved;
@@ -841,6 +863,7 @@ function showContentWarning(){
 
 function persistProgress(){
   saveLocalProgress(CASE.id, {
+    startedAt: game.startedAt,
     collected: [...game.collected],
     interrogated: Object.fromEntries(Object.entries(game.interrogated).map(([k,v])=>[k,[...v]])),
     audioSolved: game.audioSolved,
@@ -1304,9 +1327,15 @@ function avatarMarkup(s, cls){
 }
 
 function collect(id, opts={}){
+  const ev = evidenceById(id);
+  // أي unlockId غلط في ملف قضية ماينفعش يتحسب كأنه دليل حقيقي؛ ده كان ممكن
+  // يزوّد عداد الأدلة ويفتح لوحة الاتهام بدري من غير دليل موجود أصلًا.
+  if(!ev){
+    console.warn('Ignored unknown evidence id:', id, CASE && CASE.id);
+    return false;
+  }
   if(!game.collected.has(id)){
     game.collected.add(id);
-    const ev = evidenceById(id);
     gaTrack('evidence_collected', {
       evidence_id: String(id),
       evidence_title: ev ? String(ev.title || '') : '',
@@ -1334,7 +1363,9 @@ function collect(id, opts={}){
     }
     persistProgress();
     checkEvidenceCombinations();
+    return true;
   }
+  return false;
 }
 
 // أدلة ناقصة بتتكمّل ببعض — عرّف CASE.evidenceCombinations = [{parts:[id1,id2,...], resultId:'combinedId'}]
@@ -2219,7 +2250,7 @@ function submitToGlobalLeaderboard(){
   Leaderboard.submitScore({
     caseId: CASE.id,
     caseTitle: CASE.title,
-    points: CASE.investigationPoints != null ? CASE.investigationPoints : 0,
+    points: Math.max(0, Math.floor(game.score || 0)),
     solveTimeSeconds,
     endingType: 'good',
   }).catch(err => console.error('submitToGlobalLeaderboard failed', err));

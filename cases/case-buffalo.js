@@ -5,7 +5,7 @@
    البرومبتات المقترحة لكل صورة موجودة في ملاحظة آخر الملف.
    ============================================================ */
 
-const IMG_BASE_BUFFALO = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/';
+const IMG_BASE_BUFFALO = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/images/buffalo/';
 
 const CASE_BUFFALO = {
   id: 'buffalo-case',

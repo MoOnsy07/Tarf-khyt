@@ -9,7 +9,7 @@ const IMG_BASE_GOLD = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main
 const CASE_WEDDING_GOLD = {
   id: 'wedding-gold',
   title: 'دهب الفرح',
-  caseNo: 'CASE 030',
+  caseNo: 'CASE 002',
   subtitle: 'قرية كفر الزيات، الغربية',
   coverImg: IMG_BASE_GOLD + 'gold-cover.jpg',
   difficulty: 'سهلة',
@@ -25,7 +25,7 @@ const CASE_WEDDING_GOLD = {
 
   briefing: {
     heroImg: IMG_BASE_GOLD + 'gold-cover.jpg',
-    heroCaption: 'CASE 012 — نص فرح "سوسو" العروسة',
+    heroCaption: 'CASE 002 — نص فرح "سوسو" العروسة',
     text1: 'وسط فرح "سوسو" الكبير في القرية، الشنطة اللي فيها كل دهبها اختفت من على الكرسي المخصص لها جنب المنصة. الزفة كانت في أعز لحظاتها، والفرحة اتحولت لدوشة وصراخ من كل العيلة.',
     text2: 'أبو العروسة، "الحاج فتحي"، مقتنع إن حد من المدعوين استغل الزحمة والضلمة. طلب منك تحقق بهدوء وسرعة، قبل ما الفرح يخلص والمدعوين يمشوا كل واحد لحاله، عشان الدهب ميضيعش للأبد.',
     meta: [

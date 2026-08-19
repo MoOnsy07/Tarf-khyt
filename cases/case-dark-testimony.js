@@ -5,7 +5,7 @@
    اللاعب بيحقق عشان يبرّئ متهم ظلمًا ويوصل للفاعل الحقيقي.
    ============================================================ */
 
-const IMG_BASE_DARKTEST = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/';
+const IMG_BASE_DARKTEST = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/images/dark-testimony/';
 
 const CASE_DARK_TESTIMONY = {
   id: 'dark-testimony',

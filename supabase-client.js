@@ -7,9 +7,10 @@ const SUPABASE_ANON_KEY = 'sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* بيحاول يفك الكود لقضية معيّنة. بيرجع true لو الكود صح ولسه ما اتستخدمش،
-   وبيعلّمه "مستخدم" في نفس اللحظة عشان محدش يقدر يستخدمه تاني.
-   الفحص والتعديل بيحصلوا جوه Supabase نفسها (function)، مش من الكود اللي في المتصفح،
-   فمحدش يقدر "يحتال" على النظام حتى لو فتح الـ Developer Tools. */
+   وبيعلّمه "مستخدم" في نفس اللحظة عشان نفس الكود مايتصرفش مرتين.
+   ملحوظة أمنية: الـRPC يحمي استهلاك الكود نفسه، لكن فتح القضية بعد النجاح محفوظ
+   محليًا في المتصفح حاليًا؛ حماية محتوى Premium بالكامل محتاجة entitlement من السيرفر
+   وتحميل المحتوى المدفوع بعد التحقق، مش مجرد localStorage. */
 async function redeemCode(caseId, code){
   const cleanCode = (code || '').trim().toUpperCase();
   if(!cleanCode) return false;

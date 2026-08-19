@@ -4,7 +4,7 @@
    غيّر البيانات، وضيفه في CASES_REGISTRY في index.html
    ============================================================ */
 
-const IMG_BASE = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/';
+const IMG_BASE = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/images/last-episode/';
 
 const CASE_LAST_EPISODE = {
   id: 'last-episode',
