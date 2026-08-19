@@ -12,7 +12,7 @@ const CASE_DELETED_SCENE = {
   title: 'المشهد المحذوف',
   caseNo: 'CASE 023',
   subtitle: 'استوديو إنتاج سينمائي، مدينة الإنتاج الإعلامي',
-  coverImg: IMG_BASE_DELETED + 'deleted-cover.jpg',
+  coverImg: IMG_BASE_DELETED + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -25,7 +25,7 @@ const CASE_DELETED_SCENE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_DELETED + 'deleted-cover.jpg',
+    heroImg: IMG_BASE_DELETED + 'cover.webp',
     heroCaption: 'CASE 023 — ليلة العرض الخاص',
     text1: 'ممثلة شابة صاعدة، "ريما"، فاجأت الجميع بإعلان اعتزالها فجأة، وبعدها اختفت في نفس ليلة العرض الخاص لفيلمها الجديد. في نفس الليلة، نسخة مجهولة المصدر من مشهد محذوف من الفيلم وصلت للصحافة، وفي خلفية المشهد صوت اجتماع مش المفروض حد يسمعه.',
     text2: 'منتجة الفيلم منى أعلنت إنها قلقانة من اختفاء ريما وتسريب المشهد في نفس الليلة، وطلبت تحقيق داخلي سريع وسري، عشان تفهم اللي حصل فعليًا قبل ما القصة تتحول لفضيحة إعلامية كبيرة.',
@@ -225,7 +225,7 @@ const CASE_DELETED_SCENE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "المشهد المحذوف"
 
-   الغلاف (deleted-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a red carpet event with an empty spotlight
    where a star should stand, photographers waiting, dramatic evening
    lighting, documentary photography style, no text, no watermark,

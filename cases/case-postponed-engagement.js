@@ -11,7 +11,7 @@ const CASE_POSTPONED_ENGAGEMENT = {
   title: 'خطوبة مؤجلة',
   caseNo: 'CASE 058',
   subtitle: 'بيت العروسة، ليلة كتب الكتاب',
-  coverImg: IMG_BASE_POSTPONEDENGAGEMENT + 'engagement-cover.jpg',
+  coverImg: IMG_BASE_POSTPONEDENGAGEMENT + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 19,
@@ -24,7 +24,7 @@ const CASE_POSTPONED_ENGAGEMENT = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_POSTPONEDENGAGEMENT + 'engagement-cover.jpg',
+    heroImg: IMG_BASE_POSTPONEDENGAGEMENT + 'cover.webp',
     heroCaption: 'CASE 058 — ليلة كتب الكتاب',
     text1: 'العريس "معتز" كان فاضل شوية على موعد كتب الكتاب في بيت عروسته "هنا"، وفجأة اختفى من غير أي أثر، بعد ما خرج "يستنشق هوا" لدقايق قدام العمارة. عيلته وعيلة هنا فضلوا مستنيين ساعات طويلة قبل ما يقرروا يبلغوا.',
     text2: 'هنا طلبت منك تحقق بسرعة قبل ما القصة تتحول لفضيحة اجتماعية كبيرة. عندك آخر رسائل معتز، وقائمة الأشخاص المقربين منه اللي حضروا الاحتفال.',
@@ -243,7 +243,7 @@ const CASE_POSTPONED_ENGAGEMENT = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "خطوبة مؤجلة"
 
-   الغلاف (engagement-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant living room decorated for an
    engagement ceremony, empty chairs facing each other, warm ambient
    lighting, documentary photography style, no text, no watermark,

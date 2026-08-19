@@ -11,7 +11,7 @@ const CASE_BRIBERY = {
   title: 'قبول بالواسطة',
   caseNo: 'CASE 016',
   subtitle: 'كلية طب خاصة، القاهرة',
-  coverImg: IMG_BASE_BRIBERY + 'bribery-cover.jpg',
+  coverImg: IMG_BASE_BRIBERY + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 17,
@@ -24,7 +24,7 @@ const CASE_BRIBERY = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_BRIBERY + 'bribery-cover.jpg',
+    heroImg: IMG_BASE_BRIBERY + 'cover.webp',
     heroCaption: 'CASE 016 — بعد إعلان نتيجة القبول بأسبوعين',
     text1: 'كلية طب خاصة مرموقة أعلنت نتيجة قبول الدفعة الجديدة، وطالبة اسمها "ملك" مستوفية شروط القبول ومجموعها أعلى من الحد المعلن اتفاجئت إن اسمها مش موجود في القايمة، بينما طالب تاني بمجموع أقل بكتير دخل الكلية بسهولة. الشك بدأ يدور حوالين وجود رشاوى لضمان قبول طلبة معينين.',
     text2: 'والد ملك رفع شكوى رسمية لمجلس أمناء الكلية، والمجلس طلب منك تحقق بسرعة وسرية، قبل ما الفضيحة تتسرب للإعلام وتضر سمعة الكلية بالكامل، وقبل ما حق ملك يضيع نهائيًا.',
@@ -257,7 +257,7 @@ const CASE_BRIBERY = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "قبول بالواسطة"
 
-   الغلاف (bribery-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an official university admission list
    posted on a bulletin board, blurred students in the background,
    documentary photography style, no text, no watermark,

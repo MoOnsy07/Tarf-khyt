@@ -11,7 +11,7 @@ const CASE_OLD_PHOTO = {
   title: 'صورة قديمة',
   caseNo: 'CASE 045',
   subtitle: 'بيت عائلي قديم، ذكرى 20 سنة',
-  coverImg: IMG_BASE_OLDPHOTO + 'photo-cover.jpg',
+  coverImg: IMG_BASE_OLDPHOTO + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_OLD_PHOTO = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_OLDPHOTO + 'photo-cover.jpg',
+    heroImg: IMG_BASE_OLDPHOTO + 'cover.webp',
     heroCaption: 'CASE 045 — 20 سنة بعد الحادثة',
     text1: 'أثناء تنظيف بيت الجدة القديم بعد وفاتها، لقت حفيدتها "سلمى" صورة عيلية قديمة من رحلة صيفية من 20 سنة. على ضهر الصورة، لقت كلمات مكتوبة بخط اليد بتلمح إن وفاة جدها "كمال" في نفس السنة دي مكانتش حادثة عادية زي ما الجميع كان فاكر.',
     text2: 'سلمى طلبت منك تحقق في الموضوع القديم ده، حتى لو كل الأدلة المباشرة اختفت مع الوقت. عندك الصورة القديمة، وقائمة أفراد العيلة اللي كانوا حاضرين في الرحلة الصيفية دي.',
@@ -231,7 +231,7 @@ const CASE_OLD_PHOTO = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "صورة قديمة"
 
-   الغلاف (photo-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of an old faded family photograph on a
    wooden table, dusty attic lighting, documentary photography
    style, no text, no watermark, photorealistic"

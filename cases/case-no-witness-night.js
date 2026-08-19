@@ -12,7 +12,7 @@ const CASE_NO_WITNESS_NIGHT = {
   title: 'ليلة من غير شاهد',
   caseNo: 'CASE 024',
   subtitle: 'قاعة أفراح، مدينة نصر',
-  coverImg: IMG_BASE_NOWITNESS + 'nowitness-cover.jpg',
+  coverImg: IMG_BASE_NOWITNESS + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
@@ -27,7 +27,7 @@ const CASE_NO_WITNESS_NIGHT = {
   contentWarning: 'القضية دي بتتعامل مع اتهام باعتداء حصل في حفلة خطوبة، من غير أي وصف صريح للحادثة نفسها. التركيز بالكامل على التحقيق في دقة الأدلة والوصول للفاعل الحقيقي، وعلى إثبات براءة شخص اتهم ظلمًا بسبب خطأ في توقيت كاميرا. لو الموضوع حساس بالنسبالك دلوقتي، تقدر تسيب القضية دي وترجع لها وقت تاني.',
 
   briefing: {
-    heroImg: IMG_BASE_NOWITNESS + 'nowitness-cover.jpg',
+    heroImg: IMG_BASE_NOWITNESS + 'cover.webp',
     heroCaption: 'CASE 024 — بعد حفلة الخطوبة بساعات',
     text1: 'شاب اسمه "عصام" بيتقبض عليه بعد اتهامه بحادثة اعتداء حصلت في حفلة خطوبة. الشهادة الأساسية ضده جاية من شاهدة قالت إنها شافت شخص افتكرته عصام خارج من ناحية مكان الحادثة، وكاميرا الممر بدت كأنها بتأكد كلامها. المشكلة الوحيدة: ساعة كاميرا المكان اتضح إنها متقدمة 11 دقيقة عن التوقيت الحقيقي.',
     text2: 'محامي عصام مش مقتنع تمامًا بالقصة زي ما هي، وطلب منك تحقق بحذر شديد قبل ما القضية توصل للمحكمة. المهمة صعبة: لازم تثبت إن عصام مش الفاعل، وفي نفس الوقت توصل لمين هو الفاعل الحقيقي — مش بس تلاقي مشتبه بديل من غير دليل قاطع.',
@@ -243,7 +243,7 @@ const CASE_NO_WITNESS_NIGHT = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "ليلة من غير شاهد"
 
-   الغلاف (nowitness-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a dim wedding hall hallway at night with a
    security camera mounted on the wall, moody atmosphere, documentary
    photography style, no text, no watermark, photorealistic"

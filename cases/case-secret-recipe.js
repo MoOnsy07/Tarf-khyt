@@ -11,7 +11,7 @@ const CASE_SECRET_RECIPE = {
   title: 'الوصفة السرية',
   caseNo: 'CASE 059',
   subtitle: 'مطبخ الشيف الخاص، فيلا فاخرة',
-  coverImg: IMG_BASE_SECRETRECIPE + 'recipe-cover.jpg',
+  coverImg: IMG_BASE_SECRETRECIPE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 34,
   investigationPoints: 19,
@@ -24,7 +24,7 @@ const CASE_SECRET_RECIPE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_SECRETRECIPE + 'recipe-cover.jpg',
+    heroImg: IMG_BASE_SECRETRECIPE + 'cover.webp',
     heroCaption: 'CASE 059 — ليلة قبل التصوير الكبير',
     text1: 'الشيف المشهور "رامي" كان بيحضّر وصفته السرية الشهيرة استعدادًا لتصوير حلقة كبيرة في برنامج طبخ تلفزيوني. أثناء التذوق الأخير، بدأ يحس بأعراض غريبة، وانهار في مطبخه الخاص.',
     text2: 'الفحص الطبي كشف مادة سامة في مكوّن رئيسي من الوصفة السرية بالذات. زوجته طلبت منك تحقق بسرعة قبل ما البرنامج يتلغى والقضية تتحول لفضيحة إعلامية. عندك تفاصيل الوصفة، وقائمة الأشخاص اللي كان عندهم وصول للمطبخ.',
@@ -219,7 +219,7 @@ const CASE_SECRET_RECIPE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الوصفة السرية"
 
-   الغلاف (recipe-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant private kitchen with organized
    ingredients on a marble counter, warm kitchen lighting,
    documentary photography style, no text, no watermark,

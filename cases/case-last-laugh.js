@@ -11,7 +11,7 @@ const CASE_LAST_LAUGH = {
   title: 'ضحكة أخيرة',
   caseNo: 'CASE 053',
   subtitle: 'مسرح صغير، بروفة عرض كوميدي',
-  coverImg: IMG_BASE_LASTLAUGH + 'laugh-cover.jpg',
+  coverImg: IMG_BASE_LASTLAUGH + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_LAST_LAUGH = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_LASTLAUGH + 'laugh-cover.jpg',
+    heroImg: IMG_BASE_LASTLAUGH + 'cover.webp',
     heroCaption: 'CASE 053 — بروفة المشهد الأخير',
     text1: 'الكاتب الكوميدي "بهاء" كان بيحضر بروفة مسرحيته الجديدة، وقرر يشارك في مشهد صغير بنفسه كمزحة مع الممثلين. أثناء المشهد، اللي فيه بهاء بياخد "جرعة سم وهمية"، بدأ بهاء يتصرف بشكل غريب فعليًا، والممثلين ضحكوا فاكرين إنه بيمثل بإتقان، لحد ما وقع بجد ومات.',
     text2: 'مخرج المسرحية طلب منك تحقق بسرعة قبل ما القضية تتحول لفضيحة إعلامية غريبة. عندك نسخة من النص المسرحي بالذات، وقائمة فريق العمل اللي كان حاضر البروفة.',
@@ -232,7 +232,7 @@ const CASE_LAST_LAUGH = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "ضحكة أخيرة"
 
-   الغلاف (laugh-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty small theater stage during
    rehearsal, script pages scattered on the floor, dim stage
    lighting, documentary photography style, no text, no watermark,

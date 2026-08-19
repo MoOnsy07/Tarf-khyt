@@ -11,7 +11,7 @@ const CASE_DAWN_CLUB = {
   title: 'نادي الفجر',
   caseNo: 'CASE 042',
   subtitle: 'نادي ليلي فاخر، وسط القاهرة',
-  coverImg: IMG_BASE_DAWNCLUB + 'dawn-cover.jpg',
+  coverImg: IMG_BASE_DAWNCLUB + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -30,7 +30,7 @@ const CASE_DAWN_CLUB = {
   contentWarning: 'القضية دي بتدور في بيئة نادي ليلي وبتتضمن إشارات لتعاطي كحول وأجواء بالغين، من غير أي محتوى صريح.',
 
   briefing: {
-    heroImg: IMG_BASE_DAWNCLUB + 'dawn-cover.jpg',
+    heroImg: IMG_BASE_DAWNCLUB + 'cover.webp',
     heroCaption: 'CASE 042 — ليلة في غرفة كبار الشخصيات',
     text1: 'رجل الأعمال "عمرو" كان من زباين نادي الفجر الدائمين، بيقعد في غرفة كبار الشخصيات كل أسبوع تقريبًا. الليلة دي، اتلاقى فاقد الوعي في نفس الغرفة، ومات قبل ما الإسعاف يوصل.',
     text2: 'مالك النادي طلب منك تحقق بسرعة وسرية قبل ما القضية تأثر على ترخيص النادي وسمعته. عندك شهادات من فريق العمل والزباين اللي كانوا قريبين من عمرو في آخر ساعة.',
@@ -243,7 +243,7 @@ const CASE_DAWN_CLUB = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "نادي الفجر"
 
-   الغلاف (dawn-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty luxury nightclub VIP room at
    dawn, dim colorful ambient lighting fading, a single abandoned
    glass on a table, documentary photography style, no text, no

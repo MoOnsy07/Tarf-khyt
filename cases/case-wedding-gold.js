@@ -11,7 +11,7 @@ const CASE_WEDDING_GOLD = {
   title: 'دهب الفرح',
   caseNo: 'CASE 002',
   subtitle: 'قرية كفر الزيات، الغربية',
-  coverImg: IMG_BASE_GOLD + 'gold-cover.jpg',
+  coverImg: IMG_BASE_GOLD + 'cover.webp',
   difficulty: 'سهلة',
   estMinutes: 26,
   investigationPoints: 16,
@@ -24,7 +24,7 @@ const CASE_WEDDING_GOLD = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_GOLD + 'gold-cover.jpg',
+    heroImg: IMG_BASE_GOLD + 'cover.webp',
     heroCaption: 'CASE 002 — نص فرح "سوسو" العروسة',
     text1: 'وسط فرح "سوسو" الكبير في القرية، الشنطة اللي فيها كل دهبها اختفت من على الكرسي المخصص لها جنب المنصة. الزفة كانت في أعز لحظاتها، والفرحة اتحولت لدوشة وصراخ من كل العيلة.',
     text2: 'أبو العروسة، "الحاج فتحي"، مقتنع إن حد من المدعوين استغل الزحمة والضلمة. طلب منك تحقق بهدوء وسرعة، قبل ما الفرح يخلص والمدعوين يمشوا كل واحد لحاله، عشان الدهب ميضيعش للأبد.',
@@ -229,7 +229,7 @@ const CASE_WEDDING_GOLD = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "دهب الفرح"
 
-   الغلاف (gold-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic overhead shot of an ornate empty wedding chair with
    festive decorations, an open empty jewelry bag on the ground beside
    it, warm colorful wedding lighting, documentary photography style,

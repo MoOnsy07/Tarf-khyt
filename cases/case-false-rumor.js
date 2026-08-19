@@ -13,7 +13,7 @@ const CASE_FALSE_RUMOR = {
   title: 'الوشاية',
   caseNo: 'CASE 014',
   subtitle: 'قرية بني سويف، صعيد مصر',
-  coverImg: IMG_BASE_RUMOR + 'rumor-cover.jpg',
+  coverImg: IMG_BASE_RUMOR + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -28,7 +28,7 @@ const CASE_FALSE_RUMOR = {
   contentWarning: 'القضية دي بتتعامل مع موضوع اتهام ظالم لفتاة بناءً على صورة مفبركة، في سياق عائلي محافظ فيه خطر حقيقي على أمانها واستقرارها لو الاتهام فضل قايم. مفيش أي محتوى صريح أو مشاهد عنف — التركيز بالكامل على التحقيق وكشف الحقيقة وحماية الفتاة من ظلم مالوش أي أساس. لو الموضوع حساس بالنسبالك دلوقتي، تقدر تسيب القضية دي وترجع لها وقت تاني.',
 
   briefing: {
-    heroImg: IMG_BASE_RUMOR + 'rumor-cover.jpg',
+    heroImg: IMG_BASE_RUMOR + 'cover.webp',
     heroCaption: 'CASE 014 — قبل عقد القران بأسبوع',
     text1: '"سلمى"، فتاة فاضل أسبوع على عقد قرانها الرسمي، اتفبركت لها صورة بتوحي إنها بتقابل شاب غريب سرًا بعيد عن عيلتها. الصورة انتشرت في القرية بسرعة، وعيلة خطيبها هددت تفسخ الخطوبة، وعيلتها هي نفسها في حالة غضب شديد وخايفة على "سمعة البيت".',
     text2: 'أخو سلمى الكبير، "رضوان"، رغم غضبه الأولي، حس إن في حاجة غلط في القصة كلها ومش مقتنع تمامًا، فقرر يستنى قبل ما ياخد أي قرار متسرع ويطلب منك تحقق بسرعة وبدقة. قدامك أيام معدودة قبل ما الموقف يخرج عن السيطرة تمامًا.',
@@ -260,7 +260,7 @@ const CASE_FALSE_RUMOR = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الوشاية"
 
-   الغلاف (rumor-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a smartphone screen showing a WhatsApp
    group chat interface glowing in a dim room, blurred photo thumbnail
    visible, tense atmosphere, documentary photography style, no text,

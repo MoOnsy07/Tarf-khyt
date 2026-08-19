@@ -11,7 +11,7 @@ const CASE_VAULT_KEY = {
   title: 'مفتاح الخزنة',
   caseNo: 'CASE 035',
   subtitle: 'متحف خاص، حفلة مزاد علني',
-  coverImg: IMG_BASE_VAULTKEY + 'vault-cover.jpg',
+  coverImg: IMG_BASE_VAULTKEY + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_VAULT_KEY = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_VAULTKEY + 'vault-cover.jpg',
+    heroImg: IMG_BASE_VAULTKEY + 'cover.webp',
     heroCaption: 'CASE 035 — منتصف حفلة المزاد',
     text1: 'متحف خاص كان بيستضيف حفلة مزاد علني فاخرة لمجموعة مجوهرات أثرية نادرة قبل ما تتباع رسميًا. في منتصف الحفلة، مدير المتحف اكتشف إن الخزنة اللي فيها أثمن قطعة في المجموعة فاضية تمامًا.',
     text2: 'الغريب إن الخزنة مالهاش غير مفتاح واحد أصلي، وكود رقمي معروف لعدد محدود جدًا من الناس. المدير طلب منك تحقق بسرية تامة قبل ما الفضيحة توصل للصحافة وتدمر سمعة المتحف قبل المزاد الرسمي.',
@@ -240,7 +240,7 @@ const CASE_VAULT_KEY = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "مفتاح الخزنة"
 
-   الغلاف (vault-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant museum vault room at night, an
    open empty jewelry display case with a single spotlight,
    documentary photography style, no text, no watermark,

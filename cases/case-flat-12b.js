@@ -11,7 +11,7 @@ const CASE_FLAT_12B = {
   title: 'الشقة 12 ب',
   caseNo: 'CASE 031',
   subtitle: 'عمارة سكنية، حي راقٍ، القاهرة',
-  coverImg: IMG_BASE_FLAT12B + 'flat12b-cover.jpg',
+  coverImg: IMG_BASE_FLAT12B + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 17,
@@ -24,7 +24,7 @@ const CASE_FLAT_12B = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_FLAT12B + 'flat12b-cover.jpg',
+    heroImg: IMG_BASE_FLAT12B + 'cover.webp',
     heroCaption: 'CASE 031 — شقة 12 ب في صمت غريب',
     text1: 'صاحب العمارة "عادل" دخل الشقة 12 ب بعد ما المستأجرة الجديدة "سلمى" ما ردتش على أي مكالمة لمدة يومين. لقى الشقة في حالة فوضى، الباب مخلوع من الداخل، وحقيبتها وموبايلها متروكين على الأرض.',
     text2: 'الغريب إن كاميرات المبنى مش شايفة أي حد غريب داخل أو خارج في نطاق الوقت المتوقع للحادثة. يعني إما الخاطف كان معروف عند سلمى وقدر يدخل من غير ما يلفت الانتباه، أو إن حاجة تانية خالص حصلت. عادل طلب منك تحقق قبل ما يبلغ الشرطة رسميًا ويتلخبط اسم العمارة كلها.',
@@ -233,7 +233,7 @@ const CASE_FLAT_12B = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الشقة 12 ب"
 
-   الغلاف (flat12b-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a modern apartment building hallway at
    night, a single apartment door slightly ajar with dim light
    leaking out, documentary photography style, no text, no

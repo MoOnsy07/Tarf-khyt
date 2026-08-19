@@ -11,7 +11,7 @@ const CASE_BROKEN_FAUCET = {
   title: 'صنبور مكسور',
   caseNo: 'CASE 057',
   subtitle: 'فيلا مهجورة، أطراف المدينة',
-  coverImg: IMG_BASE_BROKENFAUCET + 'faucet-cover.jpg',
+  coverImg: IMG_BASE_BROKENFAUCET + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 29,
   investigationPoints: 16,
@@ -24,7 +24,7 @@ const CASE_BROKEN_FAUCET = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_BROKENFAUCET + 'faucet-cover.jpg',
+    heroImg: IMG_BASE_BROKENFAUCET + 'cover.webp',
     heroCaption: 'CASE 057 — فيلا مهجورة، بعد الظهر',
     text1: 'السباك "عادل" كان بيصلح تسريب مياه في فيلا مهجورة تابعة لعائلة ثرية، بشكل منفرد بعيد عن أي عمال تانيين. لما ماجاش البيت في المعاد، أخوه راح يدور عليه، ولقاه مقتول جوه الفيلا في غرفة بعيدة عن مكان الصنبور المفروض يصلحه.',
     text2: 'أخو عادل طلب منك تحقق قبل ما القضية تتحول لملف مفتوح بلا حل. عندك تفاصيل عمل عادل الأخير، وقائمة الأشخاص المرتبطين بالفيلا وعائلتها.',
@@ -219,7 +219,7 @@ const CASE_BROKEN_FAUCET = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "صنبور مكسور"
 
-   الغلاف (faucet-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an abandoned villa interior with dusty
    furniture covered in sheets, dim daylight through closed shutters,
    documentary photography style, no text, no watermark,

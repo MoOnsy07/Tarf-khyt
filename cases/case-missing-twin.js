@@ -11,7 +11,7 @@ const CASE_MISSING_TWIN = {
   title: 'التوأم المفقود',
   caseNo: 'CASE 054',
   subtitle: 'شقة التوأم المشتركة، مدينة نصر',
-  coverImg: IMG_BASE_MISSINGTWIN + 'twin-cover.jpg',
+  coverImg: IMG_BASE_MISSINGTWIN + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
@@ -28,7 +28,7 @@ const CASE_MISSING_TWIN = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_MISSINGTWIN + 'twin-cover.jpg',
+    heroImg: IMG_BASE_MISSINGTWIN + 'cover.webp',
     heroCaption: 'CASE 054 — بعد الاختفاء بيومين',
     text1: 'التوأم "كريم" بلّغ الشرطة إن أخوه التوأم "تامر" اختفى فجأة من شقتهم المشتركة من غير أي أثر. المشكلة إن كريم وتامر متطابقين تمامًا، والناس القريبين منهم دايمًا بتتلخبط بينهم، وده بيخلي التحقيق معقد جدًا.',
     text2: 'أم كريم وتامر طلبت منك تحقق في الموضوع، لأنها حاسة إن حاجة في رواية كريم مش مظبوطة. عندك تفاصيل حياة التوأم المشتركة، وعينات DNA من غرفتيهم المنفصلتين في الشقة.',
@@ -229,7 +229,7 @@ const CASE_MISSING_TWIN = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "التوأم المفقود"
 
-   الغلاف (twin-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an apartment hallway with two identical
    closed bedroom doors side by side, dim indoor lighting,
    documentary photography style, no text, no watermark,

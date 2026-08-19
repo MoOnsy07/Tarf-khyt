@@ -12,7 +12,7 @@ const CASE_ROLE_OF_LIFETIME = {
   title: 'دور العمر',
   caseNo: 'CASE 028',
   subtitle: 'استوديو تصوير مسلسل تاريخي، مدينة الإنتاج الإعلامي',
-  coverImg: IMG_BASE_ROLE + 'role-cover.jpg',
+  coverImg: IMG_BASE_ROLE + 'cover.webp',
   difficulty: 'صعبة جدًا',
   estMinutes: 40,
   investigationPoints: 22,
@@ -25,7 +25,7 @@ const CASE_ROLE_OF_LIFETIME = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_ROLE + 'role-cover.jpg',
+    heroImg: IMG_BASE_ROLE + 'cover.webp',
     heroCaption: 'CASE 028 — بعد أول أسبوع تصوير',
     text1: 'الممثل الكبير "أنور رشدي" ياخد بطولة مسلسل عن حياة شخصية عامة حقيقية اسمها "الدكتور راغب"، اللي المفروض إنه اتوفى من سنين. بعد أول أسبوع تصوير بس، أنور بيستلم فيديوهات مجهولة المصدر بتثبت إن الدكتور راغب لسه حي فعليًا، عكس اللي الناس كلها فاكراه. بعدها بأيام، أنور بيتعرض لمحاولة أذية في لوكيشن التصوير نفسه.',
     text2: 'المخرج مش عارف يصدق ولا يكذب، وطلب منك تحقق بسرعة وسرية تامة. الغريب إن كاتب المسلسل بدأ يعمل تعديلات صغيرة جدًا وغريبة في كل نسخة من السيناريو — تعديلات محدش واخد باله منها غير إنك لاحظت نمط مريب فيها.',
@@ -283,7 +283,7 @@ const CASE_ROLE_OF_LIFETIME = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "دور العمر"
 
-   الغلاف (role-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a film script on a desk with subtle
    handwritten annotations, a laptop showing a video paused mid-frame,
    dramatic desk lamp lighting, documentary photography style, no

@@ -12,7 +12,7 @@ const CASE_FAKE_AUDIO = {
   title: 'التسجيل المفبرك',
   caseNo: 'CASE 013',
   subtitle: 'شركة مقاولات كبرى، القاهرة الجديدة',
-  coverImg: IMG_BASE_FAKEAUDIO + 'fakeaudio-cover.jpg',
+  coverImg: IMG_BASE_FAKEAUDIO + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 34,
   investigationPoints: 19,
@@ -27,7 +27,7 @@ const CASE_FAKE_AUDIO = {
   contentWarning: 'القضية دي بتتعامل مع موضوع ابتزاز مرتبط بشبهة علاقة خارج الزواج، من غير أي محتوى صريح أو تفاصيل حساسة. التركيز بالكامل على كشف تزييف الأدلة والوصول للمبتز الحقيقي. لو الموضوع حساس بالنسبالك دلوقتي، تقدر تسيب القضية دي وترجع لها وقت تاني.',
 
   briefing: {
-    heroImg: IMG_BASE_FAKEAUDIO + 'fakeaudio-cover.jpg',
+    heroImg: IMG_BASE_FAKEAUDIO + 'cover.webp',
     heroCaption: 'CASE 013 — رسالة على واتساب في 2 الفجر',
     text1: 'رجل الأعمال "ماجد حلمي"، صاحب شركة مقاولات كبرى، استلم رسالة صوتية مجهولة المصدر بيهدده فيها إن فيه تسجيل صوتي "يفضحه" هيتنشر لو ماحوّلش مبلغ كبير خلال 48 ساعة. التسجيل المرفق بيوحي بعلاقة خارج الزواج، رغم إن ماجد بينفي القصة كلها تمامًا.',
     text2: 'ماجد مش عايز يلجأ للشرطة رسميًا خوفًا من الفضيحة نفسها، حتى لو التسجيل مفبرك. طلب منك تحقق بهدوء تام، عشان تكشف مين المبتز الحقيقي، وهل التسجيل ده حقيقي فعلًا ولا مفبرك بالكامل.',
@@ -238,7 +238,7 @@ const CASE_FAKE_AUDIO = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "التسجيل المفبرك"
 
-   الغلاف (fakeaudio-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a smartphone showing an audio waveform
    playback screen on a dark office desk at night, moody blue
    lighting, documentary photography style, no text, no watermark,

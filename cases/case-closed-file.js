@@ -11,7 +11,7 @@ const CASE_CLOSED_FILE = {
   title: 'ملف مغلق',
   caseNo: 'CASE 051',
   subtitle: 'بيت الضابط المتقاعد، حي هادي',
-  coverImg: IMG_BASE_CLOSEDFILE + 'file-cover.jpg',
+  coverImg: IMG_BASE_CLOSEDFILE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 39,
   investigationPoints: 22,
@@ -28,7 +28,7 @@ const CASE_CLOSED_FILE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_CLOSEDFILE + 'file-cover.jpg',
+    heroImg: IMG_BASE_CLOSEDFILE + 'cover.webp',
     heroCaption: 'CASE 051 — بعد التقاعد بخمس سنين',
     text1: 'الضابط المتقاعد "فتحي" كان مقتنع طول مسيرته إن قضية قتل قديمة اتقفلت غلط قبل ما يتقاعد، وبعد التقاعد فضل يحقق فيها بشكل شخصي. بدأ يجمع أدلة جديدة، وبعد أسبوعين من إعلانه لأصدقائه القدامى إنه قرّب يوصل للحقيقة، اتقتل في بيته.',
     text2: 'ابنته طلبت منك تحقق في مقتل أبوها، وربطه المحتمل بالقضية القديمة اللي كان بيحقق فيها. عندك ملف القضية القديمة كامل، وقائمة الأشخاص المرتبطين بيها من زمان ولسه أحياء.',
@@ -250,7 +250,7 @@ const CASE_CLOSED_FILE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "ملف مغلق"
 
-   الغلاف (file-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an old home office desk covered with
    scattered case files and photographs, warm desk lamp lighting,
    documentary photography style, no text, no watermark,

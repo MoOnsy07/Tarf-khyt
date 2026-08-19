@@ -11,7 +11,7 @@ const CASE_NILE_CRUISE = {
   title: 'الرحلة النيلية',
   caseNo: 'CASE 050',
   subtitle: 'مركب نيلي فاخر، بين الأقصر وأسوان',
-  coverImg: IMG_BASE_NILECRUISE + 'cruise-cover.jpg',
+  coverImg: IMG_BASE_NILECRUISE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
@@ -28,7 +28,7 @@ const CASE_NILE_CRUISE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_NILECRUISE + 'cruise-cover.jpg',
+    heroImg: IMG_BASE_NILECRUISE + 'cover.webp',
     heroCaption: 'CASE 050 — الليلة الثالثة من الرحلة',
     text1: 'الراكب "منصور" كان في رحلة نيلية فاخرة بين الأقصر وأسوان مع مجموعة صغيرة من السياح والأصدقاء. في الليلة الثالثة، اختفى من كابينته تمامًا، والمركب كان في وسط النيل، بعيد عن أي شاطئ يقدر يمشي منه بأمان.',
     text2: 'كابتن المركب طلب منك تحقق بسرعة قبل ما يوصلوا أسوان ويتفرق الركاب. عندك قائمة الركاب اللي كانوا في نفس الطابق، وتفاصيل الليلة الأخيرة اللي شافوا فيها منصور.',
@@ -235,7 +235,7 @@ const CASE_NILE_CRUISE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الرحلة النيلية"
 
-   الغلاف (cruise-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a luxury Nile cruise boat deck at night,
    moonlight reflecting on the river, documentary photography style,
    no text, no watermark, photorealistic"

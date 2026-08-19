@@ -11,7 +11,7 @@ const CASE_BEHIND_SCENES = {
   title: 'كواليس البرنامج',
   caseNo: 'CASE 039',
   subtitle: 'استوديو تصوير برنامج مواهب تلفزيوني',
-  coverImg: IMG_BASE_BEHINDSCENES + 'behind-cover.jpg',
+  coverImg: IMG_BASE_BEHINDSCENES + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 21,
@@ -30,7 +30,7 @@ const CASE_BEHIND_SCENES = {
   contentWarning: 'القضية دي بتتناول موضوع اتهامات تحرش في بيئة عمل، بشكل غير صريح ومناسب لجمهور بالغ.',
 
   briefing: {
-    heroImg: IMG_BASE_BEHINDSCENES + 'behind-cover.jpg',
+    heroImg: IMG_BASE_BEHINDSCENES + 'cover.webp',
     heroCaption: 'CASE 039 — بعد الاتهام بيوم واحد',
     text1: 'المتسابقة الصاعدة "رنا" في برنامج المواهب المشهور وجّهت اتهام خطير لمنتج البرنامج "وليد" بسلوك غير لائق تجاهها في كواليس التصوير. بعد يوم واحد بس من الاتهام، رنا اختفت من الاستوديو ومحدش عرف يوصلها.',
     text2: 'مديرة الإنتاج طلبت منك تحقق بسرية تامة قبل ما القضية تنفجر إعلاميًا. عندك تسجيلات كاميرات الاستوديو، وقائمة فريق العمل اللي كان موجود وقت اختفاء رنا.',
@@ -238,7 +238,7 @@ const CASE_BEHIND_SCENES = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "كواليس البرنامج"
 
-   الغلاف (behind-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty television studio backstage
    area at night, dim equipment lighting, documentary photography
    style, no text, no watermark, photorealistic"

@@ -12,7 +12,7 @@ const CASE_93RD_MINUTE = {
   title: 'الدقيقة 93',
   caseNo: 'CASE 027',
   subtitle: 'استاد كبير، ليلة ماتش حاسم',
-  coverImg: IMG_BASE_MIN93 + 'min93-cover.jpg',
+  coverImg: IMG_BASE_MIN93 + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 18,
@@ -25,7 +25,7 @@ const CASE_93RD_MINUTE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_MIN93 + 'min93-cover.jpg',
+    heroImg: IMG_BASE_MIN93 + 'cover.webp',
     heroCaption: 'CASE 027 — بعد هدف الفوز بدقايق',
     text1: 'مهاجم الفريق، "بيشوي"، سجل هدف الفوز في الدقيقة 93 من ماتش حاسم. بعد الماتش مباشرة، انهار في غرفة الملابس ومات. التحليل الطبي كشف مادة منشطة محظورة بجرعة خطيرة جدًا في جسمه، والاتهام الأولي راح فورًا للاعب نفسه: منشطات عشان يكسب.',
     text2: 'المشكلة إن بيشوي معروف إنه بيرفض حتى المكملات الغذائية العادية من غير إشراف مباشر من دكتور الفريق. مدرب الفريق طلب منك تحقق قبل ما سمعة اللاعب الميت تتلطخ بتهمة مش حقيقية، وقبل ما الفاعل الحقيقي يفلت.',
@@ -225,7 +225,7 @@ const CASE_93RD_MINUTE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الدقيقة 93"
 
-   الغلاف (min93-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty football locker room at night,
    a single unattended water bottle on a bench, dramatic dim
    lighting, documentary photography style, no text, no watermark,

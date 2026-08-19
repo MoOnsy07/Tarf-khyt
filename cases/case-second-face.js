@@ -11,7 +11,7 @@ const CASE_SECOND_FACE = {
   title: 'الوش التاني',
   caseNo: 'CASE 056',
   subtitle: 'شقة الممثلة، القاهرة',
-  coverImg: IMG_BASE_SECONDFACE + 'face-cover.jpg',
+  coverImg: IMG_BASE_SECONDFACE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 20,
@@ -28,7 +28,7 @@ const CASE_SECOND_FACE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_SECONDFACE + 'face-cover.jpg',
+    heroImg: IMG_BASE_SECONDFACE + 'cover.webp',
     heroCaption: 'CASE 056 — بعد الفضح العلني بيوم',
     text1: 'الممثلة الصاعدة "جنى" اكتشفت حساب مزيف على السوشيال ميديا بينتحل شخصيتها بالكامل، باستخدام صور مولّدة بالذكاء الاصطناعي وبيتواصل مع متابعينها بشكل مضلل. جنى فضحت الحساب ده علنًا في فيديو منتشر، وبعد يوم واحد بس اختفت تمامًا.',
     text2: 'مديرة أعمالها طلبت منك تحقق بسرعة قبل ما القضية تتصاعد إعلاميًا. عندك تفاصيل الحساب المزيف، وقائمة الأشخاص المقربين من جنى اللي ممكن يكونوا وراء الموضوع.',
@@ -226,7 +226,7 @@ const CASE_SECOND_FACE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الوش التاني"
 
-   الغلاف (face-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of a smartphone screen displaying a
    social media profile with a distorted face effect, dim phone
    glow lighting, documentary photography style, no text, no

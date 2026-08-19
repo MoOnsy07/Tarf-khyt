@@ -11,7 +11,7 @@ const CASE_LAST_BELL = {
   title: 'الجرس الأخير',
   caseNo: 'CASE 048',
   subtitle: 'مدرسة ثانوية حكومية',
-  coverImg: IMG_BASE_LASTBELL + 'bell-cover.jpg',
+  coverImg: IMG_BASE_LASTBELL + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 33,
   investigationPoints: 19,
@@ -24,7 +24,7 @@ const CASE_LAST_BELL = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_LASTBELL + 'bell-cover.jpg',
+    heroImg: IMG_BASE_LASTBELL + 'cover.webp',
     heroCaption: 'CASE 048 — فسحة الظهر',
     text1: 'المدرّس "سعد" لاحظ نمط غريب في نتائج امتحانات تجريبية لمجموعة معينة من الطلاب، وبعد تحقيقه الشخصي اكتشف شبكة منظمة بتسرّب أسئلة الامتحانات الفعلية مقابل مبالغ كبيرة. هدد إنه هيبلغ الإدارة التعليمية رسميًا.',
     text2: 'بعد يومين من التهديد، سعد اتلاقى مقتول في فسحة المدرسة خلال وقت الظهر المزدحم. مدير المدرسة طلب منك تحقق بسرعة وسرية قبل ما الفضيحة تتسرب وتؤثر على سمعة المدرسة قبل موسم الامتحانات.',
@@ -231,7 +231,7 @@ const CASE_LAST_BELL = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الجرس الأخير"
 
-   الغلاف (bell-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty school courtyard at midday,
    scattered papers on the ground, documentary photography style,
    no text, no watermark, photorealistic"

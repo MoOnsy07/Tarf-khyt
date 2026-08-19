@@ -11,7 +11,7 @@ const CASE_FORGED_CANVAS = {
   title: 'اللوحة المزيفة',
   caseNo: 'CASE 008',
   subtitle: 'جاليري "الأفق"، وسط البلد، القاهرة',
-  coverImg: IMG_BASE_FORGED + 'forged-cover.jpg',
+  coverImg: IMG_BASE_FORGED + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 21,
@@ -24,7 +24,7 @@ const CASE_FORGED_CANVAS = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_FORGED + 'forged-cover.jpg',
+    heroImg: IMG_BASE_FORGED + 'cover.webp',
     heroCaption: 'CASE 008 — ليلة افتتاح المعرض',
     text1: 'صاحب جاليري "الأفق"، "منير رشدي"، كان بيفتتح أهم معرض في تاريخ الجاليري: لوحة أثرية نادرة قال إنه لقاها في مزاد خاص بره مصر. قبل الافتتاح بساعة، اتصل بمساعدته وهو متوتر جدًا وقال له "اللوحة مش أصلية... لازم نوقف كل حاجة دلوقتي".',
     text2: 'بعد نص ساعة، لقوا منير مقتول في مكتبه الخاص جوه الجاليري. الباب كان مقفول ومحدش بيرد، ولما الأمن فتحه بمفتاح الطوارئ لقوه واقع جوه. اللوحة نفسها كانت اتشالت من القاعة قبلها بدقايق عشان منير يفحصها في مكتبه، وبعد الجريمة اختفت هي كمان. المحقق المسؤول عن أمن المعرض طلب منك تدخل قبل ما الشرطة الرسمية توصل، عشان تفهم اللي حصل من جوه دايرة الفن الضيقة دي.',
@@ -266,7 +266,7 @@ const CASE_FORGED_CANVAS = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "اللوحة المزيفة"
 
-   الغلاف (forged-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant art gallery interior at night,
    a single dramatically lit empty spot on the wall where a painting
    used to hang, cordoned off with tape, moody atmosphere,

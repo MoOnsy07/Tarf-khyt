@@ -11,7 +11,7 @@ const CASE_ILLUSION_STARTUP = {
   title: 'مشروع الوهم',
   caseNo: 'CASE 017',
   subtitle: 'حاضنة أعمال ناشئة، السادس من أكتوبر',
-  coverImg: IMG_BASE_PONZI + 'ponzi-cover.jpg',
+  coverImg: IMG_BASE_PONZI + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 28,
   investigationPoints: 16,
@@ -24,7 +24,7 @@ const CASE_ILLUSION_STARTUP = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_PONZI + 'ponzi-cover.jpg',
+    heroImg: IMG_BASE_PONZI + 'cover.webp',
     heroCaption: 'CASE 017 — اجتماع المستثمرين الطارئ',
     text1: 'شركة ناشئة اسمها "لوجيستيكا" وعدت بتطبيق توصيل ثوري هيغير السوق، وجمعت استثمارات من عشرات الأفراد بعائد شهري ثابت ومرتفع بشكل غير منطقي. فجأة، العائدات الشهرية توقفت، والمؤسس اختفى عن الرد على أي حد.',
     text2: 'واحدة من المستثمرات، "دنيا"، حسّت من الأول إن العائد المرتفع ده غريب، بس دخلت زي أي حد تاني. طلبت منك تحقق قبل ما باقي فلوس المستثمرين تضيع نهائيًا، وتفهم هل المشروع كان نصب من الأول ولا مجرد فشل تجاري عادي.',
@@ -219,7 +219,7 @@ const CASE_ILLUSION_STARTUP = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "مشروع الوهم"
 
-   الغلاف (ponzi-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty modern startup office meeting
    room, an unattended laptop on a glass table showing a financial
    dashboard, soft office lighting, documentary photography style,

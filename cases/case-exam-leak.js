@@ -11,7 +11,7 @@ const CASE_EXAM_LEAK = {
   title: 'ورقة الامتحان',
   caseNo: 'CASE 011',
   subtitle: 'إدارة تعليمية ومدرسة ثانوي، طنطا',
-  coverImg: IMG_BASE_EXAM + 'exam-cover.jpg',
+  coverImg: IMG_BASE_EXAM + 'cover.webp',
   difficulty: 'سهلة',
   estMinutes: 24,
   investigationPoints: 15,
@@ -24,7 +24,7 @@ const CASE_EXAM_LEAK = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_EXAM + 'exam-cover.jpg',
+    heroImg: IMG_BASE_EXAM + 'cover.webp',
     heroCaption: 'CASE 011 — قبل امتحان الرياضيات الموحد بيوم واحد',
     text1: 'قبل امتحان الرياضيات الموحد للصف الثاني الثانوي على مستوى الإدارة التعليمية بيوم واحد، صور من نموذج الامتحان بدأت تنتشر على جروبات الطلبة. الناظرة بلغت لجنة الامتحانات، وفيه احتمال يتغير الامتحان كله لو مصدر التسريب ما اتحددش بسرعة.',
     text2: 'الشك وقع على أكتر من طرف: مدرس بيدي دروس خصوصية، طالب شاطر، وحتى موظف إدارة. الناظرة طلبت منك تحقق بسرعة قبل ما اللجنة تضطر تلغي النموذج وتعيد الامتحان على مئات الطلبة اللي مالهمش ذنب.',
@@ -253,7 +253,7 @@ const CASE_EXAM_LEAK = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "ورقة الامتحان"
 
-   الغلاف (exam-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an exam paper photographed on a smartphone
    screen glowing in a dark room, WhatsApp interface visible, tense
    atmosphere, documentary photography style, no text, no watermark,

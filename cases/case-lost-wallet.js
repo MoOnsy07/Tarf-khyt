@@ -11,7 +11,7 @@ const CASE_LOST_WALLET = {
   title: 'المحفظة المفقودة',
   caseNo: 'CASE 012',
   subtitle: 'مكتب استثماري صغير، مدينة نصر، القاهرة',
-  coverImg: IMG_BASE_WALLET + 'wallet-cover.jpg',
+  coverImg: IMG_BASE_WALLET + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_LOST_WALLET = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_WALLET + 'wallet-cover.jpg',
+    heroImg: IMG_BASE_WALLET + 'cover.webp',
     heroCaption: 'CASE 010 — بعد اختفاء 40 مليون جنيه',
     text1: 'مشروع عملة رقمية محلي جديد اسمه "نايل كوين" جمع فلوس من مئات المستثمرين خلال أسابيع قليلة، ووعد بعائد ضخم في وقت قصير جدًا. فجأة، الموقع الرسمي وقع، والمحفظة الرئيسية للمشروع اتصفّت تقريبًا بالكامل، ومؤسس المشروع اختفى.',
     text2: 'أحد الضحايا، "يوسف"، استثمر مدخرات عيلته كلها وجه يطلب مساعدتك قبل ما يبلغ الشرطة الرسمية، عشان يفهم مين فعلًا وراء الموضوع من جوه فريق العمل الصغير، قبل ما الأدلة الرقمية تضيع للأبد.',
@@ -244,7 +244,7 @@ const CASE_LOST_WALLET = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "المحفظة المفقودة"
 
-   الغلاف (wallet-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a small modern office with multiple
    computer screens showing crashed trading charts and a red 'error'
    message, empty desk chairs, dramatic blue screen glow lighting,

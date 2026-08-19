@@ -11,7 +11,7 @@ const CASE_SECRET_CLINIC = {
   title: 'العيادة السرية',
   caseNo: 'CASE 046',
   subtitle: 'عيادة تجميل غير مرخصة، شقة سكنية',
-  coverImg: IMG_BASE_SECRETCLINIC + 'clinic-cover.jpg',
+  coverImg: IMG_BASE_SECRETCLINIC + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 20,
@@ -30,7 +30,7 @@ const CASE_SECRET_CLINIC = {
   contentWarning: 'القضية دي بتتناول موضوع عمليات تجميل غير مرخصة وسياقات طبية حساسة، مناسبة لجمهور بالغ.',
 
   briefing: {
-    heroImg: IMG_BASE_SECRETCLINIC + 'clinic-cover.jpg',
+    heroImg: IMG_BASE_SECRETCLINIC + 'cover.webp',
     heroCaption: 'CASE 046 — بعد العملية بيوم',
     text1: 'المريضة "إيمان" حجزت عملية تجميل بسعر رخيص جدًا في عيادة غير مرخصة بتشتغل سرًا جوه شقة سكنية عادية. بعد العملية بيوم واحد، إيمان اختفت تمامًا، ومحدش من أهلها عرف حاجة عن مكان العيادة أصلاً لأنها كانت بتخبي الموضوع.',
     text2: 'صديقتها المقربة اللي رافقتها يوم العملية طلبت منك تحقق بسرعة قبل ما يضيع أي أثر. عندك عنوان تقريبي للشقة، وأسماء الأشخاص اللي كانوا موجودين وقت العملية.',
@@ -242,7 +242,7 @@ const CASE_SECRET_CLINIC = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "العيادة السرية"
 
-   الغلاف (clinic-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an ordinary residential apartment room
    converted into a makeshift clinic, simple medical equipment
    visible, dim lighting, documentary photography style, no text,

@@ -11,7 +11,7 @@ const CASE_HIT_AND_RUN = {
   title: 'حادثة الطريق',
   caseNo: 'CASE 018',
   subtitle: 'شارع رئيسي، مدينة الشيخ زايد',
-  coverImg: IMG_BASE_HITRUN + 'hitrun-cover.jpg',
+  coverImg: IMG_BASE_HITRUN + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_HIT_AND_RUN = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_HITRUN + 'hitrun-cover.jpg',
+    heroImg: IMG_BASE_HITRUN + 'cover.webp',
     heroCaption: 'CASE 018 — بعد منتصف الليل بشوية',
     text1: '"مينا"، شاب في العشرينات، اتصدم بعربية وهو ماشي على الرصيف قريب من شارع رئيسي بعد ما خرج من عزومة أصحاب. العربية هربت فورًا من غير ما توقف. مينا في المستشفى دلوقتي في حالة مستقرة، بس مصاب بكسور.',
     text2: 'رقم اللوحة الجزئي رجّح إن العربية اللي صدمته هي عربية يوسف، واحد من مجموعة أصحاب خارجين من نفس العزومة، وكل واحد فيهم بيقول إنه ماكانش هو اللي بيسوق وقت الحادثة. أخو مينا طلب منك تحقق قبل ما القضية تتقفل كحادثة "سواق مجهول" وتضيع من غير عدالة.',
@@ -240,7 +240,7 @@ const CASE_HIT_AND_RUN = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "حادثة الطريق"
 
-   الغلاف (hitrun-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a dark city street at night with a single
    shoe and scattered items on the road near a curb, police tape,
    streetlights glowing, documentary photography style, no text, no

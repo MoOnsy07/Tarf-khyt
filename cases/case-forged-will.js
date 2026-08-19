@@ -11,7 +11,7 @@ const CASE_FORGED_WILL = {
   title: 'الوصية المزورة',
   caseNo: 'CASE 041',
   subtitle: 'مكتب محاماة، وسط البلد',
-  coverImg: IMG_BASE_FORGEDWILL + 'will-cover.jpg',
+  coverImg: IMG_BASE_FORGEDWILL + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 34,
   investigationPoints: 19,
@@ -24,7 +24,7 @@ const CASE_FORGED_WILL = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_FORGEDWILL + 'will-cover.jpg',
+    heroImg: IMG_BASE_FORGEDWILL + 'cover.webp',
     heroCaption: 'CASE 041 — قبل قراءة الوصية بيوم',
     text1: 'المحامي "سليم" كان بيراجع وصية العميل "فؤاد" اللي توفي حديثًا، قبل قراءتها رسميًا للعيلة. لاحظ إن التوقيع في آخر صفحة فيه اختلافات طفيفة جدًا عن باقي توقيعات فؤاد في مستندات قديمة.',
     text2: 'سليم طلب منك تحقق بسرعة وسرية قبل ما يقدم الوصية رسميًا للمحكمة، عشان ما يتسببش في توزيع ميراث بناءً على مستند مزوّر. عندك نسخ من توقيعات فؤاد القديمة، وقائمة الورثة المحتملين.',
@@ -237,7 +237,7 @@ const CASE_FORGED_WILL = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الوصية المزورة"
 
-   الغلاف (will-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of an old legal will document with a
    pen resting on a signature line, warm desk lamp lighting,
    documentary photography style, no text, no watermark,

@@ -12,7 +12,7 @@ const CASE_SHIFTING_PAINTING = {
   title: 'اللوحة اللي بتتغير',
   caseNo: 'CASE 026',
   subtitle: 'مخزن مجموعة فنية خاصة، الزمالك',
-  coverImg: IMG_BASE_PAINTING + 'painting-cover.jpg',
+  coverImg: IMG_BASE_PAINTING + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -25,7 +25,7 @@ const CASE_SHIFTING_PAINTING = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_PAINTING + 'painting-cover.jpg',
+    heroImg: IMG_BASE_PAINTING + 'cover.webp',
     heroCaption: 'CASE 026 — بعد شراء اللوحة بأسبوع',
     text1: 'جامع لوحات معروف، "منصور"، اشترى لوحة بملايين في مزاد خاص. بعد أسبوع، لاحظ إن تفاصيل صغيرة بدأت تظهر بشكل مختلف عن صور يوم المزاد — مناطق من الخلفية بقت أشف شوية وخطوط فرشاة قديمة بدأت تبان من تحت السطح. قبل ما يفضح الموضوع رسميًا، اتلاقى ميت في مخزن مجموعته الخاصة.',
     text2: 'ابن منصور طلب منك تحقق بهدوء، عشان تفهم إيه اللي كان بيحصل في اللوحة دي بالظبط، وإزاي ده وصل لجريمة قتل. القضية معقدة أكتر من مجرد "لوحة أصلية ولوحة مزيفة" — في حاجة تانية بتحصل تحت السطح حرفيًا.',
@@ -268,7 +268,7 @@ const CASE_SHIFTING_PAINTING = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "اللوحة اللي بتتغير"
 
-   الغلاف (painting-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a framed painting under UV light revealing
    a faint hidden layer beneath the visible surface, dark art storage
    room, dramatic lighting, documentary photography style, no text,

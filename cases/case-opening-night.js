@@ -11,7 +11,7 @@ const CASE_OPENING_NIGHT = {
   title: 'ليلة الافتتاح',
   caseNo: 'CASE 034',
   subtitle: 'مسرح صغير، وسط البلد، ليلة العرض الأول',
-  coverImg: IMG_BASE_OPENINGNIGHT + 'opening-cover.jpg',
+  coverImg: IMG_BASE_OPENINGNIGHT + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 17,
@@ -24,7 +24,7 @@ const CASE_OPENING_NIGHT = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_OPENINGNIGHT + 'opening-cover.jpg',
+    heroImg: IMG_BASE_OPENINGNIGHT + 'cover.webp',
     heroCaption: 'CASE 034 — أول عرض ستاند أب لسامر',
     text1: 'الكوميديان الصاعد "سامر" كان بيقدم أول عرض ستاند أب له في مسرح صغير وسط البلد، والصالة كانت كاملة العدد. في نص فقرته، سامر بدأ يتلعثم ويترنح، والجمهور ضحك فاكر إنها جزء من العرض، لحد ما وقع فعليًا وماتحركش تاني.',
     text2: 'الفحص الطبي الأولي كشف مادة سامة في كوباية المياه اللي كان بيشرب منها على المسرح. المخرج طلب منك تحقق بسرعة قبل ما القضية تتسرب للإعلام وتبوظ سمعة المسرح كله في أول ليلة افتتاح له.',
@@ -235,7 +235,7 @@ const CASE_OPENING_NIGHT = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "ليلة الافتتاح"
 
-   الغلاف (opening-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty small theater stage at night, a
    single microphone stand and a spotlight, a water cup on a small
    table, documentary photography style, no text, no watermark,

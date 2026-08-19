@@ -11,7 +11,7 @@ const CASE_ONE_COMMENT = {
   title: 'تعليق واحد',
   caseNo: 'CASE 052',
   subtitle: 'استوديو تصوير منزلي، ليلة النشر',
-  coverImg: IMG_BASE_ONECOMMENT + 'comment-cover.jpg',
+  coverImg: IMG_BASE_ONECOMMENT + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -30,7 +30,7 @@ const CASE_ONE_COMMENT = {
   contentWarning: 'القضية دي بتتناول موضوعات فضح أسرار شخصية عبر الإنترنت، مناسبة لجمهور بالغ.',
 
   briefing: {
-    heroImg: IMG_BASE_ONECOMMENT + 'comment-cover.jpg',
+    heroImg: IMG_BASE_ONECOMMENT + 'cover.webp',
     heroCaption: 'CASE 052 — بعد نشر الفيديو بساعات',
     text1: 'اليوتيوبر "زياد" كان بينشر فيديو "قصص من ذكرياتي" وذكر فيه تفصيلة عابرة عن "صديق قديم كان بيخفي علاقة سرية غيرت مصير عيلة كاملة". الفيديو انتشر بسرعة، وكتير من المتابعين بدأوا يحاولوا يعرفوا مين المقصود.',
     text2: 'بعد نشر الفيديو بساعات قليلة، زياد اتلاقى ميت في استوديو التصوير المنزلي بتاعه. أخته طلبت منك تحقق قبل ما القضية تتحول لتكهنات إعلامية مالهاش أساس. عندك تعليقات الفيديو، وقائمة أصدقاء زياد القدامى.',
@@ -240,7 +240,7 @@ const CASE_ONE_COMMENT = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "تعليق واحد"
 
-   الغلاف (comment-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty home video studio setup with
    ring light and camera, dim ambient lighting, documentary
    photography style, no text, no watermark, photorealistic"

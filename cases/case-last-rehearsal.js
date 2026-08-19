@@ -12,7 +12,7 @@ const CASE_LAST_REHEARSAL = {
   title: 'آخر بروفة',
   caseNo: 'CASE 021',
   subtitle: 'مسرح قومي، وسط البلد',
-  coverImg: IMG_BASE_REHEARSAL + 'rehearsal-cover.jpg',
+  coverImg: IMG_BASE_REHEARSAL + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 34,
   investigationPoints: 19,
@@ -25,7 +25,7 @@ const CASE_LAST_REHEARSAL = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_REHEARSAL + 'rehearsal-cover.jpg',
+    heroImg: IMG_BASE_REHEARSAL + 'cover.webp',
     heroCaption: 'CASE 021 — بروفة مشهد القتل الأخير',
     text1: 'ممثل مشهور، "عادل شكري"، بيموت فجأة أثناء بروفة مسرحية اسمها "الجريمة الكاملة"، في نفس اللحظة اللي المفروض فيها زميله يطلق عليه "طلقة" من مسدس مسرحي. الكل افترض فورًا إن المسدس اتبدّل بمسدس حقيقي بالغلط أو عمدًا.',
     text2: 'تقرير الأدلة الأولي فاجأ الجميع: المسدس المسرحي ماقتلش عادل أصلًا، ومفيش أي رصاصة حقيقية في الموضوع. المخرج طلب منك تحقق بهدوء تام قبل ما العرض الافتتاحي يتلغى نهائيًا، وقبل ما الحقيقة الغريبة تضيع وسط افتراض الجميع الخاطئ عن المسدس.',
@@ -225,7 +225,7 @@ const CASE_LAST_REHEARSAL = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "آخر بروفة"
 
-   الغلاف (rehearsal-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty theater stage with dramatic
    spotlight, a prop gun on the floor and a small perfume-like spray
    bottle nearby, moody atmosphere, documentary photography style, no

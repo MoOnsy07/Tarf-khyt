@@ -12,7 +12,7 @@ const CASE_LAST_CALL = {
   title: 'آخر مكالمة',
   caseNo: 'CASE 029',
   subtitle: 'موقف سيارات خاص، القاهرة الجديدة',
-  coverImg: IMG_BASE_LASTCALL + 'lastcall-cover.jpg',
+  coverImg: IMG_BASE_LASTCALL + 'cover.webp',
   difficulty: 'صعبة جدًا',
   estMinutes: 40,
   investigationPoints: 22,
@@ -25,7 +25,7 @@ const CASE_LAST_CALL = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_LASTCALL + 'lastcall-cover.jpg',
+    heroImg: IMG_BASE_LASTCALL + 'cover.webp',
     heroCaption: 'CASE 029 — آخر مكالمة، 14 دقيقة',
     text1: 'راجل أعمال، "فؤاد"، بيتلاقى ميت في عربيته في موقف سيارات خاص. على موبايله ظاهر إدخال في تطبيق تسجيل المكالمات مدته 14 دقيقة باسم بنته "منة"، اللي بينهم مشاكل عائلية من سنين، ومعاه ملف صوتي بصوتها. منة بتقسم إنها ماكلمتوش الليلة دي، فالدليل الظاهري بيحطها في موقف صعب جدًا.',
     text2: 'لكن محامي منة لاحظ حاجة غريبة جدًا في الملف الصوتي: صوت أذان بيتكرر بنفس النغمة بالظبط، وكلاكس عربية بنفس الصوت في جزئين مختلفين من المكالمة. طلب منك تحقق بعناية فائقة، عشان تفهم هل التسجيل ده حقيقي فعلًا ولا مركّب من قطع مختلفة.',
@@ -244,7 +244,7 @@ const CASE_LAST_CALL = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "آخر مكالمة"
 
-   الغلاف (lastcall-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a luxury car parked alone in a dim
    underground parking garage at night, phone screen glowing faintly
    through the window, moody atmosphere, documentary photography

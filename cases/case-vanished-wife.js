@@ -12,7 +12,7 @@ const CASE_VANISHED_WIFE = {
   title: 'اختفاء منى',
   caseNo: 'CASE 015',
   subtitle: 'حي سكني هادئ، الإسكندرية',
-  coverImg: IMG_BASE_VANISHED + 'vanished-cover.jpg',
+  coverImg: IMG_BASE_VANISHED + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
@@ -27,7 +27,7 @@ const CASE_VANISHED_WIFE = {
   contentWarning: 'القضية دي بتتعامل مع موضوع اختفاء زوجة وسط خلفية سيطرة وتحكم داخل العلاقة الزوجية، من غير أي مشاهد عنف مباشرة أو تفاصيل صريحة. التركيز بالكامل على التحقيق والوصول للحقيقة والتأكد من أمان الشخص المختفي. لو الموضوع حساس بالنسبالك دلوقتي، تقدر تسيب القضية دي وترجع لها وقت تاني.',
 
   briefing: {
-    heroImg: IMG_BASE_VANISHED + 'vanished-cover.jpg',
+    heroImg: IMG_BASE_VANISHED + 'cover.webp',
     heroCaption: 'CASE 015 — صبح يوم عادي، بيت فاضي',
     text1: '"منى"، متجوزة من ثلاث سنين، اختفت فجأة من بيتها من غير أي إنذار. زوجها "شريف" بلّغ الشرطة وهو في حالة قلق ظاهري شديد، وقال إنها خرجت الصبح للسوق وماعادتش. عيلتها هي نفسها مش عارفة حاجة، وآخر ما سمعوه منها كان اطمئنان عادي بالتليفون.',
     text2: 'أخت منى، "دينا"، حسّت إن في حاجة مش متسقة في كلام شريف من أول لحظة، ومش قادرة تحدد إيه بالظبط. طلبت منك تحقق بهدوء وسرعة، عشان تتأكد إن أختها بخير، وتفهم الحقيقة الكاملة وراء اختفائها المفاجئ.',
@@ -267,7 +267,7 @@ const CASE_VANISHED_WIFE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "اختفاء منى"
 
-   الغلاف (vanished-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a quiet modest apartment interior, an
    empty coat rack by the door, soft morning light through curtains,
    documentary photography style, no text, no watermark,

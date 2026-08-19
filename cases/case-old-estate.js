@@ -11,7 +11,7 @@ const CASE_OLD_ESTATE = {
   title: 'العزبة القديمة',
   caseNo: 'CASE 037',
   subtitle: 'عزبة العيلة القديمة، الريف',
-  coverImg: IMG_BASE_OLDESTATE + 'estate-cover.jpg',
+  coverImg: IMG_BASE_OLDESTATE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 40,
   investigationPoints: 23,
@@ -28,7 +28,7 @@ const CASE_OLD_ESTATE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_OLDESTATE + 'estate-cover.jpg',
+    heroImg: IMG_BASE_OLDESTATE + 'cover.webp',
     heroCaption: 'CASE 037 — ليلة قراءة الوصية',
     text1: 'عيلة "الشريف" اتجمعت كلها في عزبة الجد القديمة عشان يسمعوا قراءة وصيته رسميًا. أثناء عشاء العائلة بعد القراءة، الابن الأكبر "وليد" بدأ يحس بدوخة شديدة وانهار على الطاولة قدام الجميع.',
     text2: 'الفحص الطبي كشف مادة سامة في طعامه بالذات، رغم إن كل العيلة أكلت من نفس الأطباق. المحامي المسؤول عن الوصية طلب منك تحقق بسرعة قبل ما يتصاعد الموقف وسط عيلة أصلًا متوترة بسبب توزيع الميراث.',
@@ -237,7 +237,7 @@ const CASE_OLD_ESTATE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "العزبة القديمة"
 
-   الغلاف (estate-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an old countryside estate mansion at
    dusk, warm dining room lights visible through windows,
    documentary photography style, no text, no watermark,

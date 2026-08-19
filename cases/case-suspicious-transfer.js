@@ -11,7 +11,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
   title: 'تحويل مشبوه',
   caseNo: 'CASE 032',
   subtitle: 'فرع بنك مركزي، وسط البلد، القاهرة',
-  coverImg: IMG_BASE_SUSTRANSFER + 'transfer-cover.jpg',
+  coverImg: IMG_BASE_SUSTRANSFER + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_SUSTRANSFER + 'transfer-cover.jpg',
+    heroImg: IMG_BASE_SUSTRANSFER + 'cover.webp',
     heroCaption: 'CASE 032 — يومين قبل الاختفاء',
     text1: 'المحاسب "هيثم" كان بيراجع كشوف حسابات دورية في فرع البنك، ولاحظ تحويلات مالية بمبالغ ضخمة لحسابات وهمية على مدار شهور. قبل ما يقدر يبلغ رسميًا، اختفى فجأة من غير أي أثر، وموبايله وعربيته اتلاقوا في مكانهم العادي.',
     text2: 'مديره المباشر طلب منك تحقق في اختفائه بهدوء قبل ما يتحول لقضية رسمية تفتح ملفات البنك كله للتدقيق. عندك كشوف الحسابات اللي كان بيراجعها، وقائمة صغيرة من الناس اللي كانوا عارفين إنه لاحظ حاجة غريبة.',
@@ -232,7 +232,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "تحويل مشبوه"
 
-   الغلاف (transfer-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty bank office at night, a computer
    screen glowing with financial spreadsheet data, documentary
    photography style, no text, no watermark, photorealistic"

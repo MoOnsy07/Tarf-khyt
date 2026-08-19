@@ -11,7 +11,7 @@ const CASE_RED_THREAD = {
   title: 'خيط أحمر',
   caseNo: 'CASE 030',
   subtitle: 'أتيليه "لمسة"، الزمالك، ليلة قبل العرض الكبير',
-  coverImg: IMG_BASE_REDTHREAD + 'redthread-cover.jpg',
+  coverImg: IMG_BASE_REDTHREAD + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 22,
@@ -28,7 +28,7 @@ const CASE_RED_THREAD = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_REDTHREAD + 'redthread-cover.jpg',
+    heroImg: IMG_BASE_REDTHREAD + 'cover.webp',
     heroCaption: 'CASE 030 — ليلة قبل العرض بساعات',
     text1: 'مصممة الأزياء الصاعدة "نور فتحي" كانت على بعد ساعات من أهم عرض في مشوارها. العارضة الرئيسية بتاعتها، "ياسمين"، اتلاقت مقتولة جوه الأتيليه بين مانيكانات نصف مكسية بفستان المجموعة الجديدة. مفيش آثار اقتحام، والباب كان مقفول من الداخل.',
     text2: 'الدليل الوحيد اللي لقاه المحقق الأول كان خيط أحمر من قماش نادر جدًا، مستورد خصيصًا للمجموعة، عالق عند طرف فستان ياسمين. القماش ده موجود بس عند خمسة أشخاص بالظبط كانوا في الأتيليه الليلة دي. نور طلبت منك تحل القضية بسرعة وسرية قبل ما الخبر يوصل للصحافة ويهد مشوارها كله.',
@@ -244,7 +244,7 @@ const CASE_RED_THREAD = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "خيط أحمر"
 
-   الغلاف (redthread-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant fashion atelier at night,
    half-dressed mannequins under dramatic spotlight, a single red
    thread visible on the floor, documentary photography style, no

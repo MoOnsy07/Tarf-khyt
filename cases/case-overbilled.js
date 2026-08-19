@@ -11,7 +11,7 @@ const CASE_OVERBILLED = {
   title: 'فاتورة زيادة',
   caseNo: 'CASE 055',
   subtitle: 'مطعم شعبي مشهور، وسط البلد',
-  coverImg: IMG_BASE_OVERBILLED + 'bill-cover.jpg',
+  coverImg: IMG_BASE_OVERBILLED + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 17,
@@ -24,7 +24,7 @@ const CASE_OVERBILLED = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_OVERBILLED + 'bill-cover.jpg',
+    heroImg: IMG_BASE_OVERBILLED + 'cover.webp',
     heroCaption: 'CASE 055 — بعد إغلاق المطعم',
     text1: 'صاحب المطعم "فتحي" كان بيراجع فواتير الموردين بالصدفة، ولاحظ فروق غريبة في الأسعار المسجلة مقارنة بالأسعار الحقيقية. اكتشف إن شريكه في الإدارة "رأفت" بيتلاعب في الفواتير من سنين طويلة عشان ياخد عمولات سرية.',
     text2: 'بعد ما واجه رأفت بالموضوع مباشرة، فتحي اتلاقى مقتول في مطبخ المطعم بعد الإغلاق بساعة تقريبًا. أخت فتحي طلبت منك تحقق بسرعة قبل ما المطعم يقفل بسبب الفضيحة. عندك فواتير المطعم لآخر سنة، وقائمة فريق العمل القريب.',
@@ -220,7 +220,7 @@ const CASE_OVERBILLED = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "فاتورة زيادة"
 
-   الغلاف (bill-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty restaurant kitchen at night,
    scattered invoice papers on a counter, dim kitchen lighting,
    documentary photography style, no text, no watermark,

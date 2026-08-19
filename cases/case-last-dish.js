@@ -11,7 +11,7 @@ const CASE_LAST_DISH = {
   title: 'الطبخة الأخيرة',
   caseNo: 'CASE 010',
   subtitle: 'استوديو برنامج "شيف البلد"، مدينة الإنتاج الإعلامي',
-  coverImg: IMG_BASE_LASTDISH + 'lastdish-cover.jpg',
+  coverImg: IMG_BASE_LASTDISH + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_LAST_DISH = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_LASTDISH + 'lastdish-cover.jpg',
+    heroImg: IMG_BASE_LASTDISH + 'cover.webp',
     heroCaption: 'CASE 007 — ليلة الحلقة النهائية، على الهواء مباشرة',
     text1: 'برنامج "شيف البلد" كان بيصور الحلقة النهائية على الهواء، وعادل هو المتسابق الأخير اللي وصل للنهائي. قدّم طبقه قدام لجنة التحكيم، والشيف تامر داق منه على الكاميرا. بعد دقايق قليلة، بدأ يتعب قدام الجمهور ووقع من على كرسيه.',
     text2: 'التصوير اتوقف على طول، والإسعاف وصل بعد دقايق، بس الأطباء أكدوا إن في مادة سامة في الطبق نفسه — مش حساسية ولا أزمة قلبية. المنتج المنفذ للبرنامج، خايف من الفضيحة والقضية، طلب منك تحقق بهدوء قبل ما الخبر يتسرب للإعلام ويحوّل البرنامج لكارثة.',
@@ -259,7 +259,7 @@ const CASE_LAST_DISH = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الطبخة الأخيرة"
 
-   الغلاف (lastdish-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic overhead shot of a TV cooking competition studio set,
    bright stage lighting, a judges' table with an overturned chair,
    a plated gourmet dish abandoned on the counter, dramatic tension,

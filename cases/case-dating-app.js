@@ -11,7 +11,7 @@ const CASE_DATING_APP = {
   title: 'تطبيق التعارف',
   caseNo: 'CASE 038',
   subtitle: 'مقهى وسط البلد، ثم شقة مجهولة',
-  coverImg: IMG_BASE_DATINGAPP + 'dating-cover.jpg',
+  coverImg: IMG_BASE_DATINGAPP + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 33,
   investigationPoints: 19,
@@ -26,7 +26,7 @@ const CASE_DATING_APP = {
   contentWarning: 'القضية دي فيها إشارات لموضوعات تعارف أونلاين وعلاقات بالغين، من غير أي محتوى صريح، ومناسبة لجمهور بالغ.',
 
   briefing: {
-    heroImg: IMG_BASE_DATINGAPP + 'dating-cover.jpg',
+    heroImg: IMG_BASE_DATINGAPP + 'cover.webp',
     heroCaption: 'CASE 038 — بعد أول لقاء بساعات',
     text1: 'الفتاة "مايا" كانت بتستخدم تطبيق تعارف من فترة، وقابلت حد جديد أونلاين وحددوا أول لقاء شخصي في مقهى وسط البلد. بعد اللقاء، مايا اختفت تمامًا ومحدش قدر يوصلها.',
     text2: 'صديقتها المقربة طلبت منك تحقق قبل ما الأهل يعرفوا التفاصيل الكاملة عن طريقة تعارفها بالراجل ده. عندك محادثات مايا على التطبيق، وقائمة الناس القريبين منها في الفترة الأخيرة.',
@@ -240,7 +240,7 @@ const CASE_DATING_APP = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "تطبيق التعارف"
 
-   الغلاف (dating-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty cafe table with two coffee cups,
    one abandoned, soft warm cafe lighting, documentary photography
    style, no text, no watermark, photorealistic"

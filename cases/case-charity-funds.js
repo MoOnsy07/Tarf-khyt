@@ -11,7 +11,7 @@ const CASE_CHARITY_FUNDS = {
   title: 'تبرعات في الهوا',
   caseNo: 'CASE 019',
   subtitle: 'جمعية "أمل" الخيرية، الإسكندرية',
-  coverImg: IMG_BASE_CHARITY + 'charity-cover.jpg',
+  coverImg: IMG_BASE_CHARITY + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 30,
   investigationPoints: 17,
@@ -24,7 +24,7 @@ const CASE_CHARITY_FUNDS = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_CHARITY + 'charity-cover.jpg',
+    heroImg: IMG_BASE_CHARITY + 'cover.webp',
     heroCaption: 'CASE 019 — بعد حملة تبرعات ناجحة جدًا',
     text1: 'جمعية "أمل" الخيرية عملت حملة تبرعات كبيرة لعلاج أطفال مرضى بالسرطان، وجمعت مبلغ ضخم في وقت قصير بفضل انتشار الحملة على السوشيال ميديا. بعد شهرين، عيلة أحد الأطفال اشتكت إنها لسه مستنية تحويل مبلغ العلاج المتفق عليه من غير أي رد واضح.',
     text2: 'متطوعة قديمة في الجمعية، "سارة"، بدأت تلاحظ تناقضات في الأرقام المعلنة عن التبرعات مقابل المصروفات الفعلية. طلبت منك تحقق بهدوء قبل ما تتهم حد رسميًا، عشان تتأكد إن فلوس المرضى فعلًا وصلتهم أو لأ.',
@@ -241,7 +241,7 @@ const CASE_CHARITY_FUNDS = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "تبرعات في الهوا"
 
-   الغلاف (charity-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a donation collection box on a desk next
    to a laptop showing a financial spreadsheet, soft office lighting,
    documentary photography style, no text, no watermark,

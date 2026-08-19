@@ -12,7 +12,7 @@ const CASE_VAR_CONSPIRACY = {
   title: 'الجون اللي ما اتحسبش',
   caseNo: 'CASE 020',
   subtitle: 'استاد كبير، ليلة نهائي الكأس',
-  coverImg: IMG_BASE_VAR + 'var-cover.jpg',
+  coverImg: IMG_BASE_VAR + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -25,7 +25,7 @@ const CASE_VAR_CONSPIRACY = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_VAR + 'var-cover.jpg',
+    heroImg: IMG_BASE_VAR + 'cover.webp',
     heroCaption: 'CASE 020 — بعد النهائي بساعتين',
     text1: 'قبل نهائي كأس مهم جدًا، حكم الماتش الرئيسي بيتلاقى ميت في أوضة الـVAR بعد صافرة النهاية بحوالي ساعة وربع. الشبهة الأولى بتروح للاعب اللي سجل الجون الحاسم اللي الحكم كان لغاه في الأول قبل ما يراجعه بالـVAR ويحتسبه. الغريب إن تسجيل الشاشة التقني لمحطة الـVAR بعد الماتش فيه فجوة 17 ثانية اتحذفت وقت ما الحكم رجع يراجع سجلات البيانات.',
     text2: 'قبل موته بشوية، الحكم بعت رسالة غريبة لصديق قديم: "الماتش ده متباع… بس مش بالطريقة اللي فاكرينها." اتحاد الكرة طلب منك تحقق بسرعة وسرية تامة، قبل ما الفضيحة تنفجر وتهدد مصداقية البطولة كلها.',
@@ -234,7 +234,7 @@ const CASE_VAR_CONSPIRACY = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الجون اللي ما اتحسبش"
 
-   الغلاف (var-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty VAR review room in a stadium at
    night, multiple monitors glowing with a paused football replay,
    dramatic tense atmosphere, documentary photography style, no text,

@@ -11,7 +11,7 @@ const CASE_WAREHOUSE_FIRE = {
   title: 'حريق المخزن',
   caseNo: 'CASE 043',
   subtitle: 'مخزن ملابس، المنطقة الصناعية',
-  coverImg: IMG_BASE_WAREHOUSEFIRE + 'fire-cover.jpg',
+  coverImg: IMG_BASE_WAREHOUSEFIRE + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_WAREHOUSE_FIRE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_WAREHOUSEFIRE + 'fire-cover.jpg',
+    heroImg: IMG_BASE_WAREHOUSEFIRE + 'cover.webp',
     heroCaption: 'CASE 043 — بعد إخماد الحريق',
     text1: 'حريق كبير اندلع في مخزن ملابس تابع لشركة "النسيج الذهبي" نص الليل، والتهم جزء كبير من المخزون. لما فريق الإطفاء دخل بعد إخماد النيران، لقوا جثة العامل "سعيد" جوه المخزن.',
     text2: 'الغريب إن سعيد كان مفروض مسافر خارج البلد في إجازة من أسبوع، وأهله أكدوا إنه سافر فعلاً. صاحب الشركة طلب منك تحقق قبل ما التأمين يرفض تعويض الحريق بسبب الشكوك حوالين الحادثة.',
@@ -230,7 +230,7 @@ const CASE_WAREHOUSE_FIRE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "حريق المخزن"
 
-   الغلاف (fire-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a burned out clothing warehouse interior
    at dawn, charred racks and debris, smoky atmosphere, documentary
    photography style, no text, no watermark, photorealistic"

@@ -11,7 +11,7 @@ const CASE_MUD_PRINT = {
   title: 'بصمة في الوحل',
   caseNo: 'CASE 033',
   subtitle: 'ورشة نجارة قديمة، أطراف المدينة',
-  coverImg: IMG_BASE_MUDPRINT + 'mudprint-cover.jpg',
+  coverImg: IMG_BASE_MUDPRINT + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 34,
   investigationPoints: 19,
@@ -24,7 +24,7 @@ const CASE_MUD_PRINT = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_MUDPRINT + 'mudprint-cover.jpg',
+    heroImg: IMG_BASE_MUDPRINT + 'cover.webp',
     heroCaption: 'CASE 033 — ورشة النجارة، الليل',
     text1: 'صاحب ورشة النجارة "فتحي" اتلاقى مقتول جوه ورشته بمطرقة نجارة قديمة. المطرقة كانت عليها بصمة واضحة، بس لما فحصوها لقوا إنها بصمة "سيد"، النجار القديم اللي كان شغال في نفس الورشة، ومات من حادثة سيارة من سنة كاملة.',
     text2: 'المحقق المسؤول محتار: إما إن حد لبس قفاز عليه بصمة سيد المحفوظة من قبل (وده يفتح احتمال تلاعب متعمد)، أو إن الوفاة القديمة نفسها مش حقيقية زي ما الجميع فاكر. طلب منك تحقق في الموضوع بحرص شديد قبل ما يتصعّد لقضية أعقد بكتير.',
@@ -238,7 +238,7 @@ const CASE_MUD_PRINT = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "بصمة في الوحل"
 
-   الغلاف (mudprint-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an old dim carpentry workshop at night,
    wood shavings on the floor, a single hanging light bulb,
    documentary photography style, no text, no watermark,

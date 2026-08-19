@@ -11,7 +11,7 @@ const CASE_FINISH_LINE = {
   title: 'خط النهاية',
   caseNo: 'CASE 040',
   subtitle: 'ماراثون المدينة السنوي',
-  coverImg: IMG_BASE_FINISHLINE + 'finish-cover.jpg',
+  coverImg: IMG_BASE_FINISHLINE + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 31,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_FINISH_LINE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_FINISHLINE + 'finish-cover.jpg',
+    heroImg: IMG_BASE_FINISHLINE + 'cover.webp',
     heroCaption: 'CASE 040 — على بعد أمتار من الفوز',
     text1: 'العداء "منير" كان على وشك الفوز بماراثون المدينة السنوي، وعلى بعد أمتار قليلة من خط النهاية انهار فجأة ومات. الفحص الطبي كشف جرعة منشطات قوية في دمه.',
     text2: 'المشكلة إن منير معروف بمواقفه القوية ضد المنشطات، وكان بيرفض حتى المكملات الغذائية العادية بدون إشراف طبي مباشر. مدربه طلب منك تحقق قبل ما سمعته الرياضية تتلطخ بتهمة مالهاش أساس.',
@@ -227,7 +227,7 @@ const CASE_FINISH_LINE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "خط النهاية"
 
-   الغلاف (finish-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty marathon finish line at dusk,
    scattered water bottles on the ground, documentary photography
    style, no text, no watermark, photorealistic"

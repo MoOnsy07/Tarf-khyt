@@ -11,7 +11,7 @@ const CASE_RECORDED_VOICE = {
   title: 'الصوت المسجل',
   caseNo: 'CASE 036',
   subtitle: 'استوديو إذاعة، وسط البلد',
-  coverImg: IMG_BASE_RECORDEDVOICE + 'voice-cover.jpg',
+  coverImg: IMG_BASE_RECORDEDVOICE + 'cover.webp',
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 18,
@@ -24,7 +24,7 @@ const CASE_RECORDED_VOICE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_RECORDEDVOICE + 'voice-cover.jpg',
+    heroImg: IMG_BASE_RECORDEDVOICE + 'cover.webp',
     heroCaption: 'CASE 036 — بعد آخر برنامج مباشرة',
     text1: 'المذيعة "دنيا" كانت بتتلقى رسائل صوتية مجهولة على تليفونها الشخصي لمدة أسبوعين، صوت مشوّه بيهددها تسكت عن موضوع معين في برنامجها. بعد آخر حلقة مباشرة، اختفت دنيا من غير ما ترجع بيتها.',
     text2: 'مدير الإذاعة طلب منك تحقق قبل ما القضية تتسرب وتأثر على سمعة الإذاعة. عندك تسجيلات الرسائل المهددة، وقائمة الناس المقربين من دنيا في محيط شغلها.',
@@ -225,7 +225,7 @@ const CASE_RECORDED_VOICE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الصوت المسجل"
 
-   الغلاف (voice-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty radio studio at night, an
    on-air microphone glowing red, dim ambient lighting, documentary
    photography style, no text, no watermark, photorealistic"

@@ -11,7 +11,7 @@ const CASE_LAST_UPDATE = {
   title: 'آخر تحديث',
   caseNo: 'CASE 044',
   subtitle: 'مكاتب ستارت أب تكنولوجي، القاهرة الجديدة',
-  coverImg: IMG_BASE_LASTUPDATE + 'update-cover.jpg',
+  coverImg: IMG_BASE_LASTUPDATE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_LAST_UPDATE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_LASTUPDATE + 'update-cover.jpg',
+    heroImg: IMG_BASE_LASTUPDATE + 'cover.webp',
     heroCaption: 'CASE 044 — بعد اجتماع المستثمرين بيوم',
     text1: 'المبرمج "يوسف" كان مسؤول عن أمان تطبيق الستارت أب الناشئ "لينكيت". اكتشف ثغرة أمنية خطيرة بتسرّب بيانات حساسة لآلاف المستخدمين، وهدد إنه هيفضح الموضوع للمستثمرين في الاجتماع الجاي لو محدش تعامل معاها فورًا.',
     text2: 'بعد يوم واحد بس، يوسف اتلاقى مقتول في مكتبه بعد ساعات العمل. المؤسس المشارك للشركة طلب منك تحقق بسرعة قبل ما القضية تدمر سمعة الشركة قبل جولة تمويل حاسمة.',
@@ -231,7 +231,7 @@ const CASE_LAST_UPDATE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "آخر تحديث"
 
-   الغلاف (update-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an empty modern tech office at night, a
    single computer screen glowing with code, documentary photography
    style, no text, no watermark, photorealistic"

@@ -11,7 +11,7 @@ const CASE_GHOST_AUTHOR = {
   title: 'القلم الخفي',
   caseNo: 'CASE 009',
   subtitle: 'دار نشر "المدى"، الزمالك، القاهرة',
-  coverImg: IMG_BASE_GHOST + 'ghost-cover.jpg',
+  coverImg: IMG_BASE_GHOST + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 40,
   investigationPoints: 22,
@@ -24,7 +24,7 @@ const CASE_GHOST_AUTHOR = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_GHOST + 'ghost-cover.jpg',
+    heroImg: IMG_BASE_GHOST + 'cover.webp',
     heroCaption: 'CASE 009 — ليلة حفل توقيع "الفصل الأخير"',
     text1: 'الروائي الشهير "وليد سامي" كان مستعد لحفل توقيع روايته الجديدة "الفصل الأخير"، اللي المفروض تكون أنجح أعماله على الإطلاق. قبل الحفل بساعة، لقوه ميت في مكتبه فوق دار النشر، من غير أي علامة عنف واضحة على الجسم.',
     text2: 'الطبيب الشرعي الأولي أشار لاحتمال تسمم بمادة بطيئة المفعول اتحطت في مشروبه المفضل. رئيسة دار النشر خايفة من فضيحة تدمر سمعة الدار، فطلبت منك تحقق بسرعة وبهدوء قبل ما الخبر يوصل للإعلام، خصوصًا إن في إشاعات قديمة عن إن وليد مش هو اللي بيكتب رواياته بنفسه.',
@@ -262,7 +262,7 @@ const CASE_GHOST_AUTHOR = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "القلم الخفي"
 
-   الغلاف (ghost-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of an elegant publishing house office at
    dusk, an empty writer's desk with a half-finished cup of tea and
    scattered manuscript pages, warm desk lamp lighting, moody

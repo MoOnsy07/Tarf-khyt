@@ -11,7 +11,7 @@ const CASE_DAWN_CALL = {
   title: 'مكالمة الفجر',
   caseNo: 'CASE 047',
   subtitle: 'بيت العائلة، بعد أسبوعين من الجنازة',
-  coverImg: IMG_BASE_DAWNCALL + 'call-cover.jpg',
+  coverImg: IMG_BASE_DAWNCALL + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 21,
@@ -28,7 +28,7 @@ const CASE_DAWN_CALL = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_DAWNCALL + 'call-cover.jpg',
+    heroImg: IMG_BASE_DAWNCALL + 'cover.webp',
     heroCaption: 'CASE 047 — الفجر بعد أسبوعين من الجنازة',
     text1: 'زوجة "علاء" المتوفى حديثًا في حادثة سيارة "عرضية" بتتلقى مكالمة غريبة على الفجر من رقم زوجها بالذات. صوت يشبه صوته بيقولها جملة واحدة: "مكنش حادث" قبل ما الخط يقفل فجأة.',
     text2: 'الزوجة طلبت منك تحقق في الموضوع، رغم إن الشرطة قفلت قضية علاء رسميًا كحادثة سيارة عرضية. عندك تفاصيل الحادثة الأصلية، وسجل المكالمة الغريبة.',
@@ -243,7 +243,7 @@ const CASE_DAWN_CALL = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "مكالمة الفجر"
 
-   الغلاف (call-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of a smartphone screen glowing at dawn
    in a dark bedroom, an incoming call notification, documentary
    photography style, no text, no watermark, photorealistic"

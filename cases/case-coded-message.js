@@ -11,7 +11,7 @@ const CASE_CODED_MESSAGE = {
   title: 'الرسالة المشفرة',
   caseNo: 'CASE 060',
   subtitle: 'فيلا رجل أعمال، مدينة الشيخ زايد',
-  coverImg: IMG_BASE_CODEDMESSAGE + 'coded-cover.jpg',
+  coverImg: IMG_BASE_CODEDMESSAGE + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
@@ -24,7 +24,7 @@ const CASE_CODED_MESSAGE = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_CODEDMESSAGE + 'coded-cover.jpg',
+    heroImg: IMG_BASE_CODEDMESSAGE + 'cover.webp',
     heroCaption: 'CASE 060 — بعد الاختطاف بساعتين',
     text1: 'رجل الأعمال "منتصر" استقبل مكالمة مرعبة: ابنته "نور" اختفت من قدام باب مدرستها. بعد شوية، لقى مظروف تحت باب الفيلا فيه رسالة، بس الرسالة مش فيها أي مطلب مالي واضح — بس أرقام وحروف متبدلة بشكل غريب.',
     text2: 'منتصر طلب منك تفك شفرة الرسالة وتلاقي نور قبل ما الخاطف يتصرف. عندك الرسالة المشفرة، وقائمة الناس القريبين من العيلة اللي ممكن يعرفوا تفاصيل شخصية كفاية يستخدموها كشفرة.',
@@ -229,7 +229,7 @@ const CASE_CODED_MESSAGE = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "الرسالة المشفرة"
 
-   الغلاف (coded-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of a coded ransom note with numbers and
    letters on aged paper, dim dramatic desk lighting, documentary
    photography style, no text, no watermark, photorealistic"

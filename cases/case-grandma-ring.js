@@ -11,7 +11,7 @@ const CASE_GRANDMA_RING = {
   title: 'خاتم الجدة',
   caseNo: 'CASE 049',
   subtitle: 'حفلة خطوبة عائلية، قاعة أفراح',
-  coverImg: IMG_BASE_GRANDMARING + 'ring-cover.jpg',
+  coverImg: IMG_BASE_GRANDMARING + 'cover.webp',
   difficulty: 'سهلة',
   estMinutes: 26,
   investigationPoints: 15,
@@ -24,7 +24,7 @@ const CASE_GRANDMA_RING = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_GRANDMARING + 'ring-cover.jpg',
+    heroImg: IMG_BASE_GRANDMARING + 'cover.webp',
     heroCaption: 'CASE 049 — منتصف حفلة الخطوبة',
     text1: 'العروسة "سارة" كانت لابسة خاتم جدتها الأثري الغالي في يوم خطوبتها، وحطته على الطاولة لحظة قبل ما تصور مع العريس. لما رجعت، الخاتم كان اختفى تمامًا من غير ما حد يلاحظ حاجة.',
     text2: 'سارة طلبت منك تحقق بسرعة قبل ما الحفلة تخلص والضيوف يتفرقوا. عندك قائمة الناس اللي كانوا قريبين من الطاولة في اللحظة دي.',
@@ -215,7 +215,7 @@ const CASE_GRANDMA_RING = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "خاتم الجدة"
 
-   الغلاف (ring-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic close-up of an ornate antique ring resting on an
    elegant table at a wedding hall, warm event lighting, documentary
    photography style, no text, no watermark, photorealistic"

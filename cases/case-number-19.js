@@ -12,7 +12,7 @@ const CASE_NUMBER_19 = {
   title: 'القميص رقم 19',
   caseNo: 'CASE 022',
   subtitle: 'أكاديمية كرة قدم للناشئين، القاهرة',
-  coverImg: IMG_BASE_JERSEY + 'jersey-cover.jpg',
+  coverImg: IMG_BASE_JERSEY + 'cover.webp',
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 20,
@@ -25,7 +25,7 @@ const CASE_NUMBER_19 = {
   seriesTitle: null,
 
   briefing: {
-    heroImg: IMG_BASE_JERSEY + 'jersey-cover.jpg',
+    heroImg: IMG_BASE_JERSEY + 'cover.webp',
     heroCaption: 'CASE 022 — قبل أول ماتش بيوم واحد',
     text1: '"عمر"، لاعب ناشئ عنده 19 سنة، اختفى فجأة قبل أول ماتش رسمي ليه مع الفريق الأول. بعد ساعات، قميصه الرياضي اتلاقى ملقى في ترعة جنب طريق النادي. الناس بدأت تتكلم عن خطف أو حتى انتحار، خصوصًا بعد ما رسائل قديمة له اتسربت يقول فيها إنه "مش قادر يكمل".',
     text2: 'والد عمر رافض يصدق نظرية الانتحار، وحاسس إن في حاجة تانية وراء اختفاء ابنه. طلب منك تحقق بسرعة، عشان توصل لحقيقة اختفائه قبل ما القضية تتقفل بشكل خاطئ تمامًا.',
@@ -262,7 +262,7 @@ const CASE_NUMBER_19 = {
 /* ============================================================
    ملاحظة: برومبتات الصور المقترحة لقضية "القميص رقم 19"
 
-   الغلاف (jersey-cover.jpg):
+   الغلاف (cover.webp):
    "Photorealistic shot of a wet football jersey with number 19
    floating in a canal near a road, dramatic overcast lighting,
    documentary photography style, no text, no watermark,
