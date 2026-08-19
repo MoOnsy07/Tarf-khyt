@@ -31,6 +31,29 @@
 </head>
 <body>
 <div class="grain"></div>
+
+<div id="beta-banner" class="beta-banner">
+  <span class="beta-banner-tag mono">🧪 نسخة تجريبية</span>
+  <span class="beta-banner-text">الموقع لسه في مرحلة تجريبية — ممكن تقابل أعطال بسيطة أو تحديثات مفاجئة. أي ملاحظة كلّمنا على واتساب.</span>
+  <button id="beta-banner-close" class="beta-banner-close" aria-label="إغلاق">×</button>
+</div>
+<script>
+(function(){
+  var KEY = 'tarafkhyt_beta_banner_dismissed_v1';
+  var el = document.getElementById('beta-banner');
+  if(!el) return;
+  try{
+    if(localStorage.getItem(KEY) === '1'){ el.style.display = 'none'; return; }
+  }catch(e){}
+  var closeBtn = document.getElementById('beta-banner-close');
+  if(closeBtn){
+    closeBtn.addEventListener('click', function(){
+      el.style.display = 'none';
+      try{ localStorage.setItem(KEY, '1'); }catch(e){}
+    });
+  }
+})();
+</script>
 <div class="scan"></div>
   <!-- ============================================================
      قطعة بانر الباقات — الصقها في أي مكان جوه صفحتك (index.html
