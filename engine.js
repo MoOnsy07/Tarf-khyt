@@ -26,6 +26,11 @@ const READY_CASE_IDS = new Set([
   'last-episode',
   'leaked-video',
   'missing-bride',
+  'hit-and-run',
+  'last-dish',
+  'last-rehearsal',
+  'lost-wallet',
+  'var-conspiracy',
 ]);
 function isCaseReady(c){
   return READY_CASE_IDS.has(c.id);
