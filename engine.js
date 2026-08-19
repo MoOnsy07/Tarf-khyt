@@ -253,11 +253,48 @@ function getVisitorId(){
 }
 
 const PLAYER_NAME_KEY = 'ca_player_name';
+const LEGACY_PLAYER_NAME_KEY = 'tarafkhyt_player_name';
 function getPlayerName(){
-  return localStorage.getItem(PLAYER_NAME_KEY);
+  let name = localStorage.getItem(PLAYER_NAME_KEY);
+  if(!name){
+    name = localStorage.getItem(LEGACY_PLAYER_NAME_KEY);
+    if(name) localStorage.setItem(PLAYER_NAME_KEY, name);
+  }
+  return name;
 }
 function setPlayerName(name){
-  localStorage.setItem(PLAYER_NAME_KEY, name.trim().slice(0,30));
+  const cleanName = String(name || '').trim().replace(/\s+/g, ' ').slice(0,30);
+  localStorage.setItem(PLAYER_NAME_KEY, cleanName);
+  // نفس المفتاح اللي leaderboard.js كان بيستخدمه في النسخ القديمة.
+  localStorage.setItem(LEGACY_PLAYER_NAME_KEY, cleanName);
+}
+
+const PLAYER_REGISTRATION_SESSION_KEY = 'ca_player_registration_synced_v1';
+async function syncPlayerRegistration(playerName, caseData){
+  if(typeof registerPlayerName !== 'function') return false;
+
+  const cleanName = String(playerName || '').trim().replace(/\s+/g, ' ').slice(0,30);
+  if(cleanName.length < 2) return false;
+
+  const visitorId = getVisitorId();
+  const caseId = caseData && caseData.id != null ? String(caseData.id) : '';
+  const signature = [visitorId, cleanName, location.pathname, caseId].join('|');
+
+  try{
+    if(sessionStorage.getItem(PLAYER_REGISTRATION_SESSION_KEY) === signature) return true;
+  }catch(e){}
+
+  const saved = await registerPlayerName({
+    visitorId,
+    playerName: cleanName,
+    pagePath: location.pathname,
+    caseId: caseId || null,
+  });
+
+  if(saved){
+    try{ sessionStorage.setItem(PLAYER_REGISTRATION_SESSION_KEY, signature); }catch(e){}
+  }
+  return saved;
 }
 
 /* ============================================================
@@ -780,7 +817,7 @@ function openPurchasePopup(caseData){
    NAME PROMPT — بيتعرض مرة واحدة بس، قبل أول قضية، عشان يتسجل
    اسمك في الليدربورد العام. ممكن "تخطي" ويتحطلك اسم افتراضي.
    ============================================================ */
-function showNamePrompt(onDone){
+function showNamePrompt(onDone, caseData){
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
   overlay.innerHTML = `
@@ -791,31 +828,61 @@ function showNamePrompt(onDone){
       <input type="text" id="nameInput" placeholder="مثلاً: المحقق سامي" maxlength="30" style="width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); padding:11px 14px; border-radius:3px; text-align:center; margin:14px 0 10px;">
       <button class="btn" id="nameConfirm" style="width:100%;">يلا نبدأ ←</button>
       <button class="btn ghost" id="nameSkip" style="width:100%; margin-top:8px;">تخطي (اسم عشوائي)</button>
+      <p id="nameSaveStatus" class="dim mono" style="min-height:18px; margin-top:10px; font-size:11px;"></p>
     </div>
   `;
   document.body.appendChild(overlay);
   const input = overlay.querySelector('#nameInput');
+  const confirmBtn = overlay.querySelector('#nameConfirm');
+  const skipBtn = overlay.querySelector('#nameSkip');
+  const status = overlay.querySelector('#nameSaveStatus');
+  let saving = false;
   input.focus();
-  const finish = (name)=>{
-    setPlayerName(name);
+  const finish = async (name)=>{
+    if(saving) return;
+    const cleanName = String(name || '').trim().replace(/\s+/g, ' ').slice(0,30);
+    if(cleanName.length < 2){
+      status.textContent = 'اكتب لقب من حرفين على الأقل، أو اختار اسم عشوائي.';
+      status.style.color = 'var(--danger)';
+      input.focus();
+      return;
+    }
+
+    saving = true;
+    input.disabled = true;
+    confirmBtn.disabled = true;
+    skipBtn.disabled = true;
+    status.textContent = 'جارِ تسجيل اسمك...';
+    status.style.color = 'var(--ink-dim)';
+
+    setPlayerName(cleanName);
+    const savedOnline = await syncPlayerRegistration(cleanName, caseData);
+    if(!savedOnline){
+      // التسجيل المحلي كفاية لبدء اللعب، والمحاولة هتتكرر عند دخول القضية.
+      console.warn('Player name was saved locally; Supabase registration will retry.');
+    }
     overlay.remove();
     onDone();
   };
-  overlay.querySelector('#nameConfirm').addEventListener('click', ()=>{
+  confirmBtn.addEventListener('click', ()=>{
     const v = input.value.trim();
-    finish(v || ('محقق-' + Math.floor(1000+Math.random()*9000)));
+    finish(v);
   });
-  overlay.querySelector('#nameSkip').addEventListener('click', ()=>{
+  skipBtn.addEventListener('click', ()=>{
     finish('محقق-' + Math.floor(1000+Math.random()*9000));
   });
-  input.addEventListener('keydown', e=>{ if(e.key==='Enter') overlay.querySelector('#nameConfirm').click(); });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') confirmBtn.click(); });
 }
 
 function enterCase(caseData, opts={}){
   if(!getPlayerName()){
-    showNamePrompt(()=>enterCase(caseData, opts));
+    showNamePrompt(()=>enterCase(caseData, opts), caseData);
     return;
   }
+  // يسجل أيضًا اللاعبين القدامى اللي كان اسمهم محفوظ قبل إضافة النظام الجديد.
+  syncPlayerRegistration(getPlayerName(), caseData).catch(err=>{
+    console.error('syncPlayerRegistration failed', err);
+  });
   CASE = caseData;
   setActiveCase(caseData.id);
   game = freshGameState();

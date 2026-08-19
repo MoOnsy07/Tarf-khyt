@@ -27,12 +27,18 @@ const Leaderboard = (() => {
     return client;
   }
 
-  const NAME_STORAGE_KEY = 'tarafkhyt_player_name';
+  const NAME_STORAGE_KEY = 'ca_player_name';
+  const LEGACY_NAME_STORAGE_KEY = 'tarafkhyt_player_name';
 
   /** يرجع اسم اللاعب المحفوظ محليًا، أو null لو أول مرة */
   function getSavedPlayerName() {
     try {
-      return localStorage.getItem(NAME_STORAGE_KEY);
+      let name = localStorage.getItem(NAME_STORAGE_KEY);
+      if (!name) {
+        name = localStorage.getItem(LEGACY_NAME_STORAGE_KEY);
+        if (name) localStorage.setItem(NAME_STORAGE_KEY, name);
+      }
+      return name;
     } catch (e) {
       return null;
     }
@@ -42,6 +48,7 @@ const Leaderboard = (() => {
   function savePlayerName(name) {
     try {
       localStorage.setItem(NAME_STORAGE_KEY, name);
+      localStorage.setItem(LEGACY_NAME_STORAGE_KEY, name);
     } catch (e) {
       /* لو التخزين المحلي مش متاح، نتجاهل بهدوء */
     }
@@ -50,7 +57,7 @@ const Leaderboard = (() => {
   /** تنضيف بسيط لاسم اللاعب: يشيل مسافات زيادة ويحدد الطول */
   function sanitizeName(name) {
     const trimmed = (name || '').trim().replace(/\s+/g, ' ');
-    return trimmed.slice(0, 24);
+    return trimmed.slice(0, 30);
   }
 
   /**

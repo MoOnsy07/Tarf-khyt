@@ -6,6 +6,39 @@ const SUPABASE_ANON_KEY = 'sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* ============================================================
+   تسجيل اسم اللاعب فور تأكيده
+   - منفصل عن جداول الليدربورد، لذلك الاسم لا يظهر في الترتيب
+     قبل إنهاء قضية بنجاح.
+   - الـRPC ينشئ صفًا واحدًا لكل جهاز/متصفح ويحدّث آخر ظهور له.
+   - شغّل ملف PLAYER_REGISTRATION_SETUP.sql مرة واحدة في Supabase
+     قبل رفع هذا الملف.
+   ============================================================ */
+async function registerPlayerName({ visitorId, playerName, pagePath, caseId }){
+  const cleanVisitorId = String(visitorId || '').trim().slice(0, 128);
+  const cleanPlayerName = String(playerName || '').trim().replace(/\s+/g, ' ').slice(0, 30);
+
+  if(!cleanVisitorId || cleanPlayerName.length < 2) return false;
+
+  try{
+    const { data, error } = await sb.rpc('register_player_name', {
+      p_visitor_id: cleanVisitorId,
+      p_player_name: cleanPlayerName,
+      p_page_path: String(pagePath || window.location.pathname || '/').slice(0, 200),
+      p_case_id: caseId == null ? null : String(caseId).slice(0, 120),
+    });
+
+    if(error){
+      console.error('registerPlayerName error', error);
+      return false;
+    }
+    return data === true;
+  }catch(err){
+    console.error('registerPlayerName failed', err);
+    return false;
+  }
+}
+
 /* بيحاول يفك الكود لقضية معيّنة. بيرجع true لو الكود صح ولسه ما اتستخدمش،
    وبيعلّمه "مستخدم" في نفس اللحظة عشان نفس الكود مايتصرفش مرتين.
    ملحوظة أمنية: الـRPC يحمي استهلاك الكود نفسه، لكن فتح القضية بعد النجاح محفوظ
