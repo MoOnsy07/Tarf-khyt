@@ -423,6 +423,27 @@ function applyFontSize(){
    BOOT
    ============================================================ */
 
+// عنوان الصفحة الافتراضي ووصفها — بنرجعلهم كل ما نرجع للأرشيف
+const DEFAULT_PAGE_TITLE = document.title;
+const DEFAULT_META_DESCRIPTION = (document.querySelector('meta[name="description"]') || {}).content || '';
+
+// بتحدّث عنوان التاب ووصف الميتا حسب القضية المفتوحة — مهم لمحركات البحث
+// (جوجل بيقرا الصفحة بعد ما الجافاسكريبت يشتغل) ولمعاينة اللينكات وقت المشاركة.
+function updatePageMeta(caseData){
+  try{
+    document.title = `${caseData.title} | طرف الخيط`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if(metaDesc && caseData.teaser) metaDesc.setAttribute('content', caseData.teaser);
+  }catch(e){}
+}
+function resetPageMeta(){
+  try{
+    document.title = DEFAULT_PAGE_TITLE;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if(metaDesc && DEFAULT_META_DESCRIPTION) metaDesc.setAttribute('content', DEFAULT_META_DESCRIPTION);
+  }catch(e){}
+}
+
 function boot(){
   app.unlockedIds = getUnlockedIds();
   app.completedIds = getCompletedIds();
@@ -433,6 +454,24 @@ function boot(){
   // بدل ما يودّي المستخدم برّه الموقع خالص.
   try{ history.replaceState({ view:'library' }, '', location.href); }catch(e){}
   window.addEventListener('popstate', handlePopState);
+
+  // لينك مباشر لقضية معينة (?case=case-id) — له أولوية على آخر قضية محفوظة،
+  // عشان أي شير أو نتيجة بحث جوجل توديك للقضية بالذات اللي في الرابط.
+  let urlCaseId = null;
+  try{ urlCaseId = new URLSearchParams(location.search).get('case'); }catch(e){}
+  const urlCase = urlCaseId ? CASES_REGISTRY.find(c => c.id === urlCaseId) : null;
+  if(urlCase && isCaseReady(urlCase)){
+    const urlLock = isCaseLocked(urlCase);
+    if(!urlLock.locked){
+      enterCase(urlCase);
+      return;
+    }
+    // قضية بريميوم مقفولة — نوريله الأرشيف ونفتحله معاينتها بدل ما نرميه عادي
+    clearActiveCase();
+    showLibrary();
+    openCasePreview(urlCase, urlLock);
+    return;
+  }
 
   // لو كان فيه قضية شغالة قبل الريفريش، رجّع المستخدم لها تاني بدل الأرشيف
   const activeCaseId = getActiveCase();
@@ -470,8 +509,13 @@ function returnToLibraryFromCase(opts={}){
   }
   if(CASE) persistProgress();
   clearActiveCase();
+  resetPageMeta();
   if(opts.historyMode !== 'none'){
-    try{ history.replaceState({ view:'library' }, '', location.href); }catch(e){}
+    try{
+      const url = new URL(location.href);
+      url.searchParams.delete('case');
+      history.replaceState({ view:'library' }, '', url.toString());
+    }catch(e){}
   }
   app.unlockedIds = getUnlockedIds();
   app.completedIds = getCompletedIds();
@@ -667,6 +711,7 @@ function showLibrary(){
       </select>
       <a href="leaderboard.html" class="btn ghost mono lib-leaderboard-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🏆 لوحة المتصدرين</a>
       <a href="profile.html" class="btn ghost mono lib-profile-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🕵️ ملفي</a>
+      <a href="how-to-play.html" class="btn ghost mono lib-howtoplay-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📖 إزاي تلعب</a>
     </div>
 
     ${socialLinksHTML('library')}
@@ -1037,12 +1082,17 @@ function enterCase(caseData, opts={}){
   });
   CASE = caseData;
   setActiveCase(caseData.id);
+  updatePageMeta(caseData);
   game = freshGameState();
   game.playMode = opts.playMode === 'realistic' ? 'realistic' : 'normal';
   game.points = null; // نقاط الأسئلة/المواجهات اتشالت؛ مفيش فعل تحقيق بيتكلف رصيد.
 
   if(opts.historyMode !== 'none'){
-    try{ history.pushState({ view:'case', caseId: caseData.id }, '', location.href); }catch(e){}
+    try{
+      const url = new URL(location.href);
+      url.searchParams.set('case', caseData.id);
+      history.pushState({ view:'case', caseId: caseData.id }, '', url.toString());
+    }catch(e){}
   }
 
   const saved = loadLocalProgress(CASE.id);
