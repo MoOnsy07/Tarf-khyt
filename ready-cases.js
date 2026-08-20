@@ -19,4 +19,11 @@ const READY_CASE_IDS = new Set([
   'role-of-lifetime',
   'room-307',
   'shifting-painting',
+  // === إضافات هذه الجلسة — أصولها البصرية اكتملت بالكامل ===
+  'fake-audio',
+  'false-rumor',
+  'forged-canvas',
+  'ghost-author',
+  'exam-leak',
+  'charity-funds',
 ]);
