@@ -16,22 +16,26 @@ const app = {
 
 const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ضغطة "تحميل المزيد" 
 
-// روابط السوشيال ميديا الرسمية لطرف الخيط
+// التواصل الرسمي لطرف الخيط
+const WHATSAPP_NUMBER = '201145785696';
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 const TELEGRAM_CHANNEL_URL = 'https://t.me/taraf5eet';
-const INSTAGRAM_URL = 'https://www.instagram.com/taraf5eet?igsh=MWRyd29scnFqd2Vqdw==&igsi=MWRyd29scnFqd2Vqdw==';
-const TIKTOK_URL = 'https://www.tiktok.com/@taraf5eet';
-const FACEBOOK_URL = 'https://www.facebook.com/share/193Vmc9zJC/';
 
-// كارت متابعة بسيط (تيليجرام / إنستجرام / تيك توك / فيسبوك) — بيتنادى في أكتر من مكان
+// كارت التواصل — واتساب للدعم والاقتراحات، وتليجرام للقضايا والتحديثات
 function socialLinksHTML(context){
   return `
     <div class="social-follow ${context||''}">
-      <span class="social-follow-label mono">تابعنا عشان توصلك القضايا الجديدة أول بأول</span>
-      <div class="social-follow-btns">
-        <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn ghost social-btn telegram mono">📣 تيليجرام</a>
-        <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener" class="btn ghost social-btn instagram mono">📸 إنستجرام</a>
-        <a href="${TIKTOK_URL}" target="_blank" rel="noopener" class="btn ghost social-btn tiktok mono">🎵 تيك توك</a>
-        <a href="${FACEBOOK_URL}" target="_blank" rel="noopener" class="btn ghost social-btn facebook mono">👍 فيسبوك</a>
+      <div class="social-follow-item">
+        <span class="social-follow-label mono">عندك استفسار، اقتراح أو واجهتك مشكلة؟</span>
+        <div class="social-follow-btns">
+          <a href="${WHATSAPP_URL}" target="_blank" rel="noopener" class="btn ghost social-btn whatsapp mono">💬 تواصل معانا على واتساب</a>
+        </div>
+      </div>
+      <div class="social-follow-item" style="margin-top:12px;">
+        <span class="social-follow-label mono">تابعنا عشان تعرف أول ما تنزل قضية جديدة أو تحديث للعبة</span>
+        <div class="social-follow-btns">
+          <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn ghost social-btn telegram mono">📣 تابع قناة التليجرام</a>
+        </div>
       </div>
     </div>
   `;
@@ -41,25 +45,7 @@ function socialLinksHTML(context){
 // القضايا اللي أصولها البصرية (بورتريهات الشخصيات + صور الأدلة) مكتملة فعلاً
 // وجاهزة للعب بتجربة كاملة. أي قضية تانية بتتعرض معتّمة وعليها "قريبًا" في
 // المكتبة، لحد ما نضيف الصور بتاعتها هنا. حدّث القائمة دي كل ما قضية تخلص.
-const READY_CASE_IDS = new Set([
-  'buffalo-case',
-  'dark-testimony',
-  'final-testament',
-  'last-episode',
-  'leaked-video',
-  'missing-bride',
-  'hit-and-run',
-  'last-dish',
-  'last-rehearsal',
-  'lost-wallet',
-  'illusion-startup',
-  'last-call',
-  'no-witness-night',
-  'number-19',
-  'role-of-lifetime',
-  'room-307',
-  'shifting-painting',
-]);
+// READY_CASE_IDS بقت جايه من ready-cases.js (لازم يتحمّل قبل engine.js في الـHTML)
 function isCaseReady(c){
   return READY_CASE_IDS.has(c.id);
 }
@@ -680,6 +666,7 @@ function showLibrary(){
         ${hasPremium ? `<option value="price" ${app.librarySort==='price'?'selected':''}>الأعلى سعرًا</option>` : ''}
       </select>
       <a href="leaderboard.html" class="btn ghost mono lib-leaderboard-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🏆 لوحة المتصدرين</a>
+      <a href="profile.html" class="btn ghost mono lib-profile-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🕵️ ملفي</a>
     </div>
 
     ${socialLinksHTML('library')}

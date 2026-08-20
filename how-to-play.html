@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إزاي تلعب | طرف الخيط</title>
+<meta name="description" content="دليل سريع لطريقة اللعب في طرف الخيط — إزاي تجمع الأدلة، تستجوّب المشتبه بهم، وتوصل للحقيقة.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0c12'/%3E%3Cpath d='M50 15 C25 15 12 32 12 50 C12 78 25 92 50 92 M50 25 C32 25 20 36 20 50 C20 76 32 84 50 84 M50 35 C40 35 30 42 30 50 C30 72 40 76 50 76' stroke='%23e0a458' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ستايلات خاصة بصفحة الشرح بس — بتستخدم نفس متغيرات style.css */
+  .htp-wrap{ max-width:760px; margin:0 auto; padding:34px 16px 70px; }
+
+  .htp-back{
+    display:inline-flex; align-items:center; gap:6px; color:var(--ink-dim);
+    text-decoration:none; font-size:13px; margin-bottom:22px; transition:.15s;
+  }
+  .htp-back:hover{ color:var(--amber); }
+
+  .htp-steps{ display:flex; flex-direction:column; gap:14px; margin:26px 0 6px; }
+
+  .htp-step{
+    display:flex; gap:16px; background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:18px 18px 18px 16px; position:relative;
+  }
+  .htp-step-num{
+    flex:none; width:34px; height:34px; border-radius:50%;
+    background:var(--amber); color:#1a1305; font-weight:900; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .htp-step-body h3{ color:var(--ink); font-size:15.5px; font-weight:800; margin-bottom:5px; }
+  .htp-step-body p{ color:var(--ink-dim); font-size:13.5px; line-height:1.9; margin:0; }
+
+  .htp-modes{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+  @media (max-width:560px){ .htp-modes{ grid-template-columns:1fr; } }
+  .htp-mode-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:16px;
+  }
+  .htp-mode-card .tag{
+    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
+    color:var(--amber); background:rgba(224,164,88,.14); border:1px solid var(--amber-dim);
+    border-radius:20px; padding:3px 10px; margin-bottom:10px;
+  }
+  .htp-mode-card p{ color:var(--ink-dim); font-size:13.5px; line-height:1.9; margin:0; }
+
+  .htp-difficulty-row{
+    display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);
+    font-size:13.5px; color:var(--ink-dim);
+  }
+  .htp-difficulty-row:last-child{ border-bottom:none; }
+  .htp-difficulty-row .diff-tag{
+    flex:none; width:78px; text-align:center; font-family:'JetBrains Mono', monospace;
+    font-size:11px; font-weight:700; padding:3px 0; border-radius:3px;
+  }
+  .diff-easy{ background:rgba(120,200,140,.14); color:#8fd6a4; border:1px solid rgba(120,200,140,.35); }
+  .diff-mid{ background:rgba(224,164,88,.14); color:var(--amber); border:1px solid var(--amber-dim); }
+  .diff-hard{ background:rgba(198,90,78,.14); color:#e08a7c; border:1px solid rgba(198,90,78,.4); }
+
+  .htp-tip{
+    background:rgba(224,164,88,.08); border:1px solid var(--amber-dim); border-radius:6px;
+    padding:14px 16px; font-size:13.5px; color:var(--ink-dim); line-height:1.9; margin-top:10px;
+  }
+  .htp-tip b{ color:var(--amber); }
+
+  .htp-cta{
+    display:flex; gap:10px; justify-content:center; margin-top:36px; flex-wrap:wrap;
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="scan"></div>
+
+<div class="htp-wrap">
+
+  <a href="index.html" class="htp-back mono">→ رجوع للأرشيف</a>
+
+  <div class="lib-hero" style="margin-bottom:6px;">
+    <svg class="lib-fingerprint" viewBox="0 0 200 200" aria-hidden="true">
+      <path d="M100,20 C50,20 20,60 20,100 C20,150 50,180 100,180"/>
+      <path d="M100,35 C62,35 35,68 35,100 C35,142 62,165 100,165"/>
+      <path d="M100,50 C74,50 50,76 50,100 C50,134 74,150 100,150"/>
+      <path d="M100,65 C86,65 65,84 65,100 C65,126 86,135 100,135"/>
+      <path d="M100,20 C150,20 180,60 180,100 C180,150 150,180 100,180" stroke-dasharray="4 6"/>
+      <path d="M100,35 C138,35 165,68 165,100 C165,142 138,165 100,165" stroke-dasharray="3 7"/>
+    </svg>
+    <div class="lib-hero-eyebrow mono">PLAYER GUIDE</div>
+    <h1 class="lib-hero-title">إزاي <span class="accent">تلعب</span></h1>
+    <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M6,6 C60,18 150,-2 214,10"/>
+    </svg>
+    <div class="lib-hero-sub">كل حاجة محتاج تعرفها قبل ما تفتح أول ملف قضية</div>
+  </div>
+
+  <div class="panel" style="margin-top:26px;">
+    <h2>خطوات التحقيق</h2>
+    <p class="dim">كل قضية بتتلعب بنفس المنطق، من غير فرق في الحل ولا في الأدلة بين مرة وتانية.</p>
+
+    <div class="htp-steps">
+      <div class="htp-step">
+        <div class="htp-step-num">١</div>
+        <div class="htp-step-body">
+          <h3>اقرا ملف القضية</h3>
+          <p>كل قضية بتبدأ بموجز (Briefing) بيحطك في الصورة — مين الضحية، مين حواليها، وإيه اللي حصل. اقراه كويس، فيه تفاصيل هتحتاجها بعدين.</p>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-step-num">٢</div>
+        <div class="htp-step-body">
+          <h3>اجمع الأدلة</h3>
+          <p>هتلاقي أماكن وأدلة تقدر تفحصها — من مسرح الجريمة، لتقارير فنية، لشهادات. بعض الأدلة بتفتح أدلة تانية لما تربط بينها، فرجّع لللي فحصته قبل كده لو حسيت إنك تعطلت.</p>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-step-num">٣</div>
+        <div class="htp-step-body">
+          <h3>استجوّب المشتبه بهم</h3>
+          <p>اسأل كل شخص أسئلته، وبعدين واجهه بالأدلة اللي عندك. المواجهة الصح بدليل مناسب بتفتحلك أسئلة أعمق ومعلومات ما كانتش هتطلع من غيرها.</p>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-step-num">٤</div>
+        <div class="htp-step-body">
+          <h3>ابني نظريتك</h3>
+          <p>مش كفاية تعرف مين الجاني — لازم تقدر تفسّر إزاي وصلتله. لوحة الاتهام بتفتح لما يكون عندك نسبة كافية من الأدلة، وفي القضايا الصعبة هتحتاج نظرية متماسكة مش بس اسم صح.</p>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-step-num">٥</div>
+        <div class="htp-step-body">
+          <h3>اتّهم وشوف النتيجة</h3>
+          <p>بناءً على مين اتهمت وقد إيه أدلتك ونظريتك متماسكين، القضية بتقفل بنهاية مختلفة — من نجاح كامل، لحل جزئي، لاتهام غلط تمامًا.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <h2>اختار أسلوب لعبك</h2>
+    <p class="dim">قبل ما تبدأ أي قضية جديدة، هتختار طريقة اللعب. الاختيار بيفضل ثابت لحد ما تخلّص القضية أو تبدأها من الأول.</p>
+
+    <div class="htp-modes">
+      <div class="htp-mode-card">
+        <span class="tag">⚡ عادي</span>
+        <p>تجربة أسرع، تركيز على القصة والاستنتاج، توجيه أوضح شوية في الأدلة.</p>
+      </div>
+      <div class="htp-mode-card">
+        <span class="tag">🧪 تحقيق واقعي</span>
+        <p>توجيه أقل من الواجهة. في قضايا الجنايات هتبدأ بمعاينة مسرح الجريمة وتوثيقه بنفسك قبل أي استجواب.</p>
+      </div>
+    </div>
+
+    <div class="htp-tip">
+      💡 مفيش نظام نقاط بتخصمه على الأسئلة أو المواجهات — اسأل وحقق براحتك، مفيش رصيد بيتاكل.
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <h2>مستويات الصعوبة</h2>
+    <p class="dim">كل قضية معلّم عليها مستوى صعوبتها في المكتبة، وده بيأثر على وضوح التلميحات ونسبة الأدلة المطلوبة لفتح لوحة الاتهام — مش على الحل نفسه.</p>
+
+    <div style="margin-top:14px;">
+      <div class="htp-difficulty-row">
+        <span class="diff-tag diff-easy mono">سهلة</span>
+        <span>توجيه واضح، مناسبة لأول مرة تلعب فيها.</span>
+      </div>
+      <div class="htp-difficulty-row">
+        <span class="diff-tag diff-mid mono">متوسطة</span>
+        <span>تلميحات أقل وضوحًا، محتاج تربط بنفسك أكتر.</span>
+      </div>
+      <div class="htp-difficulty-row">
+        <span class="diff-tag diff-hard mono">صعبة</span>
+        <span>أقل تلميحات، ونظرية جريمة متماسكة شرط أساسي للنهاية الكاملة.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <h2>نصايح سريعة</h2>
+    <p>• اقرا كل دليل كامل قبل ما تحكم عليه — بعض الأدلة اللي شكلها خطير بيتضح إنه بريء لما تقراه صح.</p>
+    <p>• المواجهة مش لازم تنجح من أول مرة — لو الدليل مالوش علاقة بالشخص اللي قدامك، هيقولك كده صريح.</p>
+    <p>• كل مشتبه بيه ردود فعل مختلفة، حتى البريء منهم ممكن يتلعثم أو يتوتر — التلعثم لوحده مش دليل إدانة.</p>
+    <p>• لو اتعطلت، ارجع لتبويب الأدلة وشوف لو فيه دليل جمعته وما استخدمتوش في مواجهة لسه.</p>
+  </div>
+
+  <div class="htp-cta">
+    <a href="index.html" class="btn mono" style="text-decoration:none;">ابدأ أول قضية →</a>
+    <a href="leaderboard.html" class="btn ghost mono" style="text-decoration:none;">🏆 لوحة المتصدرين</a>
+  </div>
+
+</div>
+</body>
+</html>
