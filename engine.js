@@ -506,6 +506,15 @@ function returnToLibraryFromCase(opts={}){
       evidence_count: game.collected ? game.collected.size : 0,
       score: game.score || 0,
     });
+    if(typeof logCaseEvent === 'function'){
+      logCaseEvent({
+        caseId: CASE.id,
+        visitorId: getVisitorId(),
+        eventType: 'exit',
+        completed: !!game.ending,
+        ending: game.ending || null,
+      });
+    }
   }
   if(CASE) persistProgress();
   clearActiveCase();
@@ -1155,6 +1164,9 @@ function enterCase(caseData, opts={}){
     play_mode: currentPlayMode(),
     forensic_case: isForensicCase() ? 'yes' : 'no',
   });
+  if(!saved && typeof logCaseEvent === 'function'){
+    logCaseEvent({ caseId: CASE.id, visitorId: getVisitorId(), eventType: 'start' });
+  }
 
   // لو فيه تقدّم محفوظ فعلاً (يعني إنت مستكمل مش بادئ من جديد)، ادخل غرفة
   // التحقيق على طول من غير ما تعيد شاشة الانترو والمقدمة تاني من الأول
