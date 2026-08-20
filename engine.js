@@ -17,7 +17,7 @@ const app = {
 const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ضغطة "تحميل المزيد" 
 
 // التواصل الرسمي لطرف الخيط
-const WHATSAPP_NUMBER = '201145785696';
+// WHATSAPP_NUMBER معرّفة أصلاً في config.js (بيتحمّل قبل engine.js) — هنا بس بنبني رابط منها
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 const TELEGRAM_CHANNEL_URL = 'https://t.me/taraf5eet';
 
