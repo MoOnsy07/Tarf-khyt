@@ -353,3 +353,15 @@ const CASE_MUD_PRINT = {
   c.conclusiveEvidenceIds = ['bassel_dna_in_glove','bassel_seen_city','samia_gloves'];
   c.conclusiveRequired = 3;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_MUD_PRINT;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='trace_bassel_city')) c.investigationActions.push({
+    id:'trace_bassel_city', kind:'تحريات حركة', label:'راجع شهود وصول باسل للمدينة',
+    description:'تحقق من رواية السفر من خلال شهود ومحطات الحركة بدل الاعتماد على كلامه فقط.',
+    requires:['bassel_bond'], resultEvidenceIds:['bassel_seen_city'],
+    successText:'التحريات وثقت حركة باسل في المدينة خلال الفترة المهمة.'
+  });
+})();

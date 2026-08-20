@@ -370,3 +370,15 @@ const CASE_ROLE_OF_LIFETIME = {
   c.conclusiveEvidenceIds = ['decoded_message','video_metadata_link','rig_tamper_footage','writing_style_match'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_ROLE_OF_LIFETIME;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='compare_writing_style')) c.investigationActions.push({
+    id:'compare_writing_style', kind:'تحليل نصي', label:'قارن أسلوب الكتابة بالملفات القديمة',
+    description:'بعد فك الرسالة وجمع نماذج كافية، قارن الصياغة بأسلوب الدكتور راغب القديم.',
+    requires:['decoded_message','kareem_deep_knowledge'], resultEvidenceIds:['writing_style_match'],
+    successText:'المقارنة النصية طلعت بنتيجة قابلة للإضافة كدليل.'
+  });
+})();

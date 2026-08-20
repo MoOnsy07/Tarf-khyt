@@ -376,3 +376,15 @@ const CASE_SHIFTING_PAINTING = {
   c.conclusiveEvidenceIds = ['fingerprint_door','nearby_shop_video','coat_fiber_match','hossam_heard'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_SHIFTING_PAINTING;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='lift_backdoor_print')) c.investigationActions.push({
+    id:'lift_backdoor_print', kind:'بصمات', label:'ارفع البصمات من باب المخزن الخلفي',
+    description:'بعد إثبات الحركة قرب المخزن، افحص نقطة الدخول نفسها بحثًا عن أثر مادي.',
+    requires:['nearby_shop_video'], resultEvidenceIds:['fingerprint_door'],
+    successText:'فحص الباب الخلفي طلع ببصمة قابلة للمقارنة.'
+  });
+})();

@@ -71,7 +71,7 @@ const CASE_VANISHED_WIFE = {
           a:'"طبيعية زي أي زواج، ممكن يكون في اختلافات بسيطة أحيانًا، بس مفيش حاجة غريبة أو خطيرة."' },
         { q:'كانت منى بتخرج البيت بحرية زي أي حد؟', unlockId:'restricted_movement',
           a:'"أنا بس بحب أطمن عليها، بحبها كتير وخايف عليها، مش تحكم، ده اهتمام طبيعي من راجل بيحب مراته."' },
-        { q:'موبايلها الرئيسي فين دلوقتي؟',
+        { q:'موبايلها الرئيسي فين دلوقتي؟', requires:['old_phone'],
           a:'"مش عارف، آخر حاجة كنت فاهمها إن موبايلها كان معاها لما خرجت، وده اللي خلاني أقلق."' },
         { q:'قلت إن موبايلها الرئيسي خرج معاها، لكنه اتلاقى في البيت، والموبايل القديم فيه رسائل بتقول إنها كانت بتخطط تبعد عنك — ليه كلامك عن يوم اختفائها مش دقيق؟', requires:['main_phone_found','travel_plan_messages'], closesInterrogation:true,
           a:'(بيسكت وقت طويل) "كنت خايف إنها تكون سابتني فعلًا. لما لقيت الموبايل في البيت ما قلتش لحد، لأني خفت الناس تفسر ده إنها خرجت بإرادتها. كنت بحاول أتحكم في تحركاتها قبل كده عشان ما توصلش لقرار زي ده."' },
@@ -347,4 +347,16 @@ const CASE_VANISHED_WIFE = {
   }
   c.conclusiveEvidenceIds = ['main_phone_found','restricted_movement','travel_plan_messages','safe_confirmation'];
   c.conclusiveRequired = 4;
+})();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_VANISHED_WIFE;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='confirm_safety_privately')) c.investigationActions.push({
+    id:'confirm_safety_privately', kind:'تحقق آمن', label:'اطلب تأكيد أمان منى من جهة الدعم',
+    description:'بعد ما تثبت خطة الرحيل، اطلب تأكيدًا يحافظ على خصوصيتها من غير كشف مكانها.',
+    requires:['travel_plan_messages','shelter_hint'], resultEvidenceIds:['safe_confirmation'],
+    successText:'وصل تأكيد مختصر إن منى آمنة من غير كشف موقعها.'
+  });
 })();

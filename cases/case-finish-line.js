@@ -331,3 +331,15 @@ const CASE_FINISH_LINE = {
   c.conclusiveEvidenceIds = ['doping_report_f','tamer_f_sponsorship','tamer_f_chemical_match'];
   c.conclusiveRequired = 3;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_FINISH_LINE;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='ask_camp_volunteers')) c.investigationActions.push({
+    id:'ask_camp_volunteers', kind:'شهود المعسكر', label:'اسأل متطوعي منطقة المياه',
+    description:'راجع مين اتشاف قريب من منطقة تجهيز الزجاجات قبل السباق.',
+    requires:['water_station_protocol'], resultEvidenceIds:['tamer_f_seen_camp'],
+    successText:'تم تثبيت شهادة متطوع من المعسكر وإضافتها للأدلة.'
+  });
+})();

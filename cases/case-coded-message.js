@@ -289,3 +289,15 @@ const CASE_CODED_MESSAGE = {
    at dusk, dim lighting, documentary photography style, no text, no
    watermark, photorealistic"
    ============================================================ */
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_CODED_MESSAGE;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='follow_soad_witness')) c.investigationActions.push({
+    id:'follow_soad_witness', kind:'متابعة شاهد', label:'راجع مع سعاد تحركات الليلة',
+    description:'بعد ما تعرف مدى معرفتها بالبيت والعيلة، ارجع لها في تفاصيل اللي شافته حوالين الفيلا.',
+    requires:['soad_c_tenure'], resultEvidenceIds:['yara_c_seen_villa'],
+    successText:'سعاد حدّدت تفصيلة مهمة عن محيط الفيلا وتم توثيقها.'
+  });
+})();

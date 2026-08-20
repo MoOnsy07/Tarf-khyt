@@ -166,6 +166,7 @@ function stopAmbience(){
 function freshGameState(){
   return {
     screen:'briefing',
+    playMode:'normal',     // normal | realistic — بيتحدد قبل بداية القضية وبيتسجل مع الـ Save
     lastTabIndex:0,
     startedAt: Date.now(), // وقت بداية القضية — بيتستخدم لحساب مدة الحل للنظام العام
     collected:new Set(),
@@ -178,7 +179,7 @@ function freshGameState(){
     ending:null,
     prologueIdx:0,
     rumorsShown:new Set(), // اختياري — بس للقضايا اللي فيها CASE.rumors (طابع "قهوة البلد")
-    points:null,           // نقاط تحقيق — بتتظبط في enterCase لو CASE.investigationPoints موجودة
+    points:null,           // متروك للتوافق مع Saves قديمة؛ مفيش رصيد أسئلة بعد التحديث
     confronted:{},         // suspectId -> Set(evidenceId) — الأدلة اللي واجهت بيها كل شخص
     connections:{},        // evidenceId -> suspectId — روابط لوحة التحقيق (الخيوط)
     boardSelected:null,    // دليل متحدد حاليًا على اللوحة، مستني تربطه بشخص
@@ -187,6 +188,7 @@ function freshGameState(){
     contradictionSelected:[],
     classifications:{},    // suspectId -> 'strong' | 'weak' | 'cleared' — تصنيف اللاعب الشخصي، دفتر التحقيق
     interrogationClosed:{}, // suspectId -> true — الشخصية قفلت الكلام بعد سؤال معيّن (question.closesInterrogation)
+    suspectOrder: shuffleArray((CASE && CASE.suspects ? CASE.suspects : []).map(s=>s.id)), // ترتيب عشوائي ثابت أثناء القضية لمنع تسريب الجاني من مكانه في القائمة
     timelineOrder: (CASE && CASE.timelinePuzzle && CASE.timelinePuzzle.enabled) ? shuffleArray(CASE.timelinePuzzle.events.map(e=>e.id)) : [],
     timelineSolved:false,
     theoryAnswers:{},      // questionId -> optionId — إجابات بناء نظرية الجريمة (اختياري، CASE.theoryBuilder)
@@ -205,6 +207,16 @@ function freshGameState(){
     witnessReliabilitySolved:false,
     handwritingSolved:false,
     handwritingSelected:[],          // أسماء الحقول (angle/pressure/spacing) اللي اللاعب علّم عليها كفرق
+
+    // === آليات عامة إضافية ===
+    codeLockSolved:false,
+    codeLockInput:'',
+    cipherSolved:false,
+    cipherSelections:{},
+    cipherInput:'',
+    matchSolved:false,
+    matchSelections:{},
+    investigationActionsDone:new Set(), // إجراءات فحص/تفتيش/تحريات ميدانية اتنفذت
   };
 }
 
@@ -217,9 +229,80 @@ function shuffleArray(arr){
   return a;
 }
 
-// أدلة مسرح الجريمة (unlocked:true) لازم تكون متجمّعة دايمًا — أول ما تدخل القضية،
-// وبعد أي "ابدأ من الأول" كمان. من غير الدالة دي بتتنسى بسهولة في أكتر من مكان.
+function currentPlayMode(){
+  return game && game.playMode === 'realistic' ? 'realistic' : 'normal';
+}
+
+function isForensicCase(caseData=CASE){
+  if(!caseData) return false;
+  if(Array.isArray(caseData.categories) && caseData.categories.some(c=>String(c).toLowerCase()==='murder')) return true;
+  const text = [
+    caseData.title, caseData.subtitle, caseData.teaser,
+    caseData.briefing && caseData.briefing.text1,
+    caseData.briefing && caseData.briefing.text2,
+  ].filter(Boolean).join(' ');
+  // المقصود هنا قضايا وفاة/قتل/تسمم أو اعتداء جنائي واضح. ده بيشغّل طبقة المعاينة الواقعية فقط.
+  return /(قتل|مقتول|اتقتل|جثة|وفاة|توفى|مات|سمم|تسمم|محاولة قتل)/.test(text);
+}
+
+function forensicActionKindForEvidence(ev){
+  const text = [ev.tag, ev.title, ev.short, ev.full].filter(Boolean).join(' ');
+  if(/بصم/.test(text)) return {kind:'بصمات', verb:'ارفع وافحص البصمات'};
+  if(/DNA|حمض نووي|عينة|دم/.test(text)) return {kind:'معمل', verb:'اجمع العينة وابعتها للمعمل'};
+  if(/طب شرعي|سبب الوفاة|توقيت.*وفاة|سم|مادة|كيميائ/.test(text)) return {kind:'تحليل جنائي', verb:'اطلب الفحص والتحليل الجنائي'};
+  if(/كاميرا|CCTV|تسجيل/.test(text)) return {kind:'كاميرات', verb:'راجع التسجيل المرتبط بالمشهد'};
+  if(/هاتف|موبايل|مكالمة|رسائل|سجل/.test(text)) return {kind:'فحص رقمي', verb:'افحص السجل أو الجهاز'};
+  if(/شهادة|شاهد/.test(text)) return {kind:'تحريات', verb:'وثّق الشهادة ميدانيًا'};
+  return {kind:'مسرح الجريمة', verb:'عاين واجمع الدليل'};
+}
+
+function generatedRealisticActions(){
+  if(currentPlayMode() !== 'realistic' || !isForensicCase()) return [];
+  const initialEvidence = CASE.evidence.filter(e=>e.unlocked);
+  const visit = {
+    id:'__real_scene_visit',
+    kind:'مسرح الجريمة',
+    label:'زيارة مسرح الجريمة وتأمين المكان',
+    description:'ابدأ بمعاينة المكان قبل الاستجوابات. سجّل حدود المشهد ومداخل ومخارج المكان قبل لمس أي حاجة.',
+    successText:'تم الوصول للمشهد وتأمينه. الخطوة الجاية توثيق المكان قبل جمع الآثار.',
+    resultEvidenceIds:[],
+    score:0,
+  };
+  const documentScene = {
+    id:'__real_scene_document',
+    kind:'توثيق',
+    label:'صوّر ووثّق مسرح الجريمة',
+    description:'وثّق الوضع الأصلي للمكان والعناصر الظاهرة قبل تحريكها أو جمعها.',
+    successText:'تم تصوير وتوثيق المشهد. تقدر تبدأ المعاينة الدقيقة وجمع الآثار.',
+    resultEvidenceIds:[],
+    requiresActions:['__real_scene_visit'],
+    score:0,
+  };
+  const evidenceActions = initialEvidence.map((ev,idx)=>{
+    const meta = forensicActionKindForEvidence(ev);
+    return {
+      id:`__real_scene_ev_${ev.id}`,
+      kind:meta.kind,
+      label:`${meta.verb}: ${ev.title}`,
+      description:'الإجراء ده جزء من المعاينة الواقعية. نتيجته هتدخل ملف الأدلة بعد التنفيذ، مش قبل كده.',
+      successText:`تم توثيق النتيجة وإضافة «${ev.title}» لملف الأدلة.`,
+      resultEvidenceIds:[ev.id],
+      requiresActions:['__real_scene_document'],
+      score:0,
+      order:idx+1,
+    };
+  });
+  return [visit, documentScene, ...evidenceActions];
+}
+
+function investigationActionsForCase(){
+  return [...generatedRealisticActions(), ...(CASE.investigationActions || [])];
+}
+
+// في الوضع العادي الأدلة الأولية بتظهر زي قبل كده. في التحقيق الواقعي لقضايا القتل/الوفاة
+// اللاعب لازم يزور مسرح الجريمة ويجمعها بنفسه من تبويب "فحص وتحريات".
 function ensureSceneEvidence(){
+  if(currentPlayMode()==='realistic' && isForensicCase()) return;
   CASE.evidence.filter(e=>e.unlocked).forEach(e=>game.collected.add(e.id));
 }
 
@@ -368,7 +451,7 @@ function boot(){
   // لو كان فيه قضية شغالة قبل الريفريش، رجّع المستخدم لها تاني بدل الأرشيف
   const activeCaseId = getActiveCase();
   const activeCase = activeCaseId ? CASES_REGISTRY.find(c => c.id === activeCaseId) : null;
-  if(activeCase && !isCaseLocked(activeCase).locked){
+  if(activeCase && isCaseReady(activeCase) && !isCaseLocked(activeCase).locked){
     enterCase(activeCase);
   } else {
     clearActiveCase();
@@ -380,7 +463,7 @@ function handlePopState(e){
   const state = e.state;
   if(state && state.view === 'case' && state.caseId){
     const c = CASES_REGISTRY.find(x=>x.id === state.caseId);
-    if(c && !isCaseLocked(c).locked){
+    if(c && isCaseReady(c) && !isCaseLocked(c).locked){
       enterCase(c, { historyMode:'none' });
       return;
     }
@@ -909,9 +992,56 @@ function showNamePrompt(onDone, caseData){
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') confirmBtn.click(); });
 }
 
+function showPlayModePrompt(caseData, opts={}){
+  if(document.getElementById('playModeOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className='overlay';
+  overlay.id='playModeOverlay';
+  const forensic = isForensicCase(caseData);
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:620px;">
+      <div class="tag" style="color:var(--signal);">🎮 أسلوب اللعب</div>
+      <h3 style="margin:8px 0 6px;">عايز تحقق إزاي؟</h3>
+      <p class="dim" style="line-height:1.9;">الاختيار بيتحفظ للقضية الحالية ومش بيتغير في نص التحقيق.</p>
+      <div class="evidence-grid" style="margin-top:14px;">
+        <div class="evidence-card" style="cursor:default;">
+          <div class="ev-top"><span class="tag mono">عادي</span><span>⚡</span></div>
+          <h3>تحقيق سريع</h3>
+          <p class="dim">الأدلة الأولية بتكون جاهزة، والتلميحات بالمستوى المعتاد. مناسب لو عايز تركز على القصة والاستنتاج من غير خطوات ميدانية زيادة.</p>
+          <button class="btn" data-play-mode="normal" style="width:100%;">اختار الوضع العادي</button>
+        </div>
+        <div class="evidence-card" style="cursor:default;">
+          <div class="ev-top"><span class="tag mono">واقعي</span><span>🧪</span></div>
+          <h3>تحقيق واقعي</h3>
+          <p class="dim">توجيه أقل وتلميحات أقل.${forensic ? ' في القضية دي هتزور مسرح الجريمة وتجمع/تفحص الأدلة المادية بنفسك قبل ما تدخل الملف.' : ' في القضايا اللي فيها مسرح جريمة أو أدلة جنائية، خطوات الفحص بتكون يدوية أكتر.'}</p>
+          <button class="btn" data-play-mode="realistic" style="width:100%;">اختار التحقيق الواقعي</button>
+        </div>
+      </div>
+      <button class="btn ghost" id="playModeBack" style="width:100%;margin-top:10px;">رجوع</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('[data-play-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+    const mode=btn.dataset.playMode;
+    overlay.remove();
+    enterCase(caseData, {...opts, playMode:mode, modeChosen:true});
+  }));
+  overlay.querySelector('#playModeBack').addEventListener('click',()=>overlay.remove());
+}
+
 function enterCase(caseData, opts={}){
+  // حارس نهائي: القضية الناقصة بصريًا ماينفعش تتفتح حتى من Resume/History أو نداء مباشر.
+  if(!caseData || !isCaseReady(caseData)){
+    clearActiveCase();
+    showLibrary();
+    return;
+  }
   if(!getPlayerName()){
     showNamePrompt(()=>enterCase(caseData, opts), caseData);
+    return;
+  }
+  const savedBeforeStart = loadLocalProgress(caseData.id);
+  if(!savedBeforeStart && !opts.modeChosen && !opts.playMode){
+    showPlayModePrompt(caseData, opts);
     return;
   }
   // يسجل أيضًا اللاعبين القدامى اللي كان اسمهم محفوظ قبل إضافة النظام الجديد.
@@ -921,7 +1051,8 @@ function enterCase(caseData, opts={}){
   CASE = caseData;
   setActiveCase(caseData.id);
   game = freshGameState();
-  game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
+  game.playMode = opts.playMode === 'realistic' ? 'realistic' : 'normal';
+  game.points = null; // نقاط الأسئلة/المواجهات اتشالت؛ مفيش فعل تحقيق بيتكلف رصيد.
 
   if(opts.historyMode !== 'none'){
     try{ history.pushState({ view:'case', caseId: caseData.id }, '', location.href); }catch(e){}
@@ -937,7 +1068,8 @@ function enterCase(caseData, opts={}){
     game.audioSolved = !!saved.audioSolved;
     game.cameraSolved = !!saved.cameraSolved;
     game.ending = saved.ending || null;
-    if(saved.points != null) game.points = saved.points;
+    game.playMode = saved.playMode === 'realistic' ? 'realistic' : 'normal';
+    game.points = null;
     game.confronted = {};
     Object.entries(saved.confronted || {}).forEach(([sid, arr])=>{ game.confronted[sid] = new Set(arr); });
     game.connections = saved.connections || {};
@@ -945,6 +1077,7 @@ function enterCase(caseData, opts={}){
     game.contradictionSolved = !!saved.contradictionSolved;
     game.classifications = saved.classifications || {};
     game.interrogationClosed = saved.interrogationClosed || {};
+    if(Array.isArray(saved.suspectOrder) && saved.suspectOrder.length) game.suspectOrder = saved.suspectOrder;
     if(saved.timelineOrder && saved.timelineOrder.length) game.timelineOrder = saved.timelineOrder;
     game.timelineSolved = !!saved.timelineSolved;
     game.theoryAnswers = saved.theoryAnswers || {};
@@ -960,6 +1093,14 @@ function enterCase(caseData, opts={}){
     game.witnessReliabilitySolved = !!saved.witnessReliabilitySolved;
     game.handwritingSolved = !!saved.handwritingSolved;
     game.handwritingSelected = saved.handwritingSelected || [];
+    game.codeLockSolved = !!saved.codeLockSolved;
+    game.codeLockInput = saved.codeLockInput || '';
+    game.cipherSolved = !!saved.cipherSolved;
+    game.cipherSelections = saved.cipherSelections || {};
+    game.cipherInput = saved.cipherInput || '';
+    game.matchSolved = !!saved.matchSolved;
+    game.matchSelections = saved.matchSelections || {};
+    game.investigationActionsDone = new Set(saved.investigationActionsDone || []);
   } else if(!CASE.isPremium){
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -974,6 +1115,8 @@ function enterCase(caseData, opts={}){
     est_minutes: Number(CASE.estMinutes) || 0,
     evidence_total: CASE.evidence.length,
     suspect_total: CASE.suspects.length,
+    play_mode: currentPlayMode(),
+    forensic_case: isForensicCase() ? 'yes' : 'no',
   });
 
   // لو فيه تقدّم محفوظ فعلاً (يعني إنت مستكمل مش بادئ من جديد)، ادخل غرفة
@@ -1015,6 +1158,7 @@ function showContentWarning(){
 function persistProgress(){
   saveLocalProgress(CASE.id, {
     startedAt: game.startedAt,
+    playMode: currentPlayMode(),
     collected: [...game.collected],
     interrogated: Object.fromEntries(Object.entries(game.interrogated).map(([k,v])=>[k,[...v]])),
     audioSolved: game.audioSolved,
@@ -1027,6 +1171,7 @@ function persistProgress(){
     contradictionSolved: game.contradictionSolved,
     classifications: game.classifications,
     interrogationClosed: game.interrogationClosed,
+    suspectOrder: game.suspectOrder,
     timelineOrder: game.timelineOrder,
     timelineSolved: game.timelineSolved,
     theoryAnswers: game.theoryAnswers,
@@ -1042,6 +1187,14 @@ function persistProgress(){
     witnessReliabilitySolved: game.witnessReliabilitySolved,
     handwritingSolved: game.handwritingSolved,
     handwritingSelected: game.handwritingSelected,
+    codeLockSolved: game.codeLockSolved,
+    codeLockInput: game.codeLockInput,
+    cipherSolved: game.cipherSolved,
+    cipherSelections: game.cipherSelections,
+    cipherInput: game.cipherInput,
+    matchSolved: game.matchSolved,
+    matchSelections: game.matchSelections,
+    investigationActionsDone: [...game.investigationActionsDone],
   });
 }
 
@@ -1175,10 +1328,9 @@ function endPrologue(){
    ============================================================ */
 
 function mountGameShell(){
-  const pointsHTML = CASE.investigationPoints != null
-    ? `<span class="status-dot" style="background:var(--danger); box-shadow:0 0 8px var(--danger);"></span><span id="ptsCount" class="mono">${game.points}</span> نقاط تحقيق`
-    : '';
-  const scoreHTML = `<span class="status-dot" style="background:var(--signal); box-shadow:0 0 8px var(--signal);"></span><span id="scoreCount" class="mono">${game.score}</span> نقاط أداء`;
+  const modeHTML = currentPlayMode()==='realistic'
+    ? `<span class="tag mono" style="color:var(--signal);">🧪 تحقيق واقعي</span>`
+    : `<span class="tag mono">⚡ وضع عادي</span>`;
   appRoot.innerHTML = `
     <div class="masthead">
       <div>
@@ -1189,11 +1341,9 @@ function mountGameShell(){
         <button class="btn ghost" id="backToLibrary" style="font-size:12px; padding:6px 12px;">← الأرشيف</button>
         <button class="btn ghost" id="settingsBtn" style="font-size:12px; padding:6px 12px;">⚙️ إعدادات</button>
         <button class="btn ghost" id="hintBtn" style="font-size:12px; padding:6px 12px;">💡 تلميح</button>
-        <button class="btn ghost" id="pointsInfoBtn" style="font-size:12px; padding:6px 10px;" title="نظام النقاط ايه؟">؟</button>
         <span class="status-dot"></span>
         <span id="evCount" class="mono">0 / ${CASE.evidence.length}</span> أدلة مجمّعة
-        ${pointsHTML}
-        ${scoreHTML}
+        ${modeHTML}
       </div>
     </div>
     <div class="tabs" id="tabs"></div>
@@ -1203,15 +1353,10 @@ function mountGameShell(){
   document.getElementById('notebookFab').addEventListener('click', openNotebook);
   document.getElementById('hintBtn').addEventListener('click', giveHint);
   document.getElementById('settingsBtn').addEventListener('click', openSettings);
-  document.getElementById('pointsInfoBtn').addEventListener('click', ()=>showPointsInfo());
   document.getElementById('backToLibrary').addEventListener('click', ()=>{
     returnToLibraryFromCase();
   });
   render();
-  if(!localStorage.getItem('ca_points_info_seen')){
-    showPointsInfo();
-    localStorage.setItem('ca_points_info_seen', '1');
-  }
 }
 
 /* ============================================================
@@ -1219,34 +1364,15 @@ function mountGameShell(){
    متاح من زرار "؟" في أي وقت.
    ============================================================ */
 function showPointsInfo(){
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  const hasPoints = CASE.investigationPoints != null;
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="tag" style="color:var(--signal);">📓 نظام النقاط</div>
-      <h3>ازاي بتشتغل النقاط هنا؟</h3>
-      <div style="text-align:right; line-height:2; font-size:14px; color:var(--ink-dim);">
-        ${hasPoints ? `
-        <p><span style="color:var(--danger);">● نقاط التحقيق</span> — رصيد بتصرفه في الأسئلة ومواجهة المشتبه بيهم بالأدلة. كل سؤال أو مواجهة بتاخد نقطة. لو خلصت، لوحة الاتهام بتتفتح تلقائيًا عشان تقدر تقدّم اتهامك بأي وقت.</p>
-        ` : ''}
-        <p><span style="color:var(--signal);">● نقاط الأداء (Score)</span> — بتتسجل من كل حاجة تعملها: تجمع دليل بتكسب، تربط أدلة صح بتكسب أكتر، تحل لغز بتكسب، تستخدم تلميح أو تغلط بتخسر. آخر القضية اتهامك (صح/جزئي/غلط) بيدّيك أكبر تأثير على النقاط دي.</p>
-        <p>🔎 بعض القضايا فيها <strong>أسرار مخفية</strong> — لو اكتشفتها بتكسب نقاط تحقيق إضافية فورًا.</p>
-        <p>نقاط الأداء النهائية بتتسجل في <strong>الليدربورد العام</strong> باللقب اللي اخترته، وتقدر تقارن نفسك بمحققين تانيين حلّوا نفس القضية.</p>
-      </div>
-      <button class="btn" id="pointsInfoClose" style="width:100%; margin-top:14px;">فهمت، يلا نحقق ←</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-  overlay.querySelector('#pointsInfoClose').addEventListener('click', ()=>overlay.remove());
+  // متروكة للتوافق مع أي زر قديم؛ مفيش رصيد أسئلة داخل التحقيق بعد التحديث.
+  showToast('مفيش نقاط بتتخصم على الأسئلة أو المواجهات. تقييم التحقيق بيظهر في النهاية فقط.', 'amber');
 }
 
 /* ============================================================
    RENDER ROOT
    ============================================================ */
 
-const TAB_ORDER = ['briefing','evidence','suspects','audio','camera','contradiction','timeline','dnaLab','alibiGrid','ledgerAudit','polygraph','floorPlan','witnessReliability','handwriting','accusation','theory','ending'];
+const TAB_ORDER = ['briefing','fieldwork','evidence','suspects','audio','camera','contradiction','timeline','dnaLab','alibiGrid','ledgerAudit','polygraph','floorPlan','witnessReliability','handwriting','codeLock','cipher','match','accusation','theory','ending'];
 
 function render(){
   renderTabs();
@@ -1281,31 +1407,62 @@ function addScore(delta, reason, opts={}){
   }
 }
 
-// بتحاول تخصم نقطة تحقيق (سؤال استجواب أو مواجهة بدليل). لو القضية مالهاش نظام نقاط
-// (CASE.investigationPoints مش متعرّفة)، دايمًا بترجع true من غير أي خصم.
+// للتوافق مع الكود القديم فقط: الأسئلة والمواجهات لم تعد تستهلك أي رصيد.
 function spendPoint(){
-  if(CASE.investigationPoints == null) return true;
-  if(game.points <= 0){
-    showToast('خلصت نقاط التحقيق — لوحة الاتهام بقت متاحة، قدّم اتهامك بناءً على اللي جمعته.', 'danger');
-    renderTabs();
-    return false;
+  return true; // الأسئلة والمواجهات مجانية بالكامل — الصعوبة جاية من الاستنتاج مش من رصيد نقاط.
+}
+
+// قواعد صعوبة موحّدة — الصعوبة هنا بتقلل التوجيه المباشر من الواجهة،
+// مش بتخبي أدلة عشوائيًا ولا تغيّر حلول القضايا.
+function caseDifficultyRank(){
+  const d = String(CASE && CASE.difficulty || '').trim();
+  if(d.includes('صعبة جدًا') || d.includes('صعب جدًا')) return 3;
+  if(d.includes('صعبة') || d.includes('صعب')) return 2;
+  if(d.includes('متوسطة') || d.includes('متوسط')) return 1;
+  return 0;
+}
+function maxHintsForCase(){
+  const r = caseDifficultyRank();
+  const base = r>=3 ? 1 : r===2 ? 1 : r===1 ? 2 : 3;
+  return currentPlayMode()==='realistic' ? Math.max(0, base-1) : base;
+}
+function evidenceCompletionNeeded(){
+  const total = CASE.evidence.length;
+  const r = caseDifficultyRank();
+  let ratio = r>=3 ? 0.88 : r===2 ? 0.82 : r===1 ? 0.75 : 0.65;
+  if(currentPlayMode()==='realistic') ratio = Math.min(0.95, ratio + 0.05);
+  return Math.min(total, Math.max(Math.min(5,total), Math.ceil(total*ratio)));
+}
+function minimumAccusationLinks(){
+  const required = CASE.conclusiveRequired || 2;
+  const r = caseDifficultyRank();
+  if(r===0) return Math.min(1, required);
+  if(r===1) return Math.min(2, required);
+  return required;
+}
+function theoryAccuracy(){
+  const cfg = CASE.theoryBuilder;
+  if(!cfg || !cfg.enabled || !Array.isArray(cfg.questions) || !cfg.questions.length){
+    return {enabled:false,total:0,correct:0,required:0,passed:true};
   }
-  game.points--;
-  updatePointsUI();
-  if(game.points <= 0) renderTabs(); // فتح لوحة الاتهام فورًا لما آخر نقطة تتصرف
-  return true;
+  const total = cfg.questions.length;
+  const correct = cfg.questions.filter(q=>game.theoryAnswers && game.theoryAnswers[q.id]===q.correctOptionId).length;
+  const r = caseDifficultyRank();
+  const required = r===0 ? 0 : r===1 ? Math.max(1,total-1) : total;
+  return {enabled:true,total,correct,required,passed:correct>=required};
 }
 
 // نظام تلميحات عام — بيدوّر تلقائي على أول دليل ناقص وبيقولك منين تجيبه،
 // من غير ما يحتاج أي محتوى مخصص من القضية نفسها. محدود 3 استخدامات لكل قضية.
-const MAX_HINTS = 3;
 function giveHint(){
-  if(game.hintsUsed >= MAX_HINTS){
-    showToast('استخدمت كل التلميحات المتاحة (3) — كمّل بحدسك من هنا.', 'danger');
+  const maxHints = maxHintsForCase();
+  if(game.hintsUsed >= maxHints){
+    showToast(`استخدمت كل التلميحات المتاحة (${maxHints}) — كمّل بحدسك من هنا.`, 'danger');
     return;
   }
   const missing = CASE.evidence.find(e=>!game.collected.has(e.id));
   let msg;
+  const diffRank = caseDifficultyRank();
   if(!missing){
     msg = '💡 جمعت كل الأدلة المتاحة! روح للوحة التحقيق وابدأ تربط الخيوط.';
   } else {
@@ -1315,7 +1472,9 @@ function giveHint(){
       if(qIdx>=0){ found = { suspect:s, q:s.questions[qIdx] }; break; }
     }
     if(found){
-      msg = `💡 جرب تسأل ${found.suspect.name}: "${found.q.q}"`;
+      if(diffRank===0) msg = `💡 جرب تسأل ${found.suspect.name}: "${found.q.q}"`;
+      else if(diffRank===1) msg = `💡 راجع استجواب ${found.suspect.name} كويس؛ فيه خيط لسه ما استخرجتوش.`;
+      else msg = '💡 فيه إفادة لسه ما استنفدتش معناها. راجع أقوال المشتبه بهم وقارنها بالأدلة اللي معاك.';
     } else if(CASE.cameraPuzzle && CASE.cameraPuzzle.enabled && (CASE.cameraPuzzle.resultEvidenceIds||[]).includes(missing.id)){
       msg = `💡 جرب تبويب "${CASE.cameraPuzzle.tabLabel || 'تحليل الكاميرات'}".`;
     } else if(CASE.audioPuzzle && CASE.audioPuzzle.enabled && (CASE.audioPuzzle.resultEvidenceIds||[]).includes(missing.id)){
@@ -1338,9 +1497,23 @@ function giveHint(){
       msg = `💡 جرب تبويب "${CASE.witnessReliabilityPuzzle.tabLabel || 'تقييم الشهادات'}".`;
     } else if(CASE.handwritingPuzzle && CASE.handwritingPuzzle.enabled && (CASE.handwritingPuzzle.resultEvidenceIds||[]).includes(missing.id)){
       msg = `💡 جرب تبويب "${CASE.handwritingPuzzle.tabLabel || 'تحليل خط اليد'}".`;
+    } else if(CASE.codeLockPuzzle && CASE.codeLockPuzzle.enabled && (CASE.codeLockPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.codeLockPuzzle.tabLabel || 'فك القفل'}".`;
+    } else if(CASE.cipherPuzzle && CASE.cipherPuzzle.enabled && (CASE.cipherPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.cipherPuzzle.tabLabel || 'فك الشفرة'}".`;
+    } else if(CASE.matchPuzzle && CASE.matchPuzzle.enabled && (CASE.matchPuzzle.resultEvidenceIds||[]).includes(missing.id)){
+      msg = `💡 جرب تبويب "${CASE.matchPuzzle.tabLabel || 'الربط'}".`;
     } else {
-      msg = '💡 كمّل تستكشف لوحة الأدلة والمشتبه بيهم كويس.';
+      const action = (CASE.investigationActions||[]).find(a=>(a.resultEvidenceIds||[]).includes(missing.id));
+      if(action){
+        msg = `💡 جرب تبويب "فحص وتحريات" ونفّذ: ${action.label || 'الإجراء المتاح'}.`;
+      } else {
+        msg = '💡 كمّل تستكشف لوحة الأدلة والمشتبه بيهم كويس.';
+      }
     }
+  }
+  if(diffRank>=2 && missing && !found){
+    msg = '💡 الخيط الناقص مش في سؤال مباشر. راجع أدوات التحليل والفحص المتاحة وشوف أنهي واحدة لسه ما استنفدتهاش.';
   }
   game.hintsUsed++;
   gaTrack('hint_used', {
@@ -1366,8 +1539,12 @@ function typeText(el, text, speed, onDone){
 
 function renderTabs(){
   const tabsEl = document.getElementById('tabs');
+  const fieldworkAvailable = investigationActionsForCase().length > 0;
   const audioAvailable = CASE.audioPuzzle && CASE.audioPuzzle.enabled;
-  const audioUnlocked = audioAvailable && game.collected.has(evidenceThatUnlocksAudio());
+  const audioUnlockId = evidenceThatUnlocksAudio();
+  // لو القضية ماحددتش دليل بعينه يفتح التحليل الصوتي، التبويب يبقى متاح من البداية.
+  // قبل الإصلاح كان game.collected.has(null) بيقفل التبويب للأبد في بعض القضايا.
+  const audioUnlocked = audioAvailable && (!audioUnlockId || game.collected.has(audioUnlockId));
   const cameraAvailable = CASE.cameraPuzzle && CASE.cameraPuzzle.enabled;
   const cameraUnlockId = evidenceThatUnlocks('unlocksCamera');
   const cameraUnlocked = cameraAvailable && (!cameraUnlockId || game.collected.has(cameraUnlockId));
@@ -1406,15 +1583,28 @@ function renderTabs(){
   const handwritingUnlockId = evidenceThatUnlocks('unlocksHandwriting');
   const handwritingUnlocked = handwritingAvailable && (!handwritingUnlockId || game.collected.has(handwritingUnlockId));
 
-  const outOfPoints = CASE.investigationPoints != null && game.points <= 0;
-  // لوحة الاتهام بتتفتح لما تجمع نسبة كافية من الأدلة، أو أول ما نقاط التحقيق تخلص —
-  // عشان اللاعب ميتحبسش في القضية من غير أي خطوة يقدر يعملها لو خلّصت النقاط بدري.
-  const accUnlocked = outOfPoints || game.collected.size >= Math.max(Math.min(5, CASE.evidence.length), Math.ceil(CASE.evidence.length * 0.75));
+  const codeLockAvailable = CASE.codeLockPuzzle && CASE.codeLockPuzzle.enabled;
+  const codeLockUnlockId = evidenceThatUnlocks('unlocksCodeLock');
+  const codeLockUnlocked = codeLockAvailable && (!codeLockUnlockId || game.collected.has(codeLockUnlockId));
+
+  const cipherAvailable = CASE.cipherPuzzle && CASE.cipherPuzzle.enabled;
+  const cipherUnlockId = evidenceThatUnlocks('unlocksCipher');
+  const cipherUnlocked = cipherAvailable && (!cipherUnlockId || game.collected.has(cipherUnlockId));
+
+  const matchAvailable = CASE.matchPuzzle && CASE.matchPuzzle.enabled;
+  const matchUnlockId = evidenceThatUnlocks('unlocksMatch');
+  const matchUnlocked = matchAvailable && (!matchUnlockId || game.collected.has(matchUnlockId));
+
+  const accUnlocked = game.collected.size >= evidenceCompletionNeeded();
   const defs = [
     {id:'briefing', label:'ملف القضية'},
-    {id:'evidence', label:'لوحة الأدلة'},
-    {id:'suspects', label:'المشتبه بهم'},
   ];
+  if(fieldworkAvailable) defs.push({id:'fieldwork', label:'فحص وتحريات'});
+  const mustVisitSceneFirst = currentPlayMode()==='realistic' && isForensicCase() && !game.investigationActionsDone.has('__real_scene_visit');
+  defs.push(
+    {id:'evidence', label:'لوحة الأدلة'},
+    {id:'suspects', label:'المشتبه بهم', locked: mustVisitSceneFirst},
+  );
   if(audioAvailable) defs.push({id:'audio', label:'تحليل صوتي', locked: !audioUnlocked});
   if(cameraAvailable) defs.push({id:'camera', label: (CASE.cameraPuzzle.tabLabel || 'تحليل الكاميرات'), locked: !cameraUnlocked});
   if(contraAvailable) defs.push({id:'contradiction', label: (CASE.contradictionPuzzle.tabLabel || 'التناقضات'), locked: !contraUnlocked});
@@ -1426,6 +1616,9 @@ function renderTabs(){
   if(floorPlanAvailable) defs.push({id:'floorPlan', label: (CASE.floorPlanPuzzle.tabLabel || 'المخطط'), locked: !floorPlanUnlocked});
   if(witnessReliabilityAvailable) defs.push({id:'witnessReliability', label: (CASE.witnessReliabilityPuzzle.tabLabel || 'تقييم الشهادات'), locked: !witnessReliabilityUnlocked});
   if(handwritingAvailable) defs.push({id:'handwriting', label: (CASE.handwritingPuzzle.tabLabel || 'تحليل خط اليد'), locked: !handwritingUnlocked});
+  if(codeLockAvailable) defs.push({id:'codeLock', label: (CASE.codeLockPuzzle.tabLabel || 'فك القفل'), locked: !codeLockUnlocked});
+  if(cipherAvailable) defs.push({id:'cipher', label: (CASE.cipherPuzzle.tabLabel || 'فك الشفرة'), locked: !cipherUnlocked});
+  if(matchAvailable) defs.push({id:'match', label: (CASE.matchPuzzle.tabLabel || 'الربط'), locked: !matchUnlocked});
   defs.push({id:'accusation', label:'لوحة التحقيق', locked: !accUnlocked});
 
   tabsEl.innerHTML = defs.map(d=>{
@@ -1460,6 +1653,7 @@ function renderPanel(){
   }
   if(newIndex >= 0) game.lastTabIndex = newIndex;
   if(game.screen==='briefing') el.innerHTML = briefingHTML();
+  else if(game.screen==='fieldwork') el.innerHTML = fieldworkHTML();
   else if(game.screen==='evidence') el.innerHTML = evidenceHTML();
   else if(game.screen==='suspects') el.innerHTML = suspectsHTML();
   else if(game.screen==='audio') el.innerHTML = audioHTML();
@@ -1473,6 +1667,9 @@ function renderPanel(){
   else if(game.screen==='floorPlan') el.innerHTML = floorPlanHTML();
   else if(game.screen==='witnessReliability') el.innerHTML = witnessReliabilityHTML();
   else if(game.screen==='handwriting') el.innerHTML = handwritingHTML();
+  else if(game.screen==='codeLock') el.innerHTML = codeLockHTML();
+  else if(game.screen==='cipher') el.innerHTML = cipherHTML();
+  else if(game.screen==='match') el.innerHTML = matchHTML();
   else if(game.screen==='accusation') el.innerHTML = accusationHTML();
   else if(game.screen==='theory') el.innerHTML = theoryHTML();
   else if(game.screen==='ending') el.innerHTML = endingHTML();
@@ -1530,11 +1727,75 @@ function runBriefingTypewriter(){
 }
 
 /* ============================================================
+   FIELDWORK / INVESTIGATION ACTIONS
+   إجراءات ميدانية عامة: تفتيش، فحص بصمات، مراجعة سجل، سؤال شاهد خارجي...
+   القضية بتعرّف CASE.investigationActions، والمحرك يتولى الباقي.
+   ============================================================ */
+function fieldworkHTML(){
+  const actions = investigationActionsForCase();
+  const rows = actions.map(a=>{
+    const done = game.investigationActionsDone.has(a.id);
+    const requires = a.requires || [];
+    const requiresActions = a.requiresActions || [];
+    const locked = !done && (!requires.every(id=>game.collected.has(id)) || !requiresActions.every(id=>game.investigationActionsDone.has(id)));
+    const missing = requires.filter(id=>!game.collected.has(id)).map(id=>evidenceById(id)).filter(Boolean);
+    const state = done ? '✓ تم' : locked ? '🔒 لسه' : 'جاهز';
+    const helper = done
+      ? (a.successText || 'الإجراء اتنفّذ واتضافت نتيجته لملف القضية.')
+      : locked
+        ? `محتاج خطوة أو خيط سابق قبل الإجراء${missing.length ? ': ' + missing.map(e=>e.title).join(' + ') : '.'}`
+        : (a.description || 'نفّذ الإجراء عشان تعرف إذا كان هيطلع خيط جديد.');
+    return `
+      <div class="evidence-card ${done?'found':''}" style="cursor:default;">
+        <div class="ev-top"><span class="tag mono">${a.kind || 'تحريات'}</span><span class="mono dim">${state}</span></div>
+        <h3 style="margin:8px 0 6px;">${a.label || 'إجراء تحقيق'}</h3>
+        <p class="dim" style="margin:0 0 12px;">${helper}</p>
+        <button class="btn ${done?'ghost':''}" data-field-action="${a.id}" ${done||locked?'disabled':''}>${done?'تم التنفيذ ✓':'نفّذ الإجراء'}</button>
+      </div>`;
+  }).join('');
+  return `
+    <h2>فحص وتحريات</h2>
+    <p class="dim">مش كل الأدلة بتيجي من الاستجواب. هنا بتفتّش المكان، تفحص الأشياء، تراجع السجلات وتتابع الشهود الخارجيين حسب خيوط القضية.</p>
+    <div class="evidence-grid">${rows || '<p class="dim">مفيش إجراءات ميدانية في القضية دي.</p>'}</div>
+  `;
+}
+
+function runFieldAction(actionId){
+  const a = investigationActionsForCase().find(x=>x.id===actionId);
+  if(!a || game.investigationActionsDone.has(actionId)) return;
+  const requires = a.requires || [];
+  const requiresActions = a.requiresActions || [];
+  if(!requires.every(id=>game.collected.has(id)) || !requiresActions.every(id=>game.investigationActionsDone.has(id))){
+    showToast('لسه محتاج خيط سابق قبل الإجراء ده.', 'danger');
+    return;
+  }
+  game.investigationActionsDone.add(actionId);
+  let gained = 0;
+  (a.resultEvidenceIds||[]).forEach(id=>{ if(collect(id)) gained++; });
+  gaTrack('field_action_completed', {
+    action_id:String(actionId),
+    result_count:gained,
+  });
+  addScore(a.score != null ? Number(a.score) : 5, a.label || 'إجراء تحريات', { silent:true });
+  persistProgress();
+  triggerFlash('good');
+  showToast(a.successText || 'تم الإجراء واتضافت النتيجة لملف القضية.', 'amber');
+  render(); game.screen='fieldwork';
+}
+
+/* ============================================================
    EVIDENCE
    ============================================================ */
 
 function evidenceById(id){ return CASE.evidence.find(e=>e.id===id); }
 function suspectById(id){ return CASE.suspects.find(s=>s.id===id); }
+function orderedSuspects(){
+  const byId = new Map(CASE.suspects.map(s=>[s.id,s]));
+  const ordered = (game.suspectOrder || []).map(id=>byId.get(id)).filter(Boolean);
+  const seen = new Set(ordered.map(s=>s.id));
+  CASE.suspects.forEach(s=>{ if(!seen.has(s.id)) ordered.push(s); });
+  return ordered;
+}
 
 // بعض الشخصيات (زي شخصيات فولكلورية/كوميدية) ممكن متكونش ليها صورة —
 // في الحالة دي بيتعرض إيموجي بدلها (avatarEmoji في بيانات القضية)
@@ -1561,19 +1822,13 @@ function collect(id, opts={}){
       evidence_total: CASE.evidence.length,
     });
     if(!opts.silent){
-      if(ev) showToast('دليل جديد: ' + ev.title, ev.crit ? 'danger' : 'amber');
+      if(ev) showToast('دليل جديد: ' + ev.title, (caseDifficultyRank()===0 && ev.crit) ? 'danger' : 'amber');
       maybeShowVillageRumor();
     }
-    // أسرار مخفية — أي دليل عليه bonusPoints بيرجّع نقاط تحقيق فورًا لما يتلقى،
-    // بالإضافة لنقاط score، عشان يكافئ الاستكشاف الدقيق (CASE.evidence[].bonusPoints)
+    // الأسرار المخفية تفضل تتسجل كإنجاز داخلي، لكن من غير رصيد نقاط أو مكافأة ظاهرة تغيّر سلوك اللاعب.
     if(ev && ev.bonusPoints && !game.secretsFound.has(id)){
       game.secretsFound.add(id);
-      if(CASE.investigationPoints != null && game.points != null){
-        game.points += ev.bonusPoints;
-        updatePointsUI();
-        renderTabs();
-      }
-      showToast(`🔎 سر مكتشف! +${ev.bonusPoints} نقاط تحقيق`, 'score-up');
+      showToast('🔎 اكتشفت تفصيلة مخفية واتسجلت في ملف القضية.', 'amber');
     }
     if(!opts.silent && ev){
       addScore(ev.crit ? 6 : 4, 'دليل جديد: ' + ev.title, { silent:true });
@@ -1642,7 +1897,7 @@ function evidenceHTML(){
       const selCls = linkMode && linkSelected.includes(ev.id) ? ' link-selected' : '';
       return `<div class="ev-card${selCls}" data-ev="${ev.id}">
         ${thumb}
-        <div class="tag ${ev.crit?'crit':''}">${ev.tag}${ev.crit?' · حاسم':''}</div>
+        <div class="tag ${caseDifficultyRank()===0 && ev.crit?'crit':''}">${ev.tag}${caseDifficultyRank()===0 && ev.crit?' · حاسم':''}</div>
         ${partialTag}
         <h4>${ev.title}</h4>
         <div class="preview">${ev.short}</div>
@@ -1672,7 +1927,7 @@ function openEvidenceModal(id){
   overlay.innerHTML = `
     <div class="modal">
       ${modalImg}
-      <div class="tag ${ev.crit?'crit':''}" style="color:${ev.crit?'var(--danger)':'var(--signal)'}">${ev.tag}${ev.crit?' · دليل حاسم':''}</div>
+      <div class="tag ${caseDifficultyRank()===0 && ev.crit?'crit':''}" style="color:${caseDifficultyRank()===0 && ev.crit?'var(--danger)':'var(--signal)'}">${ev.tag}${caseDifficultyRank()===0 && ev.crit?' · دليل حاسم':''}</div>
       <h3>${ev.title}</h3>
       <p>${ev.full}</p>
       ${ev.img ? '<p class="dim" style="font-size:11.5px;">دوس على الصورة للتكبير وفحص التفاصيل.</p>' : ''}
@@ -1701,14 +1956,13 @@ function openEvidenceModal(id){
 
 function suspectsHTML(){
   if(game.activeSuspect) return interrogationHTML(game.activeSuspect);
-  const cards = CASE.suspects.map(s=>{
+  const cards = orderedSuspects().map(s=>{
     const done = game.interrogated[s.id] ? game.interrogated[s.id].size : 0;
-    const total = s.questions.length;
     return `<div class="sus-card" data-suspect="${s.id}">
       ${avatarMarkup(s, 'avatar-photo')}
       <h4>${s.name}</h4>
       <div class="role">${s.role}</div>
-      ${done>0?`<div class="mono" style="font-size:11px;color:var(--signal);margin-top:10px;">${done}/${total} أسئلة</div>`:''}
+      ${done>0?`<div class="mono" style="font-size:11px;color:var(--signal);margin-top:10px;">تم الاستجواب</div>`:''}
     </div>`;
   }).join('');
   return `
@@ -1717,6 +1971,65 @@ function suspectsHTML(){
     <div class="divider"></div>
     <div class="sus-grid">${cards}</div>
   `;
+}
+
+function interrogationQuestionVisible(s, item, idx){
+  const answered = game.interrogated[s.id] || new Set();
+  if(answered.has(idx)) return true;
+  const req = Array.isArray(item.requires) ? item.requires : [];
+  if(!req.length) return true;
+  if(!req.every(id=>game.collected.has(id))) return false;
+  // الدليل الجديد لوحده ما يفتحش سؤال فوق راس شخص بعينه. اللاعب لازم يواجه الشخص
+  // بدليل مرتبط الأول؛ كده سؤال المتابعة يبقى نتيجة فعل تحقيق، مش تلميح من الواجهة.
+  const confronted = game.confronted[s.id] || new Set();
+  return req.some(id=>confronted.has(id));
+}
+
+function interrogationQuestionButtonsHTML(s, answered, outOfPoints, closed){
+  if(closed) return '';
+  return s.questions.map((item,idx)=>{
+    const used = answered.has(idx);
+    if(!interrogationQuestionVisible(s,item,idx) && !used) return '';
+    return `<button class="q-btn" data-q="${idx}" ${used?'disabled':''}>${item.q}</button>`;
+  }).filter(Boolean).join('');
+}
+
+function normalizeArabicForMatch(text){
+  return String(text || '')
+    .replace(/[أإآ]/g,'ا')
+    .replace(/ى/g,'ي')
+    .replace(/ة/g,'ه')
+    .replace(/[ًٌٍَُِّْـ]/g,'')
+    .toLowerCase();
+}
+
+function evidenceMentionsSuspect(ev, s){
+  const hay = normalizeArabicForMatch([ev.title, ev.short, ev.full, ev.tag].filter(Boolean).join(' '));
+  const fullName = normalizeArabicForMatch(s.name);
+  if(fullName && fullName.length >= 3 && hay.includes(fullName)) return true;
+  // الاسم الأول مفيد في القضايا اللي الاسم الكامل فيها طويل، لكن ما نعتمدش عليه لو قصير جدًا.
+  const first = fullName.split(/\s+/).filter(Boolean)[0] || '';
+  return first.length >= 3 && hay.includes(first);
+}
+
+function evidenceRelevantToSuspect(ev, s){
+  if(!ev || !s) return false;
+
+  // دعم صريح للقضايا الجديدة لو حبيت تحدد العلاقات يدويًا بعد كده.
+  const explicit = ev.confrontableBy || ev.relatedSuspects || ev.suspectIds;
+  if(Array.isArray(explicit) && explicit.includes(s.id)) return true;
+
+  // مواجهة مكتوبة خصيصًا للشخص + الدليل.
+  if(s.confrontations && Object.prototype.hasOwnProperty.call(s.confrontations, ev.id)) return true;
+
+  // دليل بيفتح من سؤال الشخص نفسه: مرتبط بإفادته على الأقل.
+  if((s.questions || []).some(q=>q && q.unlockId === ev.id)) return true;
+
+  // سؤال للشخص محتاج الدليل ده؛ دي أقوى إشارة إن مواجهته به منطقية.
+  if((s.questions || []).some(q=>Array.isArray(q && q.requires) && q.requires.includes(ev.id))) return true;
+
+  // بعض ملفات القضايا القديمة ما فيهاش metadata للعلاقة؛ نستخدم ذكر الاسم كـ fallback آمن.
+  return evidenceMentionsSuspect(ev, s);
 }
 
 function interrogationHTML(suspectId){
@@ -1728,24 +2041,22 @@ function interrogationHTML(suspectId){
     return `<div class="line q"><div class="who">أنت</div>${item.q}</div>
             <div class="line a"><div class="who">${s.name}</div>${item.a}</div>`;
   }).join('');
-  const outOfPoints = CASE.investigationPoints != null && game.points <= 0;
-  const qButtons = closed ? '' : s.questions.map((item,idx)=>{
-    const used = answered.has(idx);
-    const locked = item.requires && !item.requires.every(id=>game.collected.has(id));
-    if(locked && !used) return ''; // سؤال جولة تانية لسه ما فتحش
-    return `<button class="q-btn" data-q="${idx}" ${(used||outOfPoints)?'disabled':''}>${item.q}</button>`;
-  }).filter(Boolean).join('');
+  const qButtons = interrogationQuestionButtonsHTML(s, answered, false, closed);
   const closedBanner = closed ? `<p class="dim" style="color:var(--danger); margin-top:6px;">🚫 ${s.name} قفل الكلام، مش هيرد على أسئلة تانية دلوقتي.</p>` : '';
 
   const confronted = game.confronted[s.id] || new Set();
-  const confrontableEvidence = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
+  // ما نعرضش كل الأدلة لكل مشتبه به. المواجهة تظهر فقط لو فيه رابط فعلي
+  // بين الدليل والشخص في بيانات القضية، وإلا واجهة اللعبة نفسها بتسرّب/تلخبط المنطق.
+  const confrontableEvidence = [...CASE.evidence]
+    .filter(e=>game.collected.has(e.id) && evidenceRelevantToSuspect(e, s))
+    .sort((a,b)=>a.order-b.order);
   const confrontHTML = confrontableEvidence.length ? `
     <h3>واجهه بدليل</h3>
-    <p class="dim" style="margin-top:-6px;">اعرض عليه أي دليل جمعته وشوف رد فعله.</p>
+    <p class="dim" style="margin-top:-6px;">هنا بتظهر الأدلة المرتبطة بإفادة الشخص أو تحركاته فقط.</p>
     <div class="q-grid">
       ${confrontableEvidence.map(ev=>{
         const used = confronted.has(ev.id);
-        return `<button class="q-btn confront-btn" data-confront="${ev.id}" ${(used||outOfPoints)?'disabled':''}>🧵 ${ev.title}</button>`;
+        return `<button class="q-btn confront-btn" data-confront="${ev.id}" ${used?'disabled':''}>🧵 ${ev.title}</button>`;
       }).join('')}
     </div>
   ` : '';
@@ -1761,7 +2072,7 @@ function interrogationHTML(suspectId){
     <div class="transcript" id="transcript">
       ${lines || '<p class="dim" style="margin:0;">اسأل أول سؤال عشان تبدأ الاستجواب.</p>'}
     </div>
-    <div class="q-grid">${qButtons}</div>
+    <div class="q-grid" id="questionGrid">${qButtons}</div>
     ${closedBanner}
     ${confrontHTML}
   `;
@@ -1786,6 +2097,12 @@ function openSettings(){
         <span>المؤثرات الصوتية</span>
         <button class="btn ghost" id="settingsSfxToggle">${sfxEnabled() ? '🔊 مشغّل' : '🔇 مقفول'}</button>
       </div>
+
+      <div class="settings-row">
+        <span>أسلوب التحقيق</span>
+        <span class="tag mono">${currentPlayMode()==='realistic' ? '🧪 واقعي' : '⚡ عادي'}</span>
+      </div>
+      <p class="dim" style="font-size:12px;margin:-4px 0 12px;">الوضع بيتحدد قبل بداية القضية عشان مسار الأدلة يفضل ثابت أثناء التحقيق.</p>
 
       <div class="settings-row" style="align-items:flex-start;">
         <span>حجم الخط</span>
@@ -1897,7 +2214,7 @@ function classifySuspect(suspectId, level){
 }
 
 function notebookSuspectsHTML(){
-  const cards = CASE.suspects.filter(s=>s.accusable !== false).map(s=>{
+  const cards = orderedSuspects().filter(s=>s.accusable !== false).map(s=>{
     const current = game.classifications[s.id];
     const interrogatedCount = game.interrogated[s.id] ? game.interrogated[s.id].size : 0;
     const btns = CLASSIFY_LEVELS.map(l=>
@@ -1928,7 +2245,7 @@ function notebookEvidenceHTML(){
   }
   const rows = collectedList.map(ev=>`
     <div class="notebook-ev-row" data-nb-ev="${ev.id}">
-      <span class="tag ${ev.crit?'crit':''}" style="flex-shrink:0;">${ev.crit?'حاسم':ev.tag}</span>
+      <span class="tag ${caseDifficultyRank()===0 && ev.crit?'crit':''}" style="flex-shrink:0;">${caseDifficultyRank()===0 && ev.crit?'حاسم':ev.tag}</span>
       <span>${ev.title}</span>
     </div>
   `).join('');
@@ -2008,12 +2325,18 @@ function attemptLink(a, b){
    AUDIO PUZZLE (generic — driven by CASE.audioPuzzle)
    ============================================================ */
 
+function audioHasWavePuzzle(cfg){
+  return !!(cfg && Array.isArray(cfg.duplicateSourceRange) && Array.isArray(cfg.duplicateTargetRange)
+    && Number.isFinite(cfg.matchStart) && Number.isFinite(cfg.matchEnd));
+}
+
 function buildWave(seed){
   const base = [];
   let s = seed || 7;
   function rnd(){ s = (s*9301+49297)%233280; return s/233280; }
   for(let i=0;i<90;i++) base.push(Math.round(10+rnd()*60));
   const cfg = CASE.audioPuzzle;
+  if(!audioHasWavePuzzle(cfg)) return base;
   const [srcA, srcB] = cfg.duplicateSourceRange;
   const [tgtA] = cfg.duplicateTargetRange;
   for(let i=0;i<(srcB-srcA);i++) base[tgtA+i] = base[srcA+i];
@@ -2029,6 +2352,18 @@ function audioHTML(){
       <div class="divider"></div>
       <button class="btn" data-goto="evidence" style="margin-top:10px;">شوف لوحة الأدلة ←</button>
     `;
+  }
+  if(!audioHasWavePuzzle(cfg)){
+    return `
+      <h2>${cfg.tabLabel || 'تحليل صوتي'}</h2>
+      <p class="dim">${cfg.introText || ''}</p>
+      <div class="evidence-card" style="cursor:default; margin-top:16px;">
+        <div class="tag mono">مختبر صوت</div>
+        <h3 style="margin:8px 0 6px;">مقارنة وتنقية التسجيل</h3>
+        <p class="dim">شغّل المقارنة التقنية بين الملف والعينات المرجعية المسجلة في ملف القضية.</p>
+        <button class="btn" id="runSimpleAudioAnalysis">ابدأ التحليل</button>
+        <div class="wave-feedback" id="simpleAudioFeedback"></div>
+      </div>`;
   }
   const wave = buildWave();
   const w=900,h=200,step=w/wave.length;
@@ -2094,6 +2429,23 @@ function triggerFlash(tone){
   f.className = 'flash ' + tone + ' go';
   document.body.appendChild(f);
   setTimeout(()=>f.remove(), 900);
+}
+
+function completeSimpleAudioAnalysis(){
+  const cfg = CASE.audioPuzzle;
+  if(game.audioSolved) return;
+  const feedback = document.getElementById('simpleAudioFeedback');
+  if(feedback){
+    feedback.textContent = '✓ ' + (cfg.resultText || 'التحليل اكتمل.');
+    feedback.className = 'wave-feedback ok';
+  }
+  game.audioSolved = true;
+  gaTrack('puzzle_solved', { puzzle_type:'audio' });
+  addScore(10, 'أكملت التحليل الصوتي', { silent:true });
+  (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+  persistProgress();
+  triggerFlash('good');
+  setTimeout(()=>render(), 900);
 }
 
 /* ============================================================
@@ -2761,6 +3113,82 @@ function submitHandwriting(){
 }
 
 /* ============================================================
+   CODE LOCK / CIPHER / MATCH PUZZLES
+   كانت موجودة في بيانات عدة قضايا من غير Renderer في المحرك.
+   ============================================================ */
+function finishGenericPuzzle(type, cfg, solvedFlag, reason){
+  game[solvedFlag] = true;
+  gaTrack('puzzle_solved', { puzzle_type:type });
+  triggerFlash('good');
+  addScore(10, reason, { silent:true });
+  (cfg.resultEvidenceIds||[]).forEach(id=>collect(id));
+  persistProgress();
+  setTimeout(()=>render(), 900);
+}
+
+function codeLockHTML(){
+  const cfg = CASE.codeLockPuzzle;
+  const label = cfg.tabLabel || 'فك القفل';
+  if(game.codeLockSolved) return `<h2>${label} — مكتمل</h2><p>${cfg.resultText||'اتفتح القفل بنجاح.'}</p><div class="divider"></div><button class="btn" data-goto="evidence">شوف لوحة الأدلة ←</button>`;
+  return `
+    <h2>${label}</h2>
+    <p class="dim">${cfg.introText||''}</p>
+    ${cfg.hint ? `<p class="dim mono">تلميح الملف: ${cfg.hint}</p>` : ''}
+    <label style="display:block; margin:16px 0 6px;">الكود</label>
+    <input id="codeLockInput" inputmode="numeric" autocomplete="off" maxlength="${String(cfg.code||'').length || 8}" value="${game.codeLockInput||''}" style="width:100%;max-width:320px;padding:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;" />
+    <div><button class="btn" id="submitCodeLock" style="margin-top:12px;">تأكيد الكود</button></div>
+    <div class="wave-feedback" id="codeLockFeedback"></div>`;
+}
+function submitCodeLock(){
+  const cfg=CASE.codeLockPuzzle, input=document.getElementById('codeLockInput');
+  const val=(input?.value||'').trim(); game.codeLockInput=val; persistProgress();
+  const fb=document.getElementById('codeLockFeedback');
+  if(val===String(cfg.code||'')){
+    if(fb){fb.textContent='✓ '+(cfg.resultText||'الكود صح.');fb.className='wave-feedback ok';}
+    finishGenericPuzzle('codeLock',cfg,'codeLockSolved','فكيت القفل');
+  }else{
+    if(fb){fb.textContent=cfg.wrongMsg||'✗ الكود مش صح، راجع الخيوط.';fb.className='wave-feedback bad';}
+    addScore(-2,'محاولة كود غلط',{silent:true});
+  }
+}
+
+function cipherHTML(){
+  const cfg=CASE.cipherPuzzle, label=cfg.tabLabel||'فك الشفرة';
+  if(game.cipherSolved) return `<h2>${label} — مكتمل</h2><p>${cfg.resultText||'فكيت الشفرة.'}</p><div class="divider"></div><button class="btn" data-goto="evidence">شوف لوحة الأدلة ←</button>`;
+  if(Array.isArray(cfg.fragments) && cfg.fragments.length){
+    const blocks=cfg.fragments.map(f=>`<div style="margin-bottom:14px;"><p style="margin-bottom:7px;">${f.context||''}</p><select data-cipher-fragment="${f.id}" style="width:100%;padding:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;"><option value="">اختار الكلمة...</option>${(f.options||[]).map(o=>`<option value="${o.id}" ${game.cipherSelections[f.id]===o.id?'selected':''}>${o.text}</option>`).join('')}</select></div>`).join('');
+    return `<h2>${label}</h2><p class="dim">${cfg.introText||''}</p>${blocks}<button class="btn" id="submitCipher">فك الرسالة</button><div class="wave-feedback" id="cipherFeedback"></div>`;
+  }
+  return `<h2>${label}</h2><p class="dim">${cfg.introText||''}</p>${cfg.cipherText?`<div class="mono" style="padding:14px;border:1px solid var(--line);margin:14px 0;direction:ltr;text-align:center;">${cfg.cipherText}</div>`:''}<label style="display:block;margin:10px 0 6px;">النص بعد فك الشفرة</label><input id="cipherInput" value="${game.cipherInput||''}" autocomplete="off" style="width:100%;max-width:420px;padding:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;"/><div><button class="btn" id="submitCipher" style="margin-top:12px;">تأكيد الحل</button></div><div class="wave-feedback" id="cipherFeedback"></div>`;
+}
+function normalizeArabicAnswer(v){return String(v||'').trim().replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,' ').toLowerCase();}
+function submitCipher(){
+  const cfg=CASE.cipherPuzzle, fb=document.getElementById('cipherFeedback'); let ok=false;
+  if(Array.isArray(cfg.fragments)&&cfg.fragments.length){
+    ok=cfg.fragments.every(f=>game.cipherSelections[f.id]===f.correctOptionId);
+  }else{
+    const input=document.getElementById('cipherInput'); game.cipherInput=(input?.value||'').trim();
+    ok=normalizeArabicAnswer(game.cipherInput)===normalizeArabicAnswer(cfg.solutionText||cfg.decodedMessage||'');
+  }
+  persistProgress();
+  if(ok){if(fb){fb.textContent='✓ '+(cfg.resultText||'فكيت الشفرة.');fb.className='wave-feedback ok';}finishGenericPuzzle('cipher',cfg,'cipherSolved','فكيت الشفرة');}
+  else{if(fb){fb.textContent='✗ الحل لسه مش مضبوط، راجع الخيوط.';fb.className='wave-feedback bad';}addScore(-2,'محاولة فك شفرة غلط',{silent:true});}
+}
+
+function matchHTML(){
+  const cfg=CASE.matchPuzzle,label=cfg.tabLabel||'الربط';
+  if(game.matchSolved) return `<h2>${label} — مكتمل</h2><p>${cfg.resultText||'الربط صحيح.'}</p><div class="divider"></div><button class="btn" data-goto="evidence">شوف لوحة الأدلة ←</button>`;
+  const rows=(cfg.leftItems||[]).map(l=>`<div style="display:grid;grid-template-columns:minmax(100px,1fr) minmax(150px,2fr);gap:10px;align-items:center;margin-bottom:10px;"><strong>${l.text}</strong><select data-match-left="${l.id}" style="width:100%;padding:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;"><option value="">اختار الدور...</option>${(cfg.rightItems||[]).map(r=>`<option value="${r.id}" ${game.matchSelections[l.id]===r.id?'selected':''}>${r.text}</option>`).join('')}</select></div>`).join('');
+  return `<h2>${label}</h2><p class="dim">${cfg.introText||''}</p><div style="margin:16px 0;">${rows}</div><button class="btn" id="submitMatch">تأكيد الربط</button><div class="wave-feedback" id="matchFeedback"></div>`;
+}
+function submitMatch(){
+  const cfg=CASE.matchPuzzle, pairs=cfg.correctPairs||[], fb=document.getElementById('matchFeedback');
+  const ok=pairs.length>0 && pairs.every(([l,r])=>game.matchSelections[l]===r);
+  if(ok){if(fb){fb.textContent='✓ '+(cfg.resultText||'الربط صحيح.');fb.className='wave-feedback ok';}finishGenericPuzzle('match',cfg,'matchSolved','ربطت الأدوار صح');}
+  else{if(fb){fb.textContent='✗ فيه ربط مش مضبوط، راجع الأدلة وحاول تاني.';fb.className='wave-feedback bad';}addScore(-2,'ربط أدلة غلط',{silent:true});}
+}
+
+/* ============================================================
    THEORY BUILDER (optional — driven by CASE.theoryBuilder)
    بديل شاشة الاتهام البسيطة: قبل ما تقفل القضية، اللاعب يفسّر
    الدافع/الطريقة/التوقيت باختياره من مجموعة خيارات لكل عنصر
@@ -2779,7 +3207,7 @@ function theoryHTML(){
   const allAnswered = cfg.questions.every(q=>answers[q.id]);
   return `
     <h2>ابني نظرية الجريمة</h2>
-    <p class="dim">قبل ما تقفل القضية، فسّر إزاي حصلت الجريمة بالظبط.</p>
+    <p class="dim">قبل ما تقفل القضية، فسّر إزاي حصلت الجريمة بالظبط. في القضايا الأصعب، اختيار الجاني الصح لوحده مش كفاية لنهاية كاملة.</p>
     <div class="divider"></div>
     ${qBlocks}
     <button class="btn" id="submitTheory" ${allAnswered?'':'disabled'}>اقفل القضية ←</button>
@@ -2800,7 +3228,7 @@ function theoryNoteHTML(){
 
 function accusationHTML(){
   // شخصيات زي الشهود/الناجيين ممكن يتحطلهم accusable:false — يتستجوبوا عادي بس ميظهروش هنا خالص
-  const accusableSuspects = CASE.suspects.filter(s=>s.accusable !== false);
+  const accusableSuspects = orderedSuspects().filter(s=>s.accusable !== false);
   const collectedList = [...CASE.evidence].filter(e=>game.collected.has(e.id)).sort((a,b)=>a.order-b.order);
 
   const evChips = collectedList.map(ev=>{
@@ -2815,17 +3243,21 @@ function accusationHTML(){
   }).join('');
 
   const targets = new Set(Object.values(game.connections));
+  const linkedCount = Object.keys(game.connections).length;
+  const minLinks = minimumAccusationLinks();
   let warning = '';
   let canSubmit = false;
   if(targets.size > 1){
     warning = `<div class="board-warning">قدر تتهم شخص واحد بس في المرة — افصل باقي الروابط الأول (دوس على الدليل المربوط تاني عشان تفصله).</div>`;
-  } else if(targets.size === 1 && Object.keys(game.connections).length > 0){
+  } else if(targets.size === 1 && linkedCount >= minLinks){
     canSubmit = true;
+  } else if(targets.size === 1 && linkedCount < minLinks){
+    warning = `<div class="board-warning">الاتهام محتاج ملف أقوى: اربط على الأقل ${minLinks} أدلة بالشخص قبل ما تقفل القضية.</div>`;
   }
 
   return `
     <h2>لوحة التحقيق</h2>
-    <p class="dim">دوس على دليل، بعدين دوس على المشتبه به اللي هتربطه بيه — زي ما بتربط خيط فعلي بين حاجتين. لما تربط اللي محتاجه، قدّم اتهامك.</p>
+    <p class="dim">اختار الأدلة اللي فعلًا بتبني عليها اتهامك واربطها بمشتبه واحد. كثرة الأدلة مش معناها إنها صحيحة — المهم إن الخيوط تركب على بعض.</p>
     <div class="divider"></div>
     <div class="board-wrap" id="boardWrap">
       <svg class="board-svg" id="boardSvg"></svg>
@@ -2874,17 +3306,19 @@ function computeEnding(){
     const conclusiveSet = new Set(CASE.conclusiveEvidenceIds);
     const hits = [...game.accEvidence].filter(id=>conclusiveSet.has(id)).length;
     const required = CASE.conclusiveRequired || 2;
-    if(correctSuspect && hits>=required) game.ending='good';
+    const theory = theoryAccuracy();
+    if(correctSuspect && hits>=required && theory.passed) game.ending='good';
     else if(correctSuspect) game.ending='partial';
     else game.ending='bad';
 
-    // نتيجة الاتهام هي أكبر حدث في الـ score، وبعده مكافأة كفاءة على أي نقاط تحقيق فضلت من غير ما تتصرف
+    // في القضايا المتوسطة والصعبة، معرفة الجاني لوحدها مش كفاية: نظرية الجريمة لازم تكون متماسكة.
+    if(theory.enabled && theory.required>0){
+      if(theory.passed) addScore(8, 'بنيت نظرية جريمة متماسكة', { silent:true });
+      else addScore(-6, 'نظرية الجريمة فيها ثغرات', { silent:true });
+    }
+    // نتيجة الاتهام هي أكبر حدث في التقييم الداخلي. مفيش مكافأة على تقليل الأسئلة أو توفير رصيد.
     const endingScore = game.ending==='good' ? 50 : game.ending==='partial' ? 20 : -25;
     addScore(endingScore, game.ending==='good' ? 'اتهام صح وحاسم' : game.ending==='partial' ? 'اتهام صح بس ناقص أدلة' : 'اتهام غلط', { silent:true });
-    if(CASE.investigationPoints != null && game.points > 0){
-      addScore(game.points, 'مكافأة كفاءة — نقاط تحقيق فاضلة', { silent:true });
-    }
-
     gaTrack('case_complete', {
       ending: game.ending,
       accused_suspect_id: String(game.accSuspect || ''),
@@ -2892,7 +3326,10 @@ function computeEnding(){
       evidence_total: CASE.evidence.length,
       hints_used: game.hintsUsed,
       score: game.score,
-      points_left: game.points == null ? -1 : game.points,
+      play_mode: currentPlayMode(),
+      theory_correct: theory.correct,
+      theory_total: theory.total,
+      theory_required: theory.required,
     });
 
     game.screen='ending';
@@ -3006,7 +3443,7 @@ function endingHTML(){
     ${paragraphs}
     ${hint}
     ${bonus}
-    <div class="score-final mono">نقاط أدائك في القضية دي: <strong>${game.score}</strong></div>
+    <div class="score-final mono">تقييم التحقيق النهائي: <strong>${game.score}</strong></div>
     <div class="lb-box">
       <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:8px;">🏆 الليدربورد — طرف الخيط</h4>
       <div id="leaderboardBox"><p class="dim mono" style="font-size:12px;">جارِ تحميل الليدربورد...</p></div>
@@ -3024,6 +3461,67 @@ function endingHTML(){
 /* ============================================================
    EVENTS
    ============================================================ */
+
+function handleInterrogationQuestionButton(btn){
+  const idx = parseInt(btn.dataset.q,10);
+  const s = suspectById(game.activeSuspect);
+  if(!s) return;
+  if(!game.interrogated[s.id]) game.interrogated[s.id] = new Set();
+  if(game.interrogated[s.id].has(idx)) return;
+  game.interrogated[s.id].add(idx);
+  const item = s.questions[idx];
+  gaTrack('interrogation_question', {
+    suspect_id: String(s.id || ''),
+    suspect_name: String(s.name || ''),
+    question_number: idx + 1,
+  });
+  btn.disabled = true;
+
+  const transcript = document.getElementById('transcript');
+  if(transcript){
+    const placeholder = transcript.querySelector('p.dim');
+    if(placeholder) placeholder.remove();
+    const qLine = document.createElement('div');
+    qLine.className='line q';
+    qLine.innerHTML = `<div class="who">أنت</div>${item.q}`;
+    const aLine = document.createElement('div');
+    aLine.className='line a';
+    aLine.innerHTML = `<div class="who">${s.name}</div><span></span>`;
+    transcript.appendChild(qLine);
+    transcript.appendChild(aLine);
+    transcript.scrollTop = transcript.scrollHeight;
+    typeText(aLine.querySelector('span'), item.a, 10, ()=>{ transcript.scrollTop = transcript.scrollHeight; });
+    const scrollTimer = setInterval(()=>{ transcript.scrollTop = transcript.scrollHeight; },120);
+    setTimeout(()=>clearInterval(scrollTimer), item.a.length*10+200);
+  }
+  if(item.unlockId) collect(item.unlockId);
+  if(item.closesInterrogation) game.interrogationClosed[s.id] = true;
+  persistProgress();
+  if(item.closesInterrogation){
+    setTimeout(()=>{ render(); }, item.a.length*10+400);
+  } else {
+    renderTabs();
+  }
+  const evCount = document.getElementById('evCount');
+  if(evCount) evCount.textContent = game.collected.size + ' / ' + CASE.evidence.length;
+}
+
+function bindInterrogationQuestionButtons(root=document){
+  root.querySelectorAll('.q-btn:not(.confront-btn)').forEach(btn=>{
+    if(btn.dataset.boundQuestion==='1') return;
+    btn.dataset.boundQuestion='1';
+    btn.addEventListener('click', ()=>handleInterrogationQuestionButton(btn));
+  });
+}
+
+function refreshInterrogationQuestionGrid(){
+  const grid = document.getElementById('questionGrid');
+  const s = suspectById(game.activeSuspect);
+  if(!grid || !s) return;
+  const answered = game.interrogated[s.id] || new Set();
+  grid.innerHTML = interrogationQuestionButtonsHTML(s, answered, false, !!game.interrogationClosed[s.id]);
+  bindInterrogationQuestionButtons(grid);
+}
 
 function attachPanelEvents(){
   document.querySelectorAll('[data-goto]').forEach(btn=>{
@@ -3047,56 +3545,10 @@ function attachPanelEvents(){
   const backBtn = document.querySelector('[data-back-suspects]');
   if(backBtn) backBtn.addEventListener('click', ()=>{ game.activeSuspect=null; render(); });
 
-  document.querySelectorAll('.q-btn:not(.confront-btn)').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      if(!spendPoint()) return;
-      const idx = parseInt(btn.dataset.q,10);
-      const s = suspectById(game.activeSuspect);
-      if(!game.interrogated[s.id]) game.interrogated[s.id] = new Set();
-      if(game.interrogated[s.id].has(idx)) return;
-      game.interrogated[s.id].add(idx);
-      const item = s.questions[idx];
-      gaTrack('interrogation_question', {
-        suspect_id: String(s.id || ''),
-        suspect_name: String(s.name || ''),
-        question_number: idx + 1,
-      });
-      btn.disabled = true;
-
-      const transcript = document.getElementById('transcript');
-      if(transcript){
-        const placeholder = transcript.querySelector('p.dim');
-        if(placeholder) placeholder.remove();
-        const qLine = document.createElement('div');
-        qLine.className='line q';
-        qLine.innerHTML = `<div class="who">أنت</div>${item.q}`;
-        const aLine = document.createElement('div');
-        aLine.className='line a';
-        aLine.innerHTML = `<div class="who">${s.name}</div><span></span>`;
-        transcript.appendChild(qLine);
-        transcript.appendChild(aLine);
-        transcript.scrollTop = transcript.scrollHeight;
-        typeText(aLine.querySelector('span'), item.a, 10, ()=>{ transcript.scrollTop = transcript.scrollHeight; });
-        const scrollTimer = setInterval(()=>{ transcript.scrollTop = transcript.scrollHeight; },120);
-        setTimeout(()=>clearInterval(scrollTimer), item.a.length*10+200);
-      }
-      if(item.unlockId) collect(item.unlockId);
-      if(item.closesInterrogation){
-        game.interrogationClosed[s.id] = true;
-      }
-      persistProgress();
-      if(item.closesInterrogation){
-        setTimeout(()=>{ render(); }, item.a.length*10+400);
-      } else {
-        renderTabs();
-      }
-      document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
-    });
-  });
+  bindInterrogationQuestionButtons();
 
   document.querySelectorAll('.confront-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      if(!spendPoint()) return;
       const evId = btn.dataset.confront;
       const s = suspectById(game.activeSuspect);
       if(!game.confronted[s.id]) game.confronted[s.id] = new Set();
@@ -3132,8 +3584,10 @@ function attachPanelEvents(){
           return req.includes(evId) && req.every(id=>game.collected.has(id));
         });
         if(linkedQuestion){
-          reaction = linkedQuestion.a;
-          unlockId = linkedQuestion.unlockId || null;
+          // المواجهة بالدليل ما تجاوبش سؤال المتابعة تلقائيًا؛ هي بس تفتح باب السؤال.
+          // ده يمنع ظهور سؤال جديد فوق شخص بعينه بمجرد اكتشاف دليل/كاميرا، ويخلي اللاعب
+          // هو اللي يقرر يختبر الدليل على كل مشتبه به.
+          reaction = 'الدليل ده بيغيّر نقطة في إفادتي. اسألني عن التفصيلة المرتبطة بيه.';
         }
       }
 
@@ -3143,9 +3597,17 @@ function attachPanelEvents(){
         if(!unlockId && fallback && typeof fallback === 'object') unlockId = fallback.unlockId || null;
       }
 
-      // مفيش صمت بعد كده: حتى الدليل غير المرتبط بالشخصية له رد واضح.
+      // بعد فلترة الأدلة المفروض نوصل هنا فقط لو الدليل مرتبط بالشخص فعلًا.
+      // نخلي الرد يعكس نوع العلاقة بدل الرد العام "مليش علاقة".
       if(!reaction){
-        reaction = 'الدليل ده مش بيغيّر كلامي. لو شايف إنه يثبت حاجة ضدي، ورّيني إيه الرابط.';
+        const sourceQuestion = (s.questions || []).find(item=>item && item.unlockId === evId);
+        if(sourceQuestion){
+          reaction = 'المعلومة دي طلعت أثناء استجوابي فعلًا. لو شايف فيها تناقض مع كلام تاني، اسألني عن النقطة المحددة.';
+        } else if(evidenceMentionsSuspect(ev, s)){
+          reaction = 'الدليل ده مرتبط بيا، بس لو عايز تواجهني بيه لازم تحدد إيه الجزء اللي شايفه بيناقض إفادتي.';
+        } else {
+          reaction = 'الدليل ده مرتبط بنقطة في إفادتي. اسألني عن التفصيلة المرتبطة بيه.';
+        }
       }
 
       const transcript = document.getElementById('transcript');
@@ -3168,9 +3630,42 @@ function attachPanelEvents(){
       if(unlockId) collect(unlockId);
       persistProgress();
       renderTabs();
-      document.getElementById('evCount').textContent = game.collected.size + ' / ' + CASE.evidence.length;
+      // لو الدليل فتح سؤال متابعة، حدّث قائمة الأسئلة في نفس الشاشة من غير ما
+      // نكشف ده قبل المواجهة ومن غير ما نمسح رد المواجهة من المحادثة.
+      refreshInterrogationQuestionGrid();
+      const evCount = document.getElementById('evCount');
+      if(evCount) evCount.textContent = game.collected.size + ' / ' + CASE.evidence.length;
     });
   });
+
+  document.querySelectorAll('[data-field-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>runFieldAction(btn.dataset.fieldAction));
+  });
+
+  const codeInput = document.getElementById('codeLockInput');
+  if(codeInput){
+    codeInput.addEventListener('input', ()=>{ game.codeLockInput=codeInput.value; });
+    codeInput.addEventListener('keydown', e=>{ if(e.key==='Enter') submitCodeLock(); });
+  }
+  const submitCode = document.getElementById('submitCodeLock');
+  if(submitCode) submitCode.addEventListener('click', submitCodeLock);
+
+  document.querySelectorAll('[data-cipher-fragment]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{ game.cipherSelections[sel.dataset.cipherFragment]=sel.value; persistProgress(); });
+  });
+  const cipherInput = document.getElementById('cipherInput');
+  if(cipherInput){ cipherInput.addEventListener('input', ()=>{ game.cipherInput=cipherInput.value; }); cipherInput.addEventListener('keydown', e=>{if(e.key==='Enter') submitCipher();}); }
+  const submitCipherBtn=document.getElementById('submitCipher');
+  if(submitCipherBtn) submitCipherBtn.addEventListener('click', submitCipher);
+
+  document.querySelectorAll('[data-match-left]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{ game.matchSelections[sel.dataset.matchLeft]=sel.value; persistProgress(); });
+  });
+  const submitMatchBtn=document.getElementById('submitMatch');
+  if(submitMatchBtn) submitMatchBtn.addEventListener('click', submitMatch);
+
+  const simpleAudioBtn = document.getElementById('runSimpleAudioAnalysis');
+  if(simpleAudioBtn) simpleAudioBtn.addEventListener('click', completeSimpleAudioAnalysis);
 
   const waveSvg = document.getElementById('waveSvg');
   if(waveSvg) waveSvg.addEventListener('click', handleWaveClick);
@@ -3287,9 +3782,11 @@ function attachPanelEvents(){
 
   const restartBtn = document.querySelector('[data-restart]');
   if(restartBtn) restartBtn.addEventListener('click', ()=>{
-    gaTrack('case_restart', { previous_ending: game.ending || 'incomplete' });
+    gaTrack('case_restart', { previous_ending: game.ending || 'incomplete', play_mode: currentPlayMode() });
+    const selectedMode = currentPlayMode();
     game = freshGameState();
-    game.points = CASE.investigationPoints != null ? CASE.investigationPoints : null;
+    game.points = null;
+    game.playMode = selectedMode;
     ensureSceneEvidence();
     persistProgress();
     render();

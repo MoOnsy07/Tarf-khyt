@@ -366,3 +366,12 @@ const CASE_FLAT_12B = {
   c.conclusiveEvidenceIds = ['ramy_pressure','saber_identifies_ramy','elevator_camera_gap','broken_door_lock'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_FLAT_12B;
+  if (c.alibiGridPuzzle && c.alibiGridPuzzle.enabled) {
+    c.alibiGridPuzzle.resultEvidenceIds = ['ramy_alibi_broken'];
+    c.alibiGridPuzzle.resultText = 'مقارنة التوقيتات كسرت حجة اجتماع رامي وحددت الفجوة في روايته.';
+  }
+})();

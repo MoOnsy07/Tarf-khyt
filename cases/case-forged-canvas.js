@@ -361,3 +361,15 @@ const CASE_FORGED_CANVAS = {
     }
   }
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_FORGED_CANVAS;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='inspect_canvas_frame')) c.investigationActions.push({
+    id:'inspect_canvas_frame', kind:'فحص مسرح', label:'افحص إطار اللوحة ومحيط المكتب',
+    description:'الفحص المادي للإطار ممكن يطلع أثر ما يبانش في الاستجوابات.',
+    requires:['expert_report'], resultEvidenceIds:['canvas_fragment'],
+    successText:'تم العثور على أثر مادي من إطار اللوحة وتوثيقه.'
+  });
+})();

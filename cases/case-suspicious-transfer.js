@@ -359,3 +359,15 @@ const CASE_SUSPICIOUS_TRANSFER = {
   c.conclusiveEvidenceIds = ['ledger_pattern','sameh_present','sameh_ledger_link','youssef_details'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_SUSPICIOUS_TRANSFER;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='trace_fake_account')) c.investigationActions.push({
+    id:'trace_fake_account', kind:'تتبع مالي', label:'تتبع بيانات الحساب الوهمي',
+    description:'قارن بيانات الحساب الوهمي بعلاقات أصحاب الصلاحيات في الشركة.',
+    requires:['sameh_present','ledger_access_list'], resultEvidenceIds:['sameh_fake_account_link'],
+    successText:'التتبع طلع بربط مهم بين الحساب الوهمي ودائرة سامح.'
+  });
+})();

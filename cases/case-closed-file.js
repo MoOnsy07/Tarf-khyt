@@ -346,3 +346,15 @@ const CASE_CLOSED_FILE = {
     if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
   }
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_CLOSED_FILE;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='ask_fathy_neighbor')) c.investigationActions.push({
+    id:'ask_fathy_neighbor', kind:'شاهد خارجي', label:'اسأل جار فتحي عن ليلة الحادثة',
+    description:'الشاهد مش من المشتبه بيهم، فشهادته بتتجمع ضمن التحريات الميدانية.',
+    requires:['old_case_file'], resultEvidenceIds:['witness_tarek_f_seen'],
+    successText:'تم توثيق شهادة الجار وإضافتها لملف القضية.'
+  });
+})();

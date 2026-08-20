@@ -340,3 +340,21 @@ const CASE_ROOM_307 = {
   c.conclusiveEvidenceIds = ['room_service_call','financial_dispute','sayed_call_source','corridor_camera_walid'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_ROOM_307;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='check_room_service_log')) c.investigationActions.push({
+    id:'check_room_service_log', kind:'سجل فندقي', label:'راجع سجل خدمة الغرف',
+    description:'ثبت التوقيت من سجل مستقل بدل الاعتماد على أقوال الموجودين.',
+    requires:['keycard_log'], resultEvidenceIds:['room_service_call'],
+    successText:'تمت مطابقة مكالمة خدمة الغرف مع توقيتات الدخول والخروج.'
+  });
+  if (!c.investigationActions.some(a=>a.id==='review_corridor_camera')) c.investigationActions.push({
+    id:'review_corridor_camera', kind:'كاميرات', label:'راجع كاميرا ممر الدور',
+    description:'حدد مين دخل وخرج في الفترة اللي حوالين دخول سيد للغرفة.',
+    requires:['keycard_reason'], resultEvidenceIds:['corridor_camera_walid'],
+    successText:'تم استخراج اللقطة المطلوبة من كاميرا الممر.'
+  });
+})();

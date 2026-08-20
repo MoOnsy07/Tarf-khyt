@@ -316,3 +316,15 @@ const CASE_OVERBILLED = {
   c.conclusiveEvidenceIds = ['raafat_kickback','raafat_stayed_late','mounir_heard_argument','supplier_overbilling_proven'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_OVERBILLED;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='check_closing_witnesses')) c.investigationActions.push({
+    id:'check_closing_witnesses', kind:'تحريات وقت', label:'راجع خروج العاملين بعد الإغلاق',
+    description:'قارن مواعيد الانصراف بشهادات العاملين اللي فضلوا لآخر الشيفت.',
+    requires:['raafat_confrontation'], resultEvidenceIds:['raafat_stayed_late'],
+    successText:'تم تثبيت معلومة مهمة عن توقيت بقاء رأفت بعد الإغلاق.'
+  });
+})();

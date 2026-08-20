@@ -376,3 +376,20 @@ const CASE_WAREHOUSE_FIRE = {
   c.conclusiveEvidenceIds = ['fire_investigator_report','farid_knew_saeed_present','farid_car_seen','farid_route_access'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_WAREHOUSE_FIRE;
+  // إزالة نسخة قديمة مكررة من دليل المسار؛ farid_route_access هو الإصدار المعتمد في المراجعة الأخيرة.
+  c.evidence = c.evidence.filter(e=>e.id!=='farid_fire_route');
+  c.conclusiveEvidenceIds = (c.conclusiveEvidenceIds||[]).map(id=>id==='farid_fire_route'?'farid_route_access':id);
+  const f = c.suspects.find(s=>s.id==='colleague_farid');
+  if(f) (f.questions||[]).forEach(q=>{ if(q.requires) q.requires=q.requires.map(id=>id==='farid_fire_route'?'farid_route_access':id); });
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='ask_warehouse_neighbor')) c.investigationActions.push({
+    id:'ask_warehouse_neighbor', kind:'شاهد خارجي', label:'اسأل جار المخزن عن العربيات وقت الحريق',
+    description:'راجع الحركة حوالين المخزن مع شاهد مستقل عن موظفي الشركة.',
+    requires:['fire_investigator_report'], resultEvidenceIds:['farid_car_seen'],
+    successText:'تم توثيق شهادة الجار عن حركة العربيات وقت الحريق.'
+  });
+})();

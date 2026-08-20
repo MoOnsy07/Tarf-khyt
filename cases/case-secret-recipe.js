@@ -344,3 +344,13 @@ const CASE_SECRET_RECIPE = {
   c.conclusiveEvidenceIds = ['poisoned_ingredient','mona_r_rivalry','witness_mona_r_seen','mona_chemical_match'];
   c.conclusiveRequired = 4;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_SECRET_RECIPE;
+  // إزالة نسخة قديمة مكررة من نفس نتيجة التحليل الكيميائي؛ النسخة الجديدة هي المعتمدة.
+  c.evidence = c.evidence.filter(e=>e.id!=='mona_r_chemical_match');
+  c.conclusiveEvidenceIds = (c.conclusiveEvidenceIds||[]).map(id=>id==='mona_r_chemical_match'?'mona_chemical_match':id);
+  const m = c.suspects.find(s=>s.id==='rival_chef_mona_r');
+  if(m) (m.questions||[]).forEach(q=>{ if(q.requires) q.requires=q.requires.map(id=>id==='mona_r_chemical_match'?'mona_chemical_match':id); });
+})();

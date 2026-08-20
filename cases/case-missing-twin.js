@@ -70,7 +70,7 @@ const CASE_MISSING_TWIN = {
       questions:[
         { q:'علاقتك بتامر كانت مستقرة في الفترة الأخيرة؟', unlockId:'karim_t_relationship',
           a:'"كان بينا خلاف قديم على إرث أبونا، بس كنا بنحاول نتجاوزه."' },
-        { q:'آخر مرة شفت فيها تامر كانت إمتى بالظبط؟', unlockId:'karim_t_last_seen',
+        { q:'آخر مرة شفت فيها تامر كانت إمتى بالظبط؟', requires:['nourhan_relationship'], unlockId:'karim_t_last_seen',
           a:'"من يومين، خرج الصبح وما رجعش، ده كل اللي أعرفه."' },
       ]
     },

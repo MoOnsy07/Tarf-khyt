@@ -341,3 +341,15 @@ const CASE_OLD_ESTATE = {
   c.conclusiveEvidenceIds = ['youssef_o_exclusion','witness_youssef_near_plate','poisoned_plate'];
   c.conclusiveRequired = 3;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_OLD_ESTATE;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='ask_dinner_witness')) c.investigationActions.push({
+    id:'ask_dinner_witness', kind:'شاهد خارجي', label:'اسأل الحاضرين عن حركة الأطباق',
+    description:'راجع مين اتحرك حوالين طبق وليد قبل التقديم.',
+    requires:['poisoned_plate'], resultEvidenceIds:['witness_youssef_near_plate'],
+    successText:'تم توثيق شهادة أحد الحاضرين عن حركة الأطباق.'
+  });
+})();

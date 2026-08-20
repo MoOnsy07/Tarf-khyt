@@ -317,3 +317,15 @@ const CASE_HIT_AND_RUN = {
   c.conclusiveEvidenceIds = ['nour_saw_partial','taxi_receipt_fake','cam_footage_verified'];
   c.conclusiveRequired = 3;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_HIT_AND_RUN;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='document_karim_statement')) c.investigationActions.push({
+    id:'document_karim_statement', kind:'مراجعة أقوال', label:'وثّق رواية كريم الأولى',
+    description:'ثبت رسميًا الجزء اللي أنكره كريم قبل مقارنة كلامه بباقي الأدلة.',
+    requires:['car_owner'], resultEvidenceIds:['karim_denial'],
+    successText:'تم توثيق رواية كريم الأولى ضمن ملف القضية.'
+  });
+})();

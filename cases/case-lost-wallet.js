@@ -329,3 +329,15 @@ const CASE_LOST_WALLET = {
     }
   }
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_LOST_WALLET;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='audit_reem_permissions')) c.investigationActions.push({
+    id:'audit_reem_permissions', kind:'مراجعة صلاحيات', label:'راجع صلاحيات ريم التقنية',
+    description:'قارن أسماء الفريق بقائمة الوصول الفعلية للمحفظة والنظام.',
+    requires:['wallet_access'], resultEvidenceIds:['reem_no_access'],
+    successText:'مراجعة الصلاحيات حددت بدقة حدود وصول ريم للنظام.'
+  });
+})();

@@ -343,3 +343,21 @@ const CASE_LAST_DISH = {
     c.contradictionPuzzle.resultText = 'نهى قالت إنها ما دخلتش الثلاجة، بينما سجل الكارت يثبت دخولها قبل التقديم بنص ساعة. ده يكسر جزء من روايتها، لكنه لازم يتقارن بالبصمات والدافع وباقي الأدلة.';
   }
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_LAST_DISH;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='inspect_oil_station')) c.investigationActions.push({
+    id:'inspect_oil_station', kind:'فحص مسرح', label:'افحص منطقة تجهيز طبق عادل',
+    description:'راجع المكونات والأدوات اللي اتلمست قبل خروج الطبق للتحكيم.',
+    requires:['poison_report'], resultEvidenceIds:['oil_bottle_moved'],
+    successText:'الفحص أثبت إن زجاجة الزيت اتعامل معاها حد قبل التقديم.'
+  });
+  if (!c.investigationActions.some(a=>a.id==='lift_oil_prints')) c.investigationActions.push({
+    id:'lift_oil_prints', kind:'بصمات', label:'ارفع البصمات من زجاجة الزيت',
+    description:'بعد ما الزجاجة بقت محل شك، ابعتها للفحص الجنائي بدل انتظار دليل من الاستجواب.',
+    requires:['oil_bottle_moved'], resultEvidenceIds:['noha_prints'],
+    successText:'نتيجة فحص البصمات وصلت واتضافت لملف القضية.'
+  });
+})();

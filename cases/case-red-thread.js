@@ -356,3 +356,21 @@ const CASE_RED_THREAD = {
   c.conclusiveEvidenceIds = ['kamal_secret','kamal_backdoor_seen','dna_sample_thread'];
   c.conclusiveRequired = 3;
 })();
+
+/* EVIDENCE ROUTE FIX 2026-08-20 */
+(() => {
+  const c = CASE_RED_THREAD;
+  c.investigationActions = c.investigationActions || [];
+  if (!c.investigationActions.some(a=>a.id==='lab_red_thread')) c.investigationActions.push({
+    id:'lab_red_thread', kind:'معمل جنائي', label:'ابعت الخيط الأحمر للتحليل',
+    description:'حلل الأثر الحيوي الموجود على الخيط بدل ما يظهر من الحوار تلقائيًا.',
+    requires:['red_thread_fabric'], resultEvidenceIds:['dna_sample_thread'],
+    successText:'وصل تقرير التحليل الأولي للخيط الأحمر.'
+  });
+  if (!c.investigationActions.some(a=>a.id==='check_backdoor')) c.investigationActions.push({
+    id:'check_backdoor', kind:'مراجعة مدخل', label:'راجع الباب الخلفي وشهود الحركة',
+    description:'تحقق من الحركة خارج المدخل الرئيسي في الفترة الحرجة.',
+    requires:['fabric_access_list'], resultEvidenceIds:['kamal_backdoor_seen'],
+    successText:'التحريات حددت حركة مهمة عند الباب الخلفي.'
+  });
+})();
