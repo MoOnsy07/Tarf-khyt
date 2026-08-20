@@ -2425,7 +2425,7 @@ function handleWaveClick(e){
   const svg = document.getElementById('waveSvg');
   const rect = svg.getBoundingClientRect();
   const relX = (e.clientX - rect.left) / rect.width;
-  const t = relX * 90;
+  const wave = buildWave(); const t = relX * wave.length;
   const feedback = document.getElementById('waveFeedback');
   if(t >= cfg.matchStart && t <= cfg.matchEnd){
     feedback.textContent = '✓ ظبطت المقطع. الموجة دي مكررة حرفيًا من دقيقة قبل كده.';
