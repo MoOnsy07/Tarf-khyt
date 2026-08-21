@@ -178,6 +178,9 @@ function freshGameState(){
     timelineOrder: (CASE && CASE.timelinePuzzle && CASE.timelinePuzzle.enabled) ? shuffleArray(CASE.timelinePuzzle.events.map(e=>e.id)) : [],
     timelineSolved:false,
     theoryAnswers:{},      // questionId -> optionId — إجابات بناء نظرية الجريمة (اختياري، CASE.theoryBuilder)
+    theoryOptionOrder: (CASE && CASE.theoryBuilder && CASE.theoryBuilder.enabled)
+      ? Object.fromEntries((CASE.theoryBuilder.questions||[]).map(q=>[q.id, shuffleArray((q.options||[]).map(o=>o.id))]))
+      : {}, // questionId -> ترتيب عشوائي ثابت لأماكن الاختيارات، عشان الإجابة الصح ما تبقاش دايمًا أول اختيار
     score:0,                // نقاط تسجيل الأداء (Score) — منفصلة عن نقاط التحقيق، بتتسجل في الليدربورد العام آخر القضية
     scoreLog:[],             // سجل بسيط لكل حركة أثّرت في الـ score، بيتعرض في دفتر التحقيق
     secretsFound:new Set(), // IDs الأسرار/المكافآت المخفية اللي اتكشفت بالفعل (evidence بـ bonusPoints)
@@ -1132,6 +1135,7 @@ function enterCase(caseData, opts={}){
     if(saved.timelineOrder && saved.timelineOrder.length) game.timelineOrder = saved.timelineOrder;
     game.timelineSolved = !!saved.timelineSolved;
     game.theoryAnswers = saved.theoryAnswers || {};
+    if(saved.theoryOptionOrder && Object.keys(saved.theoryOptionOrder).length) game.theoryOptionOrder = saved.theoryOptionOrder;
     game.score = saved.score || 0;
     game.scoreLog = saved.scoreLog || [];
     game.secretsFound = new Set(saved.secretsFound || []);
@@ -1229,6 +1233,7 @@ function persistProgress(){
     timelineOrder: game.timelineOrder,
     timelineSolved: game.timelineSolved,
     theoryAnswers: game.theoryAnswers,
+    theoryOptionOrder: game.theoryOptionOrder,
     score: game.score,
     scoreLog: game.scoreLog,
     secretsFound: [...game.secretsFound],
@@ -3251,8 +3256,11 @@ function submitMatch(){
 function theoryHTML(){
   const cfg = CASE.theoryBuilder;
   const answers = game.theoryAnswers || {};
+  const order = game.theoryOptionOrder || {};
   const qBlocks = cfg.questions.map(q=>{
-    const opts = q.options.map(o=>{
+    const optById = new Map((q.options||[]).map(o=>[o.id, o]));
+    const orderedIds = (order[q.id] && order[q.id].length) ? order[q.id] : q.options.map(o=>o.id);
+    const opts = orderedIds.map(oid=>optById.get(oid)).filter(Boolean).map(o=>{
       const sel = answers[q.id]===o.id ? 'selected' : '';
       return `<div class="board-chip ${sel}" style="text-align:right;" data-theory-q="${q.id}" data-theory-opt="${o.id}">${o.text}</div>`;
     }).join('');
