@@ -506,15 +506,6 @@ function returnToLibraryFromCase(opts={}){
       evidence_count: game.collected ? game.collected.size : 0,
       score: game.score || 0,
     });
-    if(typeof logCaseEvent === 'function'){
-      logCaseEvent({
-        caseId: CASE.id,
-        visitorId: getVisitorId(),
-        eventType: 'exit',
-        completed: !!game.ending,
-        ending: game.ending || null,
-      });
-    }
   }
   if(CASE) persistProgress();
   clearActiveCase();
@@ -944,10 +935,10 @@ function openPurchasePopup(caseData){
     if(!code){ msg.textContent = 'اكتب الكود الأول.'; msg.style.color = 'var(--danger)'; return; }
     btn.disabled = true;
     btn.textContent = '...جارِ التحقق';
-    const ok = await redeemCode(caseData.id, code);
+    const result = await redeemCode(caseData.id, code);
     btn.disabled = false;
     btn.textContent = 'افتح القضية';
-    if(ok){
+    if(result.ok){
       gaTrack('redeem_success', {
         case_id: String(caseData.id || ''),
         case_title: String(caseData.title || ''),
@@ -961,8 +952,13 @@ function openPurchasePopup(caseData){
       gaTrack('redeem_failed', {
         case_id: String(caseData.id || ''),
         case_title: String(caseData.title || ''),
+        reason: result.reason || 'unknown',
       });
-      msg.textContent = 'الكود غلط أو مستخدم قبل كده.';
+      if(result.reason === 'network'){
+        msg.textContent = 'في مشكلة اتصال دلوقتي — الكود ممكن يكون صح. جرب تاني بعد شوية.';
+      } else {
+        msg.textContent = 'الكود غلط أو مستخدم قبل كده.';
+      }
       msg.style.color = 'var(--danger)';
     }
   });
@@ -1164,9 +1160,6 @@ function enterCase(caseData, opts={}){
     play_mode: currentPlayMode(),
     forensic_case: isForensicCase() ? 'yes' : 'no',
   });
-  if(!saved && typeof logCaseEvent === 'function'){
-    logCaseEvent({ caseId: CASE.id, visitorId: getVisitorId(), eventType: 'start' });
-  }
 
   // لو فيه تقدّم محفوظ فعلاً (يعني إنت مستكمل مش بادئ من جديد)، ادخل غرفة
   // التحقيق على طول من غير ما تعيد شاشة الانترو والمقدمة تاني من الأول
@@ -1511,11 +1504,11 @@ function giveHint(){
   }
   const missing = CASE.evidence.find(e=>!game.collected.has(e.id));
   let msg;
+  let found = null;
   const diffRank = caseDifficultyRank();
   if(!missing){
     msg = '💡 جمعت كل الأدلة المتاحة! روح للوحة التحقيق وابدأ تربط الخيوط.';
   } else {
-    let found = null;
     for(const s of CASE.suspects){
       const qIdx = s.questions.findIndex(q=>q.unlockId===missing.id);
       if(qIdx>=0){ found = { suspect:s, q:s.questions[qIdx] }; break; }

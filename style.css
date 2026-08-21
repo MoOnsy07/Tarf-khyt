@@ -208,7 +208,7 @@ body{
 .board-warning{ color:var(--danger); font-size:12.5px; margin-top:14px; line-height:1.8; }
 .confront-btn{ text-align:right; }
 
-.ending-badge{ font-size:12px; letter-spacing:.1em; font-family:'JetBrains Mono',monospace; margin-bottom:10px; }
+.ending-badge{ font-size:12px; font-family:'Cairo',sans-serif; font-weight:700; margin-bottom:10px; }
 .ending-badge.good{ color:var(--signal); }
 .ending-badge.partial{ color:var(--amber); }
 .ending-badge.bad{ color:var(--danger); }
@@ -244,7 +244,7 @@ body{
 .lb-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .lb-score{ color:var(--signal); }
 
-.stamp{ display:inline-block; border:3px solid; padding:8px 22px; font-weight:900; font-size:22px; letter-spacing:.06em; border-radius:5px; transform:rotate(-5deg); margin-bottom:16px; }
+.stamp{ display:inline-block; border:3px solid; padding:8px 22px; font-weight:900; font-size:22px; border-radius:5px; transform:rotate(-5deg); margin-bottom:16px; }
 .stamp.good{ color:var(--signal); border-color:var(--signal); }
 .stamp.partial{ color:var(--amber); border-color:var(--amber); }
 .stamp.bad{ color:var(--danger); border-color:var(--danger); }
