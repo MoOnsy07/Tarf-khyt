@@ -84,3 +84,30 @@ async function fetchLeaderboard(caseId, limit=10){
   if(error){ console.error('fetchLeaderboard error', error); return []; }
   return data || [];
 }
+
+/* ============================================================
+   تتبّع بدء/خروج القضية — لداشبورد المشرف (admin.html)
+   بيسجل حدث واحد بس، فاشل بصمت لو الاتصال وقع، عشان أبدًا ميأثرش
+   على تجربة اللاعب. شغّل CASE_EVENTS_SETUP.sql مرة واحدة في
+   Supabase قبل رفع هذا الملف.
+   ============================================================ */
+async function logCaseEvent({ caseId, visitorId, eventType, completed=null, ending=null }){
+  try{
+    const { error } = await sb.rpc('log_case_event', {
+      p_case_id: String(caseId || '').slice(0, 120),
+      p_visitor_id: String(visitorId || '').slice(0, 128),
+      p_event_type: eventType,
+      p_completed: completed,
+      p_ending: ending,
+    });
+    if(error) console.error('logCaseEvent error', error);
+  }catch(e){
+    console.error('logCaseEvent failed', e);
+  }
+}
+
+async function fetchCaseStats(){
+  const { data, error } = await sb.rpc('get_case_stats');
+  if(error){ console.error('fetchCaseStats error', error); return []; }
+  return data || [];
+}
