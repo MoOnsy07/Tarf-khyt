@@ -320,7 +320,7 @@ const CASE_OPENING_NIGHT = {
   const t=c.suspects.find(s=>s.id==='manager_tarek_o'); if(t){const q=t.questions.find(q=>q.closesInterrogation); if(q) q.requires=['tarek_o_contract','gehad_seen_backstage','cup_access_window'];}
   setTheory0('كشف الكذب اللي فضح إنكار طارق + شهادة جهاد اللي حطته في الكواليس قبل العرض + دافعه المالي بسبب عقد سامر الجديد');
   c.endings.good.paragraphs[1] = 'كشف الكذب اللي فضح إنكار طارق، وشهادة جهاد اللي أثبتت دخوله الكواليس قبل العرض، ودافعه المالي المباشر المرتبط بعقد سامر الجديد، كلها أدلة حاصرته بدل الاعتماد على مجرد إن الكوباية كانت متاحة لأكتر من شخص.';
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: عقد سامر الجديد، شهادة دخول طارق للكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: عقد سامر الجديد، شهادة دخول طارق للكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
 
 })();
 

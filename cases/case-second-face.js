@@ -15,13 +15,9 @@ const CASE_SECOND_FACE = {
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 20,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'ممثلة صاعدة بتكتشف حساب مزيف بينتحل شخصيتها بالكامل باستخدام صور مولّدة بالذكاء الاصطناعي، وبعد ما تفضح الموضوع علنًا، بتختفي فجأة.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['disappearance', 'digital'],
   seriesId: null,
   seriesOrder: null,
@@ -212,7 +208,7 @@ const CASE_SECOND_FACE = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية خالد، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: اعتراف شريف، استخدام خالد للحساب المزيف، وشهادة الجار، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: اعتراف شريف، استخدام خالد للحساب المزيف، وشهادة الجار، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

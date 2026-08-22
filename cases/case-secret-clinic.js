@@ -15,13 +15,9 @@ const CASE_SECRET_CLINIC = {
   difficulty: 'صعبة',
   estMinutes: 35,
   investigationPoints: 20,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'مريضة بتروح عملية تجميل سرية في عيادة غير مرخصة جوه شقة سكنية عادية، وبعدها بتختفي تمامًا من غير أي أثر رسمي لوجودها هناك أصلاً.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['disappearance', 'corruption'],
   seriesId: null,
   seriesOrder: null,
@@ -228,7 +224,7 @@ const CASE_SECRET_CLINIC = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية صبري، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: اعترافه بالمضاعفات، غياب الترخيص، وسجل المستشفى، قبل ما تتهم.'
+      hint:'اجمع على الأقل 4 أدلة من: اعترافه بالمضاعفات، غياب الترخيص، وسجل المستشفى، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

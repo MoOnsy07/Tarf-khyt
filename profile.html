@@ -79,6 +79,7 @@
   .pf-case-info{ flex:1; min-width:0; }
   .pf-case-info .title{ color:var(--ink); font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .pf-case-info .meta{ color:var(--ink-dim); font-size:11.5px; margin-top:2px; }
+  .pf-case-info .location{ color:var(--signal); font-size:10.5px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .pf-case-badge{
     flex:none; font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700;
     padding:4px 10px; border-radius:20px; white-space:nowrap;
@@ -213,6 +214,7 @@
   ];
 </script>
 <script src="ready-cases.js"></script>
+<script src="case-locations.js"></script>
 
 <script>
 (function(){
@@ -256,11 +258,9 @@
   function render(){
     const root = document.getElementById('pf-root');
     const playerName = getPlayerName();
-    const unlockedIds = getUnlockedIds();
     const completedIds = getCompletedIds();
 
     const readyCases = CASES_REGISTRY.filter(isCaseReady);
-    const playableCases = readyCases.filter(c => !c.isPremium || unlockedIds.includes(c.id));
 
     const completedList = readyCases
       .map(c => ({ c, progress: loadLocalProgress(c.id) }))
@@ -270,8 +270,7 @@
       .map(c => ({ c, progress: loadLocalProgress(c.id) }))
       .filter(x => x.progress && !x.progress.ending);
 
-    const remainingCount = Math.max(0, playableCases.length - completedList.length - inProgressList.length);
-    const premiumLockedCount = readyCases.filter(c => c.isPremium && !unlockedIds.includes(c.id)).length;
+    const remainingCount = Math.max(0, readyCases.length - completedList.length - inProgressList.length);
 
     const initial = playerName ? playerName.trim().charAt(0).toUpperCase() : '؟';
 
@@ -302,8 +301,8 @@
           <div class="lbl">لسه فاضلة</div>
         </div>
         <div class="pf-stat-card">
-          <div class="num mono">${unlockedIds.length}</div>
-          <div class="lbl">قضية بريميوم مفتوحة</div>
+          <div class="num mono">${readyCases.length}</div>
+          <div class="lbl">قضية مجانية جاهزة</div>
         </div>
       </div>
 
@@ -317,8 +316,9 @@
             <div class="pf-case-info">
               <div class="title">${escapeHTML(c.title)}</div>
               <div class="meta mono">${c.caseNo} · ${pct}% أدلة</div>
+              <div class="location">📍 ${escapeHTML(caseLocationText(c))}</div>
             </div>
-            <a class="pf-case-link" href="play.html?case=${encodeURIComponent(c.id)}">استكمل ←</a>
+            <a class="pf-case-link" href="index.html?case=${encodeURIComponent(c.id)}">استكمل ←</a>
           </div>`;
         }).join('')}
       ` : ''}
@@ -330,15 +330,11 @@
           <div class="pf-case-info">
             <div class="title">${escapeHTML(c.title)}</div>
             <div class="meta mono">${c.caseNo}</div>
+            <div class="location">📍 ${escapeHTML(caseLocationText(c))}</div>
           </div>
           <span class="pf-case-badge ${endingBadgeClass[progress.ending] || 'badge-partial'} mono">${endingLabels[progress.ending] || 'مكتملة'}</span>
         </div>
       `).join('') : `<div class="pf-empty">لسه معملتش أي قضية. <a href="index.html" style="color:var(--amber);">ابدأ أول قضية →</a></div>`}
-
-      ${premiumLockedCount ? `
-        <div class="pf-section-title">🔒 قضايا بريميوم متاحة <span class="count mono">(${premiumLockedCount})</span></div>
-        <div class="pf-empty">فيه ${premiumLockedCount} قضية بريميوم لسه مقفولة — تقدر تفتحها من الأرشيف.</div>
-      ` : ''}
     `;
 
     // ------- تعديل الاسم -------

@@ -15,13 +15,9 @@ const CASE_MISSING_TWIN = {
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'واحد من توأم متطابق بيبلغ عن اختفاء أخوه فجأة من شقتهم المشتركة، بس تفاصيل القصة اللي بيحكيها فيها تناقضات غريبة من البداية.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['disappearance', 'mystery'],
   seriesId: null,
   seriesOrder: null,
@@ -215,7 +211,7 @@ const CASE_MISSING_TWIN = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية كريم، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: آثار الدم في غرفته، الخلاف القديم، وخطط تامر الأخيرة، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: آثار الدم في غرفته، الخلاف القديم، وخطط تامر الأخيرة، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

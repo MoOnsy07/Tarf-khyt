@@ -316,7 +316,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
   const s=c.suspects.find(s=>s.id==='clerk_sameh'); if(s){const q=s.questions.find(q=>q.closesInterrogation); if(q) q.requires=['sameh_present','ledger_pattern','sameh_fake_account_link'];}
   setTheory0('الحساب الوهمي المسجل باسم قريب سامح + حضوره في الفرع رغم إجازته + نمط التحويلات الصغيرة المتكررة اللي هيثم اكتشفه');
   c.endings.good.paragraphs[1] = 'الحساب الوهمي المسجل باسم قريب سامح، وسجل دخوله للفرع ليلة الاختفاء رغم إجازته، ونمط التحويلات المتكرر اللي هيثم اكتشفه، كلها أدلة ربطت سامح بالتلاعب وباختفاء هيثم في نفس الوقت.';
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: حضور سامح، نمط التحويلات، والحساب الوهمي المرتبط بقريبه، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 4 أدلة من: حضور سامح، نمط التحويلات، والحساب الوهمي المرتبط بقريبه، قبل ما تتهم.';
 
 })();
 
@@ -339,7 +339,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
       title:'الحساب الوهمي مرتبط بقريب سامح', img:null,
       short:'الحساب المشبوه 4471 مسجل باسم قريب مباشر لسامح',
       full:'التدقيق كشف إن الحساب الوهمي المتكرر في التحويلات مسجل باسم قريب مباشر لسامح. ده يربطه بمسار الأموال بشكل مستقل عن مجرد وجوده في المبنى.',
-      unlocked:false, order:90
+      unlocked:false, order:91
     });
   }
   if (c.ledgerAuditPuzzle) {

@@ -15,6 +15,7 @@ const CASE_LAST_EPISODE = {
   difficulty: 'متوسطة',
   estMinutes: 26,
   investigationPoints: 18, // كل سؤال أو مواجهة بدليل بتكلّف نقطة — بيخلي كل قرار يتحسب
+  teaser: 'مقدم بودكاست اتقتل أثناء بث مباشر، لكن التسجيل الداخلي كمل بعد انقطاع البث.',
 
   // ---- تصنيف القضية ----
   isPremium: false,

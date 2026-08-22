@@ -23,6 +23,24 @@ const TELEGRAM_CHANNEL_URL = 'https://t.me/taraf5eet';
 
 // كارت التواصل — واتساب للدعم والاقتراحات، وتليجرام للقضايا والتحديثات
 function socialLinksHTML(context){
+  const telegramBlock = context === 'library' ? `
+    <div class="telegram-intel-card">
+      <div class="telegram-intel-icon">📩</div>
+      <div class="telegram-intel-copy">
+        <div class="telegram-intel-eyebrow mono">قناة البلاغات</div>
+        <strong>متفوّتش القضية الجاية</strong>
+        <span>إعلانات القضايا الجديدة، تحديثات اللعبة ونتائج المتصدرين بتنزل على قناة طرف الخيط.</span>
+      </div>
+      <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn telegram-intel-btn mono" data-telegram-cta="library_card">افتح القناة ←</a>
+    </div>
+  ` : `
+    <div class="social-follow-item" style="margin-top:12px;">
+      <span class="social-follow-label mono">تابع القضايا الجديدة وتحديثات اللعبة</span>
+      <div class="social-follow-btns">
+        <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn ghost social-btn telegram mono" data-telegram-cta="ending_links">📣 قناة طرف الخيط</a>
+      </div>
+    </div>
+  `;
   return `
     <div class="social-follow ${context||''}">
       <div class="social-follow-item">
@@ -31,14 +49,67 @@ function socialLinksHTML(context){
           <a href="${WHATSAPP_URL}" target="_blank" rel="noopener" class="btn ghost social-btn whatsapp mono">💬 تواصل معانا على واتساب</a>
         </div>
       </div>
-      <div class="social-follow-item" style="margin-top:12px;">
-        <span class="social-follow-label mono">تابعنا عشان تعرف أول ما تنزل قضية جديدة أو تحديث للعبة</span>
-        <div class="social-follow-btns">
-          <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn ghost social-btn telegram mono">📣 تابع قناة التليجرام</a>
-        </div>
-      </div>
+      ${telegramBlock}
     </div>
   `;
+}
+
+const TELEGRAM_CTA_LAST_SHOWN_KEY = 'ca_telegram_cta_last_shown_v1';
+const TELEGRAM_CTA_OPENED_KEY = 'ca_telegram_cta_opened_v1';
+const TELEGRAM_CTA_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+document.addEventListener('click', e=>{
+  const link = e.target.closest('[data-telegram-cta]');
+  if(!link) return;
+  try{ localStorage.setItem(TELEGRAM_CTA_OPENED_KEY, '1'); }catch(err){}
+  gaTrack('telegram_cta_click', { cta_location:link.dataset.telegramCta || 'unknown' });
+});
+
+function shouldShowTelegramInvite(){
+  if(!CASE || !game || game.screen !== 'ending') return false;
+  try{
+    if(localStorage.getItem(TELEGRAM_CTA_OPENED_KEY) === '1') return false;
+    const lastShown = Number(localStorage.getItem(TELEGRAM_CTA_LAST_SHOWN_KEY) || 0);
+    if(lastShown && Date.now() - lastShown < TELEGRAM_CTA_COOLDOWN_MS) return false;
+  }catch(err){}
+  return getCompletedIds().length >= 1;
+}
+
+function showTelegramInvite(){
+  if(!shouldShowTelegramInvite() || document.getElementById('telegramInviteOverlay')) return;
+  try{ localStorage.setItem(TELEGRAM_CTA_LAST_SHOWN_KEY, String(Date.now())); }catch(err){}
+  gaTrack('telegram_cta_impression', { cta_location:'first_free_case_ending' });
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay telegram-invite-overlay';
+  overlay.id = 'telegramInviteOverlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'telegramInviteTitle');
+  overlay.innerHTML = `
+    <div class="modal telegram-invite-modal">
+      <button type="button" class="telegram-invite-close" aria-label="إغلاق">×</button>
+      <div class="telegram-invite-seal">📩</div>
+      <div class="tag mono">بلاغ جديد من الأرشيف</div>
+      <h3 id="telegramInviteTitle">متفوّتش القضية الجاية</h3>
+      <p>إعلانات القضايا الجديدة، تحديثات اللعبة ونتائج المتصدرين هتلاقيها على قناة طرف الخيط.</p>
+      <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn telegram-invite-primary" data-telegram-cta="first_free_case_ending">افتح قناة البلاغات ←</a>
+      <button type="button" class="btn ghost telegram-invite-later">كمّل من غير انضمام</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const onKey = e=>{ if(e.key === 'Escape') close(); };
+  const close = ()=>{
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+  };
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+  overlay.querySelector('.telegram-invite-close').addEventListener('click', close);
+  overlay.querySelector('.telegram-invite-later').addEventListener('click', close);
+  overlay.querySelector('[data-telegram-cta]').addEventListener('click', ()=>setTimeout(close, 150));
+  document.addEventListener('keydown', onKey);
+  overlay.querySelector('[data-telegram-cta]').focus();
 }
 
 
@@ -72,7 +143,7 @@ let game = null;         // حالة اللعب داخل القضية الحال
 /* ============================================================
    GOOGLE ANALYTICS 4 — أحداث اللعب المخصصة
    لازم يكون Google tag (gtag.js) موجود في <head> في index.html.
-   مفيش أسماء لاعبين أو أكواد شراء بتتبعت لـ Analytics.
+   مفيش أسماء لاعبين أو بيانات حساسة بتتبعت لـ Analytics.
    ============================================================ */
 function gaTrack(eventName, params={}){
   try{
@@ -81,12 +152,22 @@ function gaTrack(eventName, params={}){
       case_id: String(CASE.id || ''),
       case_title: String(CASE.title || ''),
       case_no: String(CASE.caseNo || ''),
-      case_premium: CASE.isPremium ? 'yes' : 'no',
     } : {};
     window.gtag('event', eventName, { ...caseParams, ...params });
   }catch(e){
     // Analytics عمره ما يوقف اللعبة لو حصلت مشكلة في التتبع
   }
+}
+
+// أي نص جاي من المستخدم أو من قاعدة البيانات لازم يتعرض كنص فقط،
+// مش كـ HTML قابل للتنفيذ جوه الصفحة.
+function escapeHTML(value){
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 /* ============================================================
@@ -178,7 +259,7 @@ function freshGameState(){
     scoreLog:[],             // سجل بسيط لكل حركة أثّرت في الـ score، بيتعرض في دفتر التحقيق
     secretsFound:new Set(), // IDs الأسرار/المكافآت المخفية اللي اتكشفت بالفعل (evidence بـ bonusPoints)
 
-    // === 7 آليات الألغاز الجديدة (كلها عامة — مدفوعة بالكامل من بيانات القضية) ===
+    // === 7 آليات الألغاز الجديدة (كلها عامة — مبنية بالكامل من بيانات القضية) ===
     dnaLabSolved:false,
     alibiGridSolved:false,
     ledgerAuditSolved:false,
@@ -389,6 +470,14 @@ function setPlayerName(name){
   localStorage.setItem(LEGACY_PLAYER_NAME_KEY, cleanName);
 }
 
+function ensureLocalPlayerAlias(){
+  const existing = getPlayerName();
+  if(existing) return existing;
+  const alias = 'محقق-' + Math.floor(1000 + Math.random() * 9000);
+  setPlayerName(alias);
+  return alias;
+}
+
 const PLAYER_REGISTRATION_SESSION_KEY = 'ca_player_registration_synced_v1';
 async function syncPlayerRegistration(playerName, caseData){
   if(typeof registerPlayerName !== 'function') return false;
@@ -484,7 +573,7 @@ function boot(){
       enterCase(urlCase);
       return;
     }
-    // قضية بريميوم مقفولة — نوريله الأرشيف ونفتحله معاينتها بدل ما نرميه عادي
+    // قضية من سلسلة لسه مقفولة — نوريله الأرشيف ونفتحله معاينتها بدل ما نرميه عادي
     clearActiveCase();
     showLibrary();
     openCasePreview(urlCase, urlLock);
@@ -554,9 +643,6 @@ function returnToLibraryFromCase(opts={}){
    ============================================================ */
 
 function isCaseLocked(caseData){
-  if(caseData.isPremium && !app.unlockedIds.includes(caseData.id)){
-    return { locked:true, reason:'premium' };
-  }
   if(caseData.seriesId && caseData.seriesOrder > 1){
     const prev = CASES_REGISTRY.find(c => c.seriesId===caseData.seriesId && c.seriesOrder===caseData.seriesOrder-1);
     if(prev && !app.completedIds.includes(prev.id)){
@@ -566,12 +652,12 @@ function isCaseLocked(caseData){
   return { locked:false };
 }
 
-// زر البداية المجانية يختار قضية جاهزة فعلًا ومفتوحة للاعب.
-// الأولوية لقضية مجانية لسه ما بدأهاش، وبعدها قضية غير مكتملة،
+// كل القضايا الجاهزة مجانية؛ زر البداية يختار قضية مفتوحة فعلًا للاعب.
+// الأولوية لقضية لسه ما بدأهاش، وبعدها قضية غير مكتملة،
 // عشان الزر يفضل مفيد للزائر الجديد واللاعب الراجع من غير ربطه بقضية ثابتة.
 function getFreeStartCase(){
   const readyFreeCases = CASES_REGISTRY.filter(c =>
-    !c.isPremium && isCaseReady(c) && !isCaseLocked(c).locked
+    isCaseReady(c) && !isCaseLocked(c).locked
   );
   return readyFreeCases.find(c => !app.completedIds.includes(c.id) && !loadLocalProgress(c.id))
     || readyFreeCases.find(c => !app.completedIds.includes(c.id))
@@ -587,27 +673,22 @@ function showLibrary(){
   const freeStartCase = getFreeStartCase();
 
   // بناء قايمة الفلاتر المتاحة فعليًا (بس اللي عنده قضية واحدة على الأقل)
-  const hasFree = CASES_REGISTRY.some(c=>!c.isPremium);
-  const hasPremium = CASES_REGISTRY.some(c=>c.isPremium);
   const usedCategories = new Set(CASES_REGISTRY.flatMap(c=>c.categories||[]));
-  const filters = [{key:'all', label:'الكل'}];
-  if(hasFree) filters.push({key:'free', label:'مجانية'});
-  if(hasPremium) filters.push({key:'premium', label:'مدفوعة'});
+  const filters = [{key:'all', label:'الكل'}, {key:'free', label:'مجانية'}];
   LIBRARY_FILTER_CATEGORIES.forEach(cat=>{
     if(usedCategories.has(cat)) filters.push({key:cat, label: CATEGORY_LABELS[cat] || cat});
   });
 
   function matchesFilter(c){
     if(app.libraryFilter==='all') return true;
-    if(app.libraryFilter==='free') return !c.isPremium;
-    if(app.libraryFilter==='premium') return !!c.isPremium;
+    if(app.libraryFilter==='free') return true;
     return (c.categories||[]).includes(app.libraryFilter);
   }
 
   function matchesSearch(c){
     const q = app.librarySearch.trim().toLowerCase();
     if(!q) return true;
-    const haystack = [c.title, c.teaser, c.subtitle, c.caseNo]
+    const haystack = [c.title, c.teaser, c.subtitle, c.caseNo, caseLocationText(c, true)]
       .filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(q);
   }
@@ -619,13 +700,10 @@ function showLibrary(){
         sorted.sort((a,b)=> (a.estMinutes||0) - (b.estMinutes||0));
         break;
       case 'hardest': {
-        const rank = {'سهلة':0, 'متوسطة':1, 'صعبة':2};
+        const rank = {'سهلة':0, 'متوسطة':1, 'صعبة':2, 'صعبة جدًا':3};
         sorted.sort((a,b)=> (rank[b.difficulty]??0) - (rank[a.difficulty]??0));
         break;
       }
-      case 'price':
-        sorted.sort((a,b)=> (b.isPremium?(b.price?parseFloat(b.price):0):0) - (a.isPremium?(a.price?parseFloat(a.price):0):0));
-        break;
       case 'newest':
       default: {
         // الأحدث = ترتيب عكسي لمصفوفة CASES_REGISTRY نفسها (آخر ما اتضاف يظهر الأول)
@@ -643,73 +721,6 @@ function showLibrary(){
     `<button class="lib-filter ${app.libraryFilter===f.key?'active':''}" data-filter="${f.key}">${f.label}</button>`
   ).join('');
 
-  /* ============================================================
-     PREMIUM SPOTLIGHT — شريط "ملفات سرية للغاية" فوق الشبكة العادية.
-     بيعرض القضايا البريميوم الجاهزة كملفات مختومة، أولوية للي لسه
-     ملعبهاش اللاعب (المشترى بالفعل بيتنزل لآخر الترتيب مش بيختفي).
-     ============================================================ */
-  function premiumSpotlightHTML(){
-    const premiumReady = CASES_REGISTRY.filter(c => c.isPremium && isCaseReady(c));
-    if(!premiumReady.length) return '';
-    const owned = new Set(app.unlockedIds || []);
-    const spotlightCases = [...premiumReady]
-      .sort((a,b)=> (owned.has(a.id)?1:0) - (owned.has(b.id)?1:0))
-      .slice(0, 10);
-
-    const dossierCards = spotlightCases.map(c=>{
-      const lock = isCaseLocked(c);
-      return `
-        <div class="lib-card dossier-card" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="true">
-          <div class="wax-seal">
-            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-              <path d="M12,3 C7,3 4,6.5 4,11 C4,15.5 7,18.5 12,18.5" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.4"/>
-              <path d="M12,6.5 C8.7,6.5 6.8,8.8 6.8,11 C6.8,13.7 8.7,15.5 12,15.5" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.1"/>
-              <path d="M12,10 C10.2,10 9.3,10.6 9.3,11 C9.3,11.6 10.2,12 12,12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width=".9"/>
-            </svg>
-          </div>
-          <div class="dossier-cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
-          <div class="dossier-title">${c.title}</div>
-          <div class="dossier-meta">${c.caseNo} · ${c.estMinutes} د</div>
-          ${owned.has(c.id)
-            ? `<div class="dossier-price" style="color:var(--signal);">✓ متاحة ليك</div>`
-            : `<div class="dossier-price">${c.price || ''}</div>`}
-        </div>
-      `;
-    }).join('');
-
-    const bundleStrip = `
-      <div class="bundle-strip" id="openBundlesCard">
-        <div class="bundle-strip-icon">
-          <svg viewBox="0 0 40 40" width="26" height="26" aria-hidden="true">
-            <rect x="6" y="12" width="22" height="16" rx="1.5" fill="none" stroke="rgba(244,200,105,.7)" stroke-width="1.4"/>
-            <rect x="10" y="8" width="22" height="16" rx="1.5" fill="#1a1610" stroke="rgba(244,200,105,.9)" stroke-width="1.4"/>
-            <line x1="14" y1="14" x2="28" y2="14" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
-            <line x1="14" y1="18" x2="24" y2="18" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
-          </svg>
-        </div>
-        <div class="bundle-strip-text">
-          <div class="bundle-strip-title">شوف كل الباقات</div>
-          <div class="bundle-strip-sub">وفّر لغاية 165ج على الأرشيف كامل</div>
-        </div>
-        <div class="bundle-strip-arrow">←</div>
-      </div>
-    `;
-
-    return `
-      <div class="premium-spotlight">
-        <div class="premium-spotlight-head">
-          <div>
-            <div class="premium-spotlight-eyebrow mono">TOP SECRET</div>
-            <div class="premium-spotlight-title">ملفات <span class="accent">سرية للغاية</span></div>
-          </div>
-          <div class="premium-spotlight-count mono">${premiumReady.length} ملف مختوم</div>
-        </div>
-        <div class="dossier-track">${dossierCards}</div>
-        ${bundleStrip}
-      </div>
-    `;
-  }
-
   const allMatching = sortCases(CASES_REGISTRY.filter(c => matchesFilter(c) && matchesSearch(c)));
   const visibleCases = allMatching.slice(0, app.libraryShown);
   const hasMore = allMatching.length > visibleCases.length;
@@ -718,21 +729,12 @@ function showLibrary(){
     const lock = isCaseLocked(c);
     const ready = isCaseReady(c);
     const badges = [];
-    if(c.isPremium){
-      badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
-    }
-    if(c.isPremium && c.discountLabel) badges.push(`<span class="lib-badge discount mono">${c.discountLabel}</span>`);
     if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
     if(c.contentWarning) badges.push(`<span class="lib-badge adult mono">+18</span>`);
-    const priceHTML = (c.isPremium && c.price)
-      ? `<div class="lib-price mono">${c.oldPrice ? `<span class="old">${c.oldPrice}</span> ` : ''}${c.price}</div>`
-      : '';
     const lockOverlay = lock.locked ? `
       <div class="lib-lock-overlay">
         <div style="font-size:22px;">🔒</div>
-        ${lock.reason==='premium'
-          ? `<div>قضية بريميوم<br><span class="mono" style="color:var(--amber);">${c.price ? 'اضغط للشراء — '+c.price : 'اضغط للشراء'}</span></div>`
-          : '<div>خلّص الحلقة اللي قبلها الأول</div>'}
+        <div>خلّص الحلقة اللي قبلها الأول</div>
       </div>` : '';
     const comingSoonOverlay = !ready ? `
       <div class="lib-lock-overlay coming-soon-overlay">
@@ -764,16 +766,16 @@ function showLibrary(){
     }
 
     return `
-      <div class="lib-card ${c.isPremium ? 'premium' : ''} ${!ready ? 'coming-soon' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="${ready}">
+      <div class="lib-card ${!ready ? 'coming-soon' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="${ready}">
         ${badges.join('')}
         <button class="lib-preview-btn mono" data-preview-case="${c.id}" aria-label="معاينة سريعة" title="معاينة سريعة">ⓘ</button>
         <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">${!ready ? comingSoonOverlay : lockOverlay}</div>
         <div class="body">
           <h4>${c.title}</h4>
           <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>
+          <div class="lib-location">📍 ${caseLocationText(c)}</div>
           ${c.teaser ? `<p class="lib-teaser">${c.teaser}</p>` : ''}
           ${statusHTML}
-          ${priceHTML}
           ${actionsHTML}
         </div>
       </div>
@@ -805,15 +807,13 @@ function showLibrary(){
           <span>ابدأ قضية مجانية</span>
           <span class="lib-free-start-arrow" aria-hidden="true">←</span>
         </button>
-        <div class="lib-free-start-note">من غير تسجيل أو دفع</div>
+        <div class="lib-free-start-note">كل القضايا الجاهزة مجانية بالكامل — من غير تسجيل أو دفع</div>
       ` : ''}
       <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
         <path d="M6,6 C60,18 150,-2 214,10"/>
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
-
-    ${premiumSpotlightHTML()}
 
     <div class="lib-toolbar">
       <div class="lib-search-wrap">
@@ -824,7 +824,6 @@ function showLibrary(){
         <option value="newest" ${app.librarySort==='newest'?'selected':''}>الأحدث</option>
         <option value="shortest" ${app.librarySort==='shortest'?'selected':''}>الأقصر مدة</option>
         <option value="hardest" ${app.librarySort==='hardest'?'selected':''}>الأصعب</option>
-        ${hasPremium ? `<option value="price" ${app.librarySort==='price'?'selected':''}>الأعلى سعرًا</option>` : ''}
       </select>
       <a href="leaderboard.html" class="btn ghost mono lib-leaderboard-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🏆 لوحة المتصدرين</a>
       <a href="profile.html" class="btn ghost mono lib-profile-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">🕵️ ملفي</a>
@@ -847,7 +846,7 @@ function showLibrary(){
   if(freeStartBtn){
     freeStartBtn.addEventListener('click', ()=>{
       const caseData = CASES_REGISTRY.find(c => c.id === freeStartBtn.dataset.freeStartCase);
-      if(!caseData || caseData.isPremium || !isCaseReady(caseData) || isCaseLocked(caseData).locked) return;
+      if(!caseData || !isCaseReady(caseData) || isCaseLocked(caseData).locked) return;
       gaTrack('free_case_cta_click', {
         case_id: String(caseData.id || ''),
         case_title: String(caseData.title || ''),
@@ -855,7 +854,7 @@ function showLibrary(){
         case_premium: 'no',
         cta_location: 'library_hero',
       });
-      enterCase(caseData);
+      enterCase(caseData, { playMode:'normal', modeChosen:true, skipSplash:true });
     });
   }
 
@@ -918,12 +917,11 @@ function showLibrary(){
         openCasePreview(caseData, isCaseLocked(caseData));
         return;
       }
-      // قضايا "قريبًا" — لسه مفيش صور كافية، امنع الدخول أو الشراء لحد ما تكتمل
+      // قضايا "قريبًا" — لسه مفيش صور كافية، امنع الدخول لحد ما تكتمل
       if(card.dataset.ready === 'false'){
         return;
       }
       if(card.dataset.locked === 'true'){
-        if(card.dataset.lockReason === 'premium') openPurchasePopup(caseData);
         return;
       }
       // أزرار "إعادة من الأول" و"إعادة اللعب" بتمسح التقدّم الأول قبل الدخول
@@ -939,15 +937,6 @@ function showLibrary(){
       enterCase(caseData);
     });
   });
-
-  // ------- كارت "شوف كل الباقات" جوه قسم الملفات السرية -------
-  const bundlesCard = document.getElementById('openBundlesCard');
-  if(bundlesCard){
-    bundlesCard.addEventListener('click', ()=>{
-      gaTrack('bundles_card_click', {});
-      if(typeof window.openBundlesModal === 'function') window.openBundlesModal();
-    });
-  }
 }
 
 /* ============================================================
@@ -959,14 +948,9 @@ function openCasePreview(caseData, lock){
     case_id: String(c.id || ''),
     case_title: String(c.title || ''),
     case_no: String(c.caseNo || ''),
-    case_premium: c.isPremium ? 'yes' : 'no',
     locked: lock && lock.locked ? 'yes' : 'no',
   });
-  const priceHTML = (c.isPremium && c.price)
-    ? `<div class="lib-price mono" style="margin-top:10px; font-size:16px;">${c.oldPrice ? `<span class="old">${c.oldPrice}</span> ` : ''}${c.price}</div>`
-    : '';
   const tags = [];
-  if(c.isPremium) tags.push('PREMIUM');
   if(c.contentWarning) tags.push('+18');
   if(c.seriesId) tags.push(`الحلقة ${c.seriesOrder}`);
   const tagsHTML = tags.length ? `<div class="mono" style="color:var(--amber); font-size:11px; letter-spacing:.06em; margin-bottom:8px;">${tags.join(' · ')}</div>` : '';
@@ -983,7 +967,8 @@ function openCasePreview(caseData, lock){
       <div style="padding:18px 20px 22px;">
         ${tagsHTML}
         <h3 style="margin-bottom:4px;">${c.title}</h3>
-        <div class="mono dim" style="font-size:12px; margin-bottom:12px;">${c.caseNo} · ${c.subtitle}</div>
+        <div class="mono dim" style="font-size:12px;">${c.caseNo} · ${c.subtitle}</div>
+        <div class="case-location preview-location">📍 ${caseLocationText(c, true)}</div>
         <p style="font-size:14px; line-height:1.8; color:var(--ink-dim);">${c.teaser || ''}</p>
         <div style="display:flex; gap:14px; margin-top:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-dim);">
           <span>⏱ ${c.estMinutes} دقيقة</span>
@@ -991,9 +976,8 @@ function openCasePreview(caseData, lock){
           <span>🕵️ ${c.suspects.length} مشتبه بيهم</span>
           <span>🔍 ${c.evidence.length} دليل</span>
         </div>
-        ${priceHTML}
         <button class="btn" id="previewEnter" style="width:100%; margin-top:16px;">
-          ${lock.locked && lock.reason==='premium' ? 'اشترِ القضية ←' : lock.locked ? 'خلّص الحلقة اللي قبلها الأول' : 'ابدأ التحقيق ←'}
+          ${lock.locked ? 'خلّص الحلقة اللي قبلها الأول' : 'ابدأ التحقيق ←'}
         </button>
       </div>
     </div>
@@ -1009,104 +993,10 @@ function openCasePreview(caseData, lock){
   } else {
     enterBtn.addEventListener('click', ()=>{
       overlay.remove();
-      if(lock.locked && lock.reason==='premium') openPurchasePopup(c);
-      else enterCase(c);
+      enterCase(c);
     });
   }
 }
-
-/* ============================================================
-   PURCHASE POPUP (واتساب + كود)
-   ============================================================ */
-
-function openPurchasePopup(caseData){
-  gaTrack('purchase_view', {
-    case_id: String(caseData.id || ''),
-    case_title: String(caseData.title || ''),
-    price_label: String(caseData.price || ''),
-  });
-  const waText = encodeURIComponent(
-    caseData.price
-      ? `عايز أشتري قضية "${caseData.title}" (${caseData.price})`
-      : `عايز أشتري قضية "${caseData.title}"`
-  );
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
-  const priceHTML = caseData.price ? `
-    <div style="text-align:center; margin:10px 0 4px;">
-      ${caseData.oldPrice ? `<span class="mono" style="color:var(--ink-dim); text-decoration:line-through; font-size:14px; margin-left:8px;">${caseData.oldPrice}</span>` : ''}
-      <span class="mono" style="color:var(--amber); font-size:22px; font-weight:800;">${caseData.price}</span>
-      ${caseData.discountLabel ? `<div class="mono" style="color:var(--signal); font-size:11px; margin-top:4px;">${caseData.discountLabel}</div>` : ''}
-    </div>` : '';
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="tag" style="color:var(--amber);">قضية بريميوم</div>
-      <h3>${caseData.title}</h3>
-      ${priceHTML}
-      <p>تواصل معانا على واتساب لشراء القضية، هتوصلك كود تفتح بيه القضية على طول.</p>
-      <a href="${waLink}" target="_blank" rel="noopener" class="btn" style="display:block; text-align:center; background:#25D366; color:#04230f; margin-top:8px; text-decoration:none;">
-        تواصل على واتساب ←
-      </a>
-      <div class="divider"></div>
-      <p class="dim">عندك كود بالفعل؟</p>
-      <input type="text" id="redeemInput" placeholder="اكتب الكود هنا" style="width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); padding:11px 14px; border-radius:3px; font-family:'JetBrains Mono',monospace; text-align:center; letter-spacing:.1em; margin-bottom:10px;">
-      <div id="redeemMsg" style="font-size:13px; margin-bottom:10px; min-height:18px;"></div>
-      <button class="btn" id="redeemBtn" style="width:100%;">افتح القضية</button>
-      <button class="btn ghost close-btn" style="width:100%; margin-top:8px;">إغلاق</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-  overlay.querySelector('.close-btn').addEventListener('click', ()=>overlay.remove());
-  const waPurchaseBtn = overlay.querySelector('a[href^="https://wa.me/"]');
-  if(waPurchaseBtn){
-    waPurchaseBtn.addEventListener('click', ()=>{
-      gaTrack('purchase_whatsapp_click', {
-        case_id: String(caseData.id || ''),
-        case_title: String(caseData.title || ''),
-        price_label: String(caseData.price || ''),
-      });
-    });
-  }
-
-  overlay.querySelector('#redeemBtn').addEventListener('click', async ()=>{
-    const input = overlay.querySelector('#redeemInput');
-    const msg = overlay.querySelector('#redeemMsg');
-    const btn = overlay.querySelector('#redeemBtn');
-    const code = input.value.trim();
-    if(!code){ msg.textContent = 'اكتب الكود الأول.'; msg.style.color = 'var(--danger)'; return; }
-    btn.disabled = true;
-    btn.textContent = '...جارِ التحقق';
-    const result = await redeemCode(caseData.id, code);
-    btn.disabled = false;
-    btn.textContent = 'افتح القضية';
-    if(result.ok){
-      gaTrack('redeem_success', {
-        case_id: String(caseData.id || ''),
-        case_title: String(caseData.title || ''),
-      });
-      msg.textContent = 'تمام! القضية اتفتحت.';
-      msg.style.color = 'var(--signal)';
-      addUnlockedId(caseData.id);
-      app.unlockedIds = getUnlockedIds();
-      setTimeout(()=>{ overlay.remove(); showLibrary(); }, 900);
-    } else {
-      gaTrack('redeem_failed', {
-        case_id: String(caseData.id || ''),
-        case_title: String(caseData.title || ''),
-        reason: result.reason || 'unknown',
-      });
-      if(result.reason === 'network'){
-        msg.textContent = 'في مشكلة اتصال دلوقتي — الكود ممكن يكون صح. جرب تاني بعد شوية.';
-      } else {
-        msg.textContent = 'الكود غلط أو مستخدم قبل كده.';
-      }
-      msg.style.color = 'var(--danger)';
-    }
-  });
-}
-
 /* ============================================================
    ENTER A CASE
    ============================================================ */
@@ -1215,10 +1105,9 @@ function enterCase(caseData, opts={}){
     showLibrary();
     return;
   }
-  if(!getPlayerName()){
-    showNamePrompt(()=>enterCase(caseData, opts), caseData);
-    return;
-  }
+  // أول تجربة تبدأ فورًا؛ اللقب العشوائي بيتحفظ محليًا ويقدر اللاعب
+  // يغيره بعدين من صفحة "ملفي" من غير ما نعطّل بداية القضية.
+  ensureLocalPlayerAlias();
   const savedBeforeStart = loadLocalProgress(caseData.id);
   if(!savedBeforeStart && !opts.modeChosen && !opts.playMode){
     showPlayModePrompt(caseData, opts);
@@ -1287,7 +1176,7 @@ function enterCase(caseData, opts={}){
     game.matchSolved = !!saved.matchSolved;
     game.matchSelections = saved.matchSelections || {};
     game.investigationActionsDone = new Set(saved.investigationActionsDone || []);
-  } else if(!CASE.isPremium){
+  } else {
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
   }
@@ -1316,11 +1205,12 @@ function enterCase(caseData, opts={}){
     return;
   }
 
-  if(CASE.contentWarning) showContentWarning();
+  if(CASE.contentWarning) showContentWarning({ skipSplash:!!opts.skipSplash });
+  else if(opts.skipSplash) startPrologue();
   else showCaseSplash();
 }
 
-function showContentWarning(){
+function showContentWarning(opts={}){
   app.view = 'case';
   appRoot.innerHTML = '';
   document.body.insertAdjacentHTML('beforeend', `
@@ -1336,7 +1226,8 @@ function showContentWarning(){
   `);
   document.getElementById('warnContinue').addEventListener('click', ()=>{
     document.getElementById('warnGate').remove();
-    showCaseSplash();
+    if(opts.skipSplash) startPrologue();
+    else showCaseSplash();
   });
   document.getElementById('warnBack').addEventListener('click', ()=>{
     document.getElementById('warnGate').remove();
@@ -1399,6 +1290,7 @@ function showCaseSplash(){
     <div id="splash" class="splash" tabindex="0" role="button" aria-label="اضغط للبدء">
       <button id="splashBackBtn" class="prologue-back-btn mono">← الأرشيف</button>
       <div class="splash-caseno mono">${CASE.caseNo} — ${CASE.subtitle}</div>
+      <div class="splash-location">📍 ${caseLocationText(CASE)}</div>
       <h1 class="splash-title flicker">${CASE.title}</h1>
       <div class="splash-sub mono">قضية جريمة تفاعلية</div>
       <div class="splash-prompt mono">اضغط في أي مكان للبدء ←</div>
@@ -1441,6 +1333,7 @@ function startPrologue(){
       <div class="prologue-bg" id="prologueBg"></div>
       <button id="prologueBackBtn" class="prologue-back-btn mono">← الأرشيف</button>
       <button id="prologueSfxToggle" class="prologue-sfx-btn mono" aria-label="كتم/تشغيل الصوت">${sfxEnabled() ? '🔊' : '🔇'}</button>
+      <button id="prologueSkipBtn" class="prologue-skip-btn mono">تخطي المقدمة ←</button>
       <div class="prologue-content" id="prologueContent">
         <div class="prologue-scene mono" id="prologueScene"></div>
         <p class="prologue-text" id="prologueText"></p>
@@ -1465,6 +1358,10 @@ function startPrologue(){
     setSfxEnabled(!sfxEnabled());
     e.target.textContent = sfxEnabled() ? '🔊' : '🔇';
     if(sfxEnabled()) startAmbience(CASE.introAmbience || DEFAULT_INTRO_AMBIENCE);
+  });
+  document.getElementById('prologueSkipBtn').addEventListener('click', e=>{
+    e.stopPropagation();
+    endPrologue('skipped');
   });
   document.getElementById('prologueBackBtn').addEventListener('click', e=>{
     e.stopPropagation();
@@ -1504,11 +1401,13 @@ function showPrologueSlide(i){
   }, 420);
 }
 
-function endPrologue(){
+function endPrologue(reason='complete'){
   gaTrack('prologue_complete', {
     slide_count: CASE.prologue ? CASE.prologue.length : 0,
+    completion_reason: reason,
   });
   const p = document.getElementById('prologue');
+  if(!p) return;
   p.classList.add('hide');
   setTimeout(()=>{ p.remove(); mountGameShell(); }, 500);
 }
@@ -1525,6 +1424,7 @@ function mountGameShell(){
     <div class="masthead">
       <div>
         <div class="case-no mono">${CASE.caseNo} — ${CASE.subtitle}</div>
+        <div class="case-location masthead-location">📍 ${caseLocationText(CASE, true)}</div>
         <h1 class="flicker">${CASE.title}</h1>
       </div>
       <div class="stat-line">
@@ -1880,6 +1780,7 @@ function briefingHTML(){
       <div class="hero-caption mono">${CASE.briefing.heroCaption}</div>
     </div>
     <h2>ملخص الواقعة</h2>
+    <div class="case-location briefing-location">📍 ${caseLocationText(CASE, true)}</div>
     <p id="briefP1"></p>
     <p id="briefP2"></p>
     <div class="divider"></div>
@@ -3512,6 +3413,7 @@ function computeEnding(){
     triggerFlash(game.ending);
     submitScoreToLeaderboard();       // ليدربورد القضية دي بس (case_scores)
     submitToGlobalLeaderboard();      // الليدربورد العام عبر كل القضايا (leaderboard_entries)
+    setTimeout(showTelegramInvite, 1100);
   }, 1500);
 }
 
@@ -3591,8 +3493,8 @@ async function renderLeaderboardBox(){
     box.innerHTML = rows.map((r,i)=>`
       <div class="lb-row ${r.visitor_id===myId?'me':''} ${i<5?'lb-top':''}">
         <span class="lb-rank mono">${leaderboardRankLabel(i)}</span>
-        <span class="lb-name">${(r.player_name||'محقق مجهول')}</span>
-        <span class="lb-score mono">${r.score}</span>
+        <span class="lb-name">${escapeHTML(r.player_name||'محقق مجهول')}</span>
+        <span class="lb-score mono">${Number(r.score) || 0}</span>
       </div>
     `).join('');
   }catch(err){
@@ -3609,11 +3511,12 @@ async function renderLeaderboardBox(){
 function reviewBoxHTML(){
   const saved = getSavedReview(CASE.id);
   if(saved){
+    const safeRating = Math.max(0, Math.min(5, Number(saved.rating) || 0));
     return `
       <div class="review-box mono">
         <h4 style="font-size:13px; color:var(--signal); margin-bottom:8px;">✓ شكرًا على تقييمك للتحقيق ده</h4>
-        <div class="review-stars-display">${'★'.repeat(saved.rating)}${'☆'.repeat(5-saved.rating)}</div>
-        ${saved.comment ? `<p class="dim" style="font-size:13px; margin-top:8px;">"${saved.comment}"</p>` : ''}
+        <div class="review-stars-display">${'★'.repeat(safeRating)}${'☆'.repeat(5-safeRating)}</div>
+        ${saved.comment ? `<p class="dim" style="font-size:13px; margin-top:8px;">"${escapeHTML(saved.comment)}"</p>` : ''}
         <div id="reviewAverageBox" style="margin-top:10px; font-size:12px; color:var(--ink-dim);"></div>
       </div>
     `;
@@ -3666,8 +3569,8 @@ async function submitCaseReview(rating, comment){
 }
 
 /* ============================================================
-   جاهز لقضية تانية؟ — بنعرض قضية مجانية وقضية بريميوم بعد كل
-   قضية، من بين القضايا الجاهزة اللي لسه ما لعبهاش (بالأولوية).
+   جاهز لقضية تانية؟ — بنعرض قضيتين مجانيتين بعد كل قضية، من
+   بين القضايا الجاهزة اللي لسه ما لعبهاش (بالأولوية).
    ============================================================ */
 function pickEndingRecommendations(){
   const completed = new Set(getCompletedIds());
@@ -3678,18 +3581,14 @@ function pickEndingRecommendations(){
     const source = notDone.length ? notDone : list;
     return source[Math.floor(Math.random()*source.length)];
   }
-  return {
-    freePick: pickFrom(pool.filter(c=>!c.isPremium)),
-    premiumPick: pickFrom(pool.filter(c=>c.isPremium)),
-  };
+  const firstPick = pickFrom(pool);
+  const secondPick = pickFrom(pool.filter(c => !firstPick || c.id !== firstPick.id));
+  return { firstPick, secondPick };
 }
 
 function endingRecCardHTML(c){
   if(!c) return '';
-  const badge = c.isPremium
-    ? `<span class="lib-badge premium mono">PREMIUM</span>`
-    : `<span class="lib-badge mono" style="background:var(--signal); color:#0c231d;">مجانية</span>`;
-  const priceHTML = (c.isPremium && c.price) ? `<div class="lib-price mono">${c.price}</div>` : '';
+  const badge = `<span class="lib-badge mono" style="background:var(--signal); color:#0c231d;">مجانية</span>`;
   return `
     <div class="lib-card ending-rec-card" data-rec-case="${c.id}">
       ${badge}
@@ -3697,21 +3596,20 @@ function endingRecCardHTML(c){
       <div class="body">
         <h4>${c.title}</h4>
         <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة</div>
-        ${priceHTML}
       </div>
     </div>
   `;
 }
 
 function endingRecommendationsHTML(){
-  const { freePick, premiumPick } = pickEndingRecommendations();
-  if(!freePick && !premiumPick) return '';
+  const { firstPick, secondPick } = pickEndingRecommendations();
+  if(!firstPick && !secondPick) return '';
   return `
     <div class="ending-recs-section">
       <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:10px;">جاهز لقضية تانية؟</h4>
       <div class="ending-recs">
-        ${endingRecCardHTML(freePick)}
-        ${endingRecCardHTML(premiumPick)}
+        ${endingRecCardHTML(firstPick)}
+        ${endingRecCardHTML(secondPick)}
       </div>
     </div>
   `;
@@ -3720,6 +3618,14 @@ function endingRecommendationsHTML(){
 /* ============================================================
    ENDING
    ============================================================ */
+
+function normalizedEndingHint(text){
+  const required = Number(CASE.conclusiveRequired) || 2;
+  const numberWord = '(?:تلات(?:ة)?|ثلاث(?:ة)?|أربع(?:ة)?|اربعة|خمس(?:ة)?|[2-9])';
+  return String(text || '')
+    .replace(new RegExp(`اجمع\\s+${numberWord}\\s+أدلة?\\s+على الأقل`, 'i'), `اجمع ${required} أدلة على الأقل`)
+    .replace(new RegExp(`على الأقل\\s+${numberWord}\\s+أدلة?`, 'i'), `على الأقل ${required} أدلة`);
+}
 
 function endingHTML(){
   const e = CASE.endings[game.ending];
@@ -3731,7 +3637,8 @@ function endingHTML(){
   const paragraphs = (game.ending==='bad' && wrongSuspect && wrongSuspect.loseMsg)
     ? `<p>${wrongSuspect.loseMsg}</p>`
     : e.paragraphs.map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('');
-  const hint = e.hint ? `<p class="dim">${e.hint}</p>` : '';
+  const hintText = game.ending === 'partial' ? normalizedEndingHint(e.hint) : e.hint;
+  const hint = hintText ? `<p class="dim">${hintText}</p>` : '';
   return `
     <div class="stamp ${game.ending} mono">${e.stamp}</div>
     <div class="ending-badge ${game.ending} mono">${e.badgeLabel}</div>
@@ -4157,7 +4064,6 @@ function attachPanelEvents(){
       if(!c) return;
       gaTrack('ending_recommendation_click', {
         case_id: String(c.id || ''),
-        case_premium: c.isPremium ? 'yes' : 'no',
       });
       openCasePreview(c, isCaseLocked(c));
     });

@@ -40,7 +40,6 @@ const READY_CASE_IDS = new Set([
   // === إضافات جلسة تصحيح الـ82 صورة (اكتشاف وإصلاح الـ"إزاحة" بين الملفات) ===
   'closed-file',
   'forged-will',
-  'grandma-ring',
   'missing-twin',
   'var-conspiracy',
   'coded-message',
@@ -62,8 +61,9 @@ const READY_CASE_IDS = new Set([
   // === buffalo-case رجعت جاهزة (22 أغسطس) — كان في غلط مني في فحصها،
   // صورها فعليًا تحت images/buffalo/ (مش images/buffalo-case/) وكلها موجودة ===
   'buffalo-case',
-  // === القضايا الـ8 دي لسه ناقصة صور فعليًا (اتفحصت وأكدت):
+  // === القضايا الـ10 دي لسه ناقصة صور فعليًا (اتفحصت وأكدت):
   // 93rd-minute, bribery, broken-faucet, dating-app,
-  // dawn-club (بريميوم!), deleted-scene, overbilled, wedding-gold
+  // dawn-club (بريميوم!), deleted-scene, overbilled, wedding-gold,
+  // charity-funds, grandma-ring
   // رجّعهم للسِت دي لما تكتمل صورهم فعليًا (شوف قايمة البرومتات الناقصة) ===
 ]);

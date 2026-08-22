@@ -282,7 +282,7 @@ const CASE_GRANDMA_RING = {
   c.alibiGridPuzzle.resultEvidenceIds = ['kamal_r_alibi_broken'];
   c.conclusiveEvidenceIds = ['kamal_r_interest','amr_r_saw_someone','kamal_r_alibi_broken'];
   const k=c.suspects.find(s=>s.id==='family_friend_kamal_r'); if(k){const q=k.questions.find(q=>q.closesInterrogation); if(q) q.requires=['kamal_r_interest','amr_r_saw_someone','kamal_r_alibi_broken'];}
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: اهتمام كمال بالخاتم، شهادة عمرو، وكسر حجة مكان كمال وقت السرقة، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: اهتمام كمال بالخاتم، شهادة عمرو، وكسر حجة مكان كمال وقت السرقة، قبل ما تتهم.';
 
 })();
 

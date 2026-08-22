@@ -326,7 +326,7 @@ const CASE_MUD_PRINT = {
   c.conclusiveEvidenceIds = ['bassel_dna_in_glove','bassel_seen_city','samia_gloves'];
   const b=c.suspects.find(s=>s.id==='apprentice_bassel'); if(b){const q=b.questions.find(q=>q.closesInterrogation); if(q) q.requires=['bassel_dna_in_glove','bassel_seen_city','samia_gloves'];}
   setTheory0('الـDNA الحديث جوه قفاز سيد اللي طابق باسل + شهادة الجار اللي أثبتت وجوده في المدينة + وجود قفاز سيد أصلًا ضمن حاجاته المحفوظة عند سامية');
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: DNA باسل داخل القفاز، وجوده في المدينة، والقفاز القديم المحفوظ، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: DNA باسل داخل القفاز، وجوده في المدينة، والقفاز القديم المحفوظ، قبل ما تتهم.';
 
 })();
 

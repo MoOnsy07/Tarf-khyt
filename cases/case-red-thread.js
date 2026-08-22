@@ -15,13 +15,9 @@ const CASE_RED_THREAD = {
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 22,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'عارضة أزياء بتتلاقي مقتولة في الأتيليه ليلة قبل عرض حاسم لمصممة صاعدة. خيط أحمر من قماش نادر هو الدليل الوحيد اللي ممكن يفضح القاتل.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['murder', 'fashion'],
   seriesId: null,
   seriesOrder: null,
@@ -329,7 +325,7 @@ const CASE_RED_THREAD = {
   c.dnaLabPuzzle.resultEvidenceIds = ['kamal_dna_match'];
   c.conclusiveEvidenceIds = ['kamal_secret','kamal_backdoor_seen','kamal_dna_match'];
   const k=c.suspects.find(s=>s.id==='investor_kamal'); if(k){const q=k.questions.find(q=>q.closesInterrogation); if(q) q.requires=['kamal_secret','kamal_backdoor_seen','kamal_dna_match'];}
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: السر المالي، دخول كمال من الباب الخلفي، ومطابقة الـDNA على الخيط، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: السر المالي، دخول كمال من الباب الخلفي، ومطابقة الـDNA على الخيط، قبل ما تتهم.';
 
 })();
 

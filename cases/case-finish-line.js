@@ -307,7 +307,7 @@ const CASE_FINISH_LINE = {
   c.dnaLabPuzzle.resultEvidenceIds = ['tamer_f_chemical_match'];
   c.conclusiveEvidenceIds = ['tamer_f_sponsorship','tamer_f_seen_camp','tamer_f_chemical_match'];
   const t=c.suspects.find(s=>s.id==='sponsor_rep_tamer_f'); if(t){const q=t.questions.find(q=>q.closesInterrogation); if(q) q.requires=['tamer_f_sponsorship','tamer_f_seen_camp','tamer_f_chemical_match'];}
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: صفقة الرعاية، وجود تامر قرب المعسكر، والتطابق الكيميائي، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: صفقة الرعاية، وجود تامر قرب المعسكر، والتطابق الكيميائي، قبل ما تتهم.';
 
 })();
 

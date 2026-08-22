@@ -15,13 +15,9 @@ const CASE_ONE_COMMENT = {
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'يوتيوبر مشهور بينشر فيديو فيه تعليق عابر بيلمح لسر شخصي خطير عن حد معين، وبعد ساعات بيتلاقى ميت في استوديو التصوير بتاعه.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['murder', 'digital'],
   seriesId: null,
   seriesOrder: null,
@@ -226,7 +222,7 @@ const CASE_ONE_COMMENT = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية جاسر، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: اعترافه بالرسالة، دافعه الشخصي، وشهادة الجار، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: اعترافه بالرسالة، دافعه الشخصي، وشهادة الجار، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

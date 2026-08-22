@@ -317,7 +317,7 @@ const CASE_LAST_LAUGH = {
     requires:['maher_rivalry','maher_seen_backstage_l','maher_polygraph_lie'], closesInterrogation:true,
     a:'(بينزل عينه) "أيوه. كنت عايز أفسد المشهد وأحرجه قدام الفريق، ماكنتش متخيل إن المادة اللي استخدمتها ممكن تقتله."'
   });
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: دافع ماهر، وجوده في الكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: دافع ماهر، وجوده في الكواليس، ونتيجة كشف الكذب، قبل ما تتهم.';
 
 })();
 

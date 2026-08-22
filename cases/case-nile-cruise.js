@@ -15,13 +15,9 @@ const CASE_NILE_CRUISE = {
   difficulty: 'صعبة',
   estMinutes: 38,
   investigationPoints: 21,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'راكب بيختفي من كابينته على مركب نيلي فاخر نص الليل، والمركب في وسط النيل من غير أي مكان قريب يمشي منه. إزاي حد يختفي من مكان مقفول تمامًا؟',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['disappearance', 'mystery'],
   seriesId: null,
   seriesOrder: null,
@@ -221,7 +217,7 @@ const CASE_NILE_CRUISE = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية فادي، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: كاميرا الممر، شهادة أشرف، والخلاف المالي، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: كاميرا الممر، شهادة أشرف، والخلاف المالي، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

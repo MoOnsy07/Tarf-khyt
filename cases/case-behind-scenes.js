@@ -15,13 +15,9 @@ const CASE_BEHIND_SCENES = {
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 21,
-  price: '25 جنيه',
-  oldPrice: '50 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'متسابقة صاعدة في برنامج مواهب بتوجه اتهام خطير لمنتج البرنامج قبل ما تختفي فجأة من الاستوديو. هل سكتوها عشان الاتهام ده؟',
 
-  isPremium: true,
-  premiumTier: 'A',
+  isPremium: false,
   categories: ['disappearance', 'corruption'],
   seriesId: null,
   seriesOrder: null,
@@ -224,7 +220,7 @@ const CASE_BEHIND_SCENES = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية رشا، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: تسجيل الكاميرا، محاولة الإسكات المالي، وطلب إخفاء التسجيلات، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: تسجيل الكاميرا، محاولة الإسكات المالي، وطلب إخفاء التسجيلات، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

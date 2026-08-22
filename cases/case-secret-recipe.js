@@ -293,7 +293,7 @@ const CASE_SECRET_RECIPE = {
   c.dnaLabPuzzle.resultEvidenceIds = ['mona_r_chemical_match'];
   c.conclusiveEvidenceIds = ['mona_r_rivalry','witness_mona_r_seen','mona_r_chemical_match'];
   const m=c.suspects.find(s=>s.id==='rival_chef_mona_r'); if(m){const q=m.questions.find(q=>q.closesInterrogation); if(q) q.requires=['mona_r_rivalry','witness_mona_r_seen','mona_r_chemical_match'];}
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: المنافسة، شهادة الجار، والتطابق الكيميائي مع عينة منى، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 4 أدلة من: المنافسة، شهادة الجار، والتطابق الكيميائي مع عينة منى، قبل ما تتهم.';
 
 })();
 

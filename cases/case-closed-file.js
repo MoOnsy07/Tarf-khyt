@@ -15,13 +15,9 @@ const CASE_CLOSED_FILE = {
   difficulty: 'صعبة',
   estMinutes: 39,
   investigationPoints: 22,
-  price: '25 جنيه',
-  oldPrice: '50 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'ضابط شرطة متقاعد بيتقتل في بيته وهو بيحاول يفتح من جديد قضية قديمة كان مقتنع طول حياته إنها اتقفلت غلط. الملف القديم نفسه هو مفتاح الجريمة الجديدة.',
 
-  isPremium: true,
-  premiumTier: 'A',
+  isPremium: false,
   categories: ['murder', 'coldcase'],
   seriesId: null,
   seriesOrder: null,
@@ -334,7 +330,7 @@ const CASE_CLOSED_FILE = {
   c.conclusiveEvidenceIds = ['tarek_f_family_burden','witness_tarek_f_seen','fathy_last_note_tarek'];
   setTheory0('شهادة الجار اللي أثبتت وجوده قريب من بيت فتحي + آخر ملاحظة بخط فتحي اللي ذكرت طارق كآخر زائر + دافعه المرتبط بسمعة عيلته والقضية القديمة');
   c.endings.good.paragraphs[1] = 'شهادة الجار اللي أثبتت وجود طارق قرب البيت، وآخر ملاحظة بخط فتحي اللي ذكرته كآخر زائر، والضغط اللي عاشه طول عمره بسبب القضية القديمة، كلها أدلة ربطت الجريمة الجديدة مباشرة بمحاولته وقف إعادة فتح الملف.';
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: وجود طارق قرب البيت، آخر ملاحظة لفتحي، ودافعه العائلي، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: وجود طارق قرب البيت، آخر ملاحظة لفتحي، ودافعه العائلي، قبل ما تتهم.';
 
 })();
 

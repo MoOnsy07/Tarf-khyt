@@ -322,7 +322,7 @@ const CASE_POSTPONED_ENGAGEMENT = {
   c.alibiGridPuzzle.resultEvidenceIds = ['hassan_p_alibi_broken'];
   c.conclusiveEvidenceIds = ['hassan_p_pressure_call','tamer_p_confession','hassan_p_alibi_broken'];
   const h=c.suspects.find(s=>s.id==='debt_collector_hassan_p'); if(h){const q=h.questions.find(q=>q.closesInterrogation); if(q) q.requires=['hassan_p_pressure_call','tamer_p_confession','hassan_p_alibi_broken'];}
-  c.endings.partial.hint = 'اجمع على الأقل تلات أدلة من: مكالمة الضغط، كلام تامر عن المقابلة المهمة، وكسر حجة مكان حسن، قبل ما تتهم.';
+  c.endings.partial.hint = 'اجمع على الأقل 3 أدلة من: مكالمة الضغط، كلام تامر عن المقابلة المهمة، وكسر حجة مكان حسن، قبل ما تتهم.';
 
 })();
 

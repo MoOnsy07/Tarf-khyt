@@ -15,13 +15,9 @@ const CASE_DAWN_CALL = {
   difficulty: 'صعبة',
   estMinutes: 37,
   investigationPoints: 21,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'زوجة بتتلقى مكالمة غامضة الفجر من رقم زوجها المتوفى من أسبوعين، بصوت شبيه بصوته بيقولها جملة واحدة غامضة قبل ما الخط يقفل.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['murder', 'mystery'],
   seriesId: null,
   seriesOrder: null,
@@ -229,7 +225,7 @@ const CASE_DAWN_CALL = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية فادي، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: اعتراف حسن، الخلاف الاستثماري، والموعد النهائي، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: اعتراف حسن، الخلاف الاستثماري، والموعد النهائي، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',

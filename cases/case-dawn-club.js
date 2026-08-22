@@ -15,13 +15,9 @@ const CASE_DAWN_CLUB = {
   difficulty: 'صعبة',
   estMinutes: 36,
   investigationPoints: 20,
-  price: '15 جنيه',
-  oldPrice: '30 جنيه',
-  discountLabel: 'خصم 50%',
   teaser: 'رجل أعمال معروف بيموت فجأة في غرفة كبار الشخصيات بنادي ليلي فاخر، وسط أجواء صاخبة وشهود كتير بس رواياتهم متضاربة تمامًا.',
 
-  isPremium: true,
-  premiumTier: 'B',
+  isPremium: false,
   categories: ['murder', 'nightlife'],
   seriesId: null,
   seriesOrder: null,
@@ -229,7 +225,7 @@ const CASE_DAWN_CLUB = {
       paragraphs:[
         'التحقيق بيتجه صح ناحية شريف، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
       ],
-      hint:'اجمع على الأقل تلات أدلة من: كشف الكذب، اعتراف النادل، ومكالمة التهديد، قبل ما تتهم.'
+      hint:'اجمع على الأقل 3 أدلة من: كشف الكذب، اعتراف النادل، ومكالمة التهديد، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',
