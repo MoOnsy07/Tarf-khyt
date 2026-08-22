@@ -2184,42 +2184,23 @@ function interrogationQuestionButtonsHTML(s, answered, outOfPoints, closed){
   }).filter(Boolean).join('');
 }
 
-function normalizeArabicForMatch(text){
-  return String(text || '')
-    .replace(/[أإآ]/g,'ا')
-    .replace(/ى/g,'ي')
-    .replace(/ة/g,'ه')
-    .replace(/[ًٌٍَُِّْـ]/g,'')
-    .toLowerCase();
-}
-
-function evidenceMentionsSuspect(ev, s){
-  const hay = normalizeArabicForMatch([ev.title, ev.short, ev.full, ev.tag].filter(Boolean).join(' '));
-  const fullName = normalizeArabicForMatch(s.name);
-  if(fullName && fullName.length >= 3 && hay.includes(fullName)) return true;
-  // الاسم الأول مفيد في القضايا اللي الاسم الكامل فيها طويل، لكن ما نعتمدش عليه لو قصير جدًا.
-  const first = fullName.split(/\s+/).filter(Boolean)[0] || '';
-  return first.length >= 3 && hay.includes(first);
-}
-
-function evidenceRelevantToSuspect(ev, s){
+function evidenceRelevantToSuspect(ev, s, answered=new Set()){
   if(!ev || !s) return false;
 
-  // دعم صريح للقضايا الجديدة لو حبيت تحدد العلاقات يدويًا بعد كده.
+  // الربط الصريح يفضل أعلى أولوية: الكاتب حدّد بنفسه إن الدليل ينفع
+  // يتواجه به الشخص، أو كتب ردًا مخصصًا لنفس زوج (الشخص + الدليل).
   const explicit = ev.confrontableBy || ev.relatedSuspects || ev.suspectIds;
   if(Array.isArray(explicit) && explicit.includes(s.id)) return true;
-
-  // مواجهة مكتوبة خصيصًا للشخص + الدليل.
   if(s.confrontations && Object.prototype.hasOwnProperty.call(s.confrontations, ev.id)) return true;
 
-  // دليل بيفتح من سؤال الشخص نفسه: مرتبط بإفادته على الأقل.
-  if((s.questions || []).some(q=>q && q.unlockId === ev.id)) return true;
-
-  // سؤال للشخص محتاج الدليل ده؛ دي أقوى إشارة إن مواجهته به منطقية.
-  if((s.questions || []).some(q=>Array.isArray(q && q.requires) && q.requires.includes(ev.id))) return true;
-
-  // بعض ملفات القضايا القديمة ما فيهاش metadata للعلاقة؛ نستخدم ذكر الاسم كـ fallback آمن.
-  return evidenceMentionsSuspect(ev, s);
+  // لو فيه سؤال متابعة مكتوب محتاج الدليل، المواجهة منطقية فقط بعد جمع
+  // كل الأدلة المطلوبة وقبل ما السؤال يتجاوب. وقت الضغط المحرك هيستخدم
+  // نفس السؤال وإجابته المكتوبين في القضية، بدل أي رد احتياطي متكرر.
+  return (s.questions || []).some((q, idx)=>{
+    if(answered.has(idx)) return false;
+    const req = Array.isArray(q && q.requires) ? q.requires : [];
+    return req.includes(ev.id) && req.every(id=>game.collected.has(id));
+  });
 }
 
 function interrogationHTML(suspectId){
@@ -2238,7 +2219,7 @@ function interrogationHTML(suspectId){
   // ما نعرضش كل الأدلة لكل مشتبه به. المواجهة تظهر فقط لو فيه رابط فعلي
   // بين الدليل والشخص في بيانات القضية، وإلا واجهة اللعبة نفسها بتسرّب/تلخبط المنطق.
   const confrontableEvidence = [...CASE.evidence]
-    .filter(e=>game.collected.has(e.id) && evidenceRelevantToSuspect(e, s))
+    .filter(e=>game.collected.has(e.id) && evidenceRelevantToSuspect(e, s, answered))
     .sort((a,b)=>a.order-b.order);
   const confrontHTML = confrontableEvidence.length ? `
     <h3>واجهه بدليل</h3>
@@ -3866,9 +3847,11 @@ function attachPanelEvents(){
 
   document.querySelectorAll('.confront-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
+      if(btn.disabled) return;
       const evId = btn.dataset.confront;
       const s = suspectById(game.activeSuspect);
       if(!game.confronted[s.id]) game.confronted[s.id] = new Set();
+      if(!game.interrogated[s.id]) game.interrogated[s.id] = new Set();
       if(game.confronted[s.id].has(evId)) return;
       game.confronted[s.id].add(evId);
       btn.disabled = true;
@@ -3879,11 +3862,14 @@ function attachPanelEvents(){
         suspect_name: String(s.name || ''),
         evidence_id: String(evId || ''),
       });
-      // رد المواجهة: الأول رد مخصص من بيانات القضية، ولو مش موجود نحاول
-      // نستفيد من سؤال الاستجواب المرتبط بنفس الدليل (question.requires).
-      // كده الشخصية ترد بالمعلومة الحقيقية المكتوبة في القضية بدل ما تبص للدليل وتسكت.
+      // رد المواجهة: الأول رد مخصص من بيانات القضية. لو القضية القديمة
+      // معندهاش confrontations لكن عندها سؤال متابعة محتاج الدليل، المواجهة
+      // بتسأل السؤال المكتوب نفسه وتعرض إجابته المخصصة بدل الجملة العامة.
       let reaction = null;
       let unlockId = null;
+      let linkedQuestion = null;
+      let linkedQuestionIndex = -1;
+      let autoAnsweredLinkedQuestion = false;
       const confrontation = s.confrontations && s.confrontations[evId];
 
       if(confrontation){
@@ -3896,15 +3882,15 @@ function attachPanelEvents(){
       }
 
       if(!reaction){
-        const linkedQuestion = (s.questions || []).find(item=>{
+        linkedQuestionIndex = (s.questions || []).findIndex((item, idx)=>{
+          if(game.interrogated[s.id].has(idx)) return false;
           const req = Array.isArray(item.requires) ? item.requires : [];
           return req.includes(evId) && req.every(id=>game.collected.has(id));
         });
-        if(linkedQuestion){
-          // المواجهة بالدليل ما تجاوبش سؤال المتابعة تلقائيًا؛ هي بس تفتح باب السؤال.
-          // ده يمنع ظهور سؤال جديد فوق شخص بعينه بمجرد اكتشاف دليل/كاميرا، ويخلي اللاعب
-          // هو اللي يقرر يختبر الدليل على كل مشتبه به.
-          reaction = 'الدليل ده بيغيّر نقطة في إفادتي. اسألني عن التفصيلة المرتبطة بيه.';
+        if(linkedQuestionIndex >= 0){
+          linkedQuestion = s.questions[linkedQuestionIndex];
+          reaction = linkedQuestion.a;
+          autoAnsweredLinkedQuestion = true;
         }
       }
 
@@ -3914,17 +3900,11 @@ function attachPanelEvents(){
         if(!unlockId && fallback && typeof fallback === 'object') unlockId = fallback.unlockId || null;
       }
 
-      // بعد فلترة الأدلة المفروض نوصل هنا فقط لو الدليل مرتبط بالشخص فعلًا.
-      // نخلي الرد يعكس نوع العلاقة بدل الرد العام "مليش علاقة".
+      // حارس دفاعي فقط لأي قضية مستقبلية فيها metadata ناقصة. مع الفلترة
+      // الحالية المفروض المسار ده مايبقاش قابل للوصول في القضايا الموجودة.
       if(!reaction){
-        const sourceQuestion = (s.questions || []).find(item=>item && item.unlockId === evId);
-        if(sourceQuestion){
-          reaction = 'المعلومة دي طلعت أثناء استجوابي فعلًا. لو شايف فيها تناقض مع كلام تاني، اسألني عن النقطة المحددة.';
-        } else if(evidenceMentionsSuspect(ev, s)){
-          reaction = 'الدليل ده مرتبط بيا، بس لو عايز تواجهني بيه لازم تحدد إيه الجزء اللي شايفه بيناقض إفادتي.';
-        } else {
-          reaction = 'الدليل ده مرتبط بنقطة في إفادتي. اسألني عن التفصيلة المرتبطة بيه.';
-        }
+        console.warn('Missing confrontation response:', CASE && CASE.id, s.id, evId);
+        reaction = `${s.name} بصّ على «${ev.title}»، لكن ملف القضية مفيهوش سؤال مواجهة محدد للدليل ده.`;
       }
 
       const transcript = document.getElementById('transcript');
@@ -3933,7 +3913,7 @@ function attachPanelEvents(){
         if(placeholder) placeholder.remove();
         const qLine = document.createElement('div');
         qLine.className='line q';
-        qLine.innerHTML = `<div class="who">🧵 واجهته بـ</div>${ev.title}`;
+        qLine.innerHTML = `<div class="who">🧵 واجهته بـ</div>${ev.title}${autoAnsweredLinkedQuestion ? `<div style="margin-top:7px;color:var(--signal);">${linkedQuestion.q}</div>` : ''}`;
         const aLine = document.createElement('div');
         aLine.className='line a';
         aLine.innerHTML = `<div class="who">${s.name}</div><span></span>`;
@@ -3944,12 +3924,39 @@ function attachPanelEvents(){
         const scrollTimer = setInterval(()=>{ transcript.scrollTop = transcript.scrollHeight; },120);
         setTimeout(()=>clearInterval(scrollTimer), reaction.length*10+200);
       }
+      if(autoAnsweredLinkedQuestion){
+        game.interrogated[s.id].add(linkedQuestionIndex);
+        const linkedRequirements = Array.isArray(linkedQuestion.requires) ? linkedQuestion.requires : [];
+        document.querySelectorAll('.confront-btn').forEach(otherBtn=>{
+          // امنع الضغط السريع على دليل تاني لنفس سؤال المتابعة قبل إعادة الرسم.
+          // ولو السؤال قفل الاستجواب، اقفل كل مواجهات الشخص فورًا.
+          if(linkedQuestion.closesInterrogation || linkedRequirements.includes(otherBtn.dataset.confront)){
+            otherBtn.disabled = true;
+          }
+        });
+        gaTrack('interrogation_question', {
+          suspect_id: String(s.id || ''),
+          suspect_name: String(s.name || ''),
+          question_number: linkedQuestionIndex + 1,
+          via_confrontation: 'yes',
+        });
+        if(linkedQuestion.unlockId) collect(linkedQuestion.unlockId);
+        if(linkedQuestion.closesInterrogation) game.interrogationClosed[s.id] = true;
+      }
       if(unlockId) collect(unlockId);
       persistProgress();
       renderTabs();
-      // لو الدليل فتح سؤال متابعة، حدّث قائمة الأسئلة في نفس الشاشة من غير ما
-      // نكشف ده قبل المواجهة ومن غير ما نمسح رد المواجهة من المحادثة.
-      refreshInterrogationQuestionGrid();
+      if(autoAnsweredLinkedQuestion){
+        // بعد انتهاء الكتابة نعيد بناء الاستجواب من الحالة المحفوظة؛ السؤال
+        // وإجابته يفضلوا ظاهرين، وأي أزرار مواجهة زائدة لنفس السؤال تختفي.
+        setTimeout(()=>{
+          if(CASE && game && game.activeSuspect === s.id && app.view === 'case') render();
+        }, reaction.length*10+400);
+      } else {
+        // الرد المخصص ممكن يفتح سؤال متابعة عادي؛ نحدّث الأزرار من غير
+        // ما نمسح نص المواجهة الجاري كتابته.
+        refreshInterrogationQuestionGrid();
+      }
       const evCount = document.getElementById('evCount');
       if(evCount) evCount.textContent = game.collected.size + ' / ' + CASE.evidence.length;
     });
