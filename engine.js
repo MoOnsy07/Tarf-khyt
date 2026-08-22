@@ -798,7 +798,7 @@ function showLibrary(){
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
 
-    <div class="lib-toolbar" id="case-browser">
+    <div class="lib-toolbar">
       <div class="lib-search-wrap">
         <span class="lib-search-icon mono">⌕</span>
         <input type="text" id="lib-search" class="lib-search-input" placeholder="دوّر باسم القضية..." value="${app.librarySearch.replace(/"/g,'&quot;')}" autocomplete="off">
@@ -815,7 +815,7 @@ function showLibrary(){
 
     ${socialLinksHTML('library')}
 
-    <div class="lib-filters-scroll"><div class="lib-filters">${filterBar}</div></div>
+    <div class="lib-filters-scroll" id="cases-list-start"><div class="lib-filters">${filterBar}</div></div>
 
     <div class="lib-results-count mono">${resultsCountLabel}</div>
 
@@ -829,7 +829,7 @@ function showLibrary(){
   if(browseCasesBtn){
     browseCasesBtn.addEventListener('click', ()=>{
       gaTrack('browse_cases_cta_click', { cta_location:'library_hero' });
-      const target = document.getElementById('case-browser');
+      const target = document.getElementById('cases-list-start');
       if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
     });
   }

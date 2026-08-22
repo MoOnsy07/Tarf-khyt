@@ -779,9 +779,9 @@ body{
 
 /* ============ شريط البحث والترتيب ============ */
 .lib-toolbar{
-  scroll-margin-top:70px;
   display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;
 }
+#cases-list-start{ scroll-margin-top:70px; }
 .lib-search-wrap{
   position:relative; flex:1; min-width:200px;
 }
