@@ -2,7 +2,6 @@
 // ملف مشترك بين engine.js وأي صفحة تانية محتاجة تعرف حالة الجاهزية
 // (زي profile.html) — عشان اللستة تتحدث في مكان واحد بس.
 const READY_CASE_IDS = new Set([
-  'buffalo-case',
   'dark-testimony',
   'final-testament',
   'last-episode',
@@ -26,4 +25,46 @@ const READY_CASE_IDS = new Set([
   'ghost-author',
   'exam-leak',
   'charity-funds',
+  // === إضافات جلسة استكمال مطابقة الصور (من صورة 0156 لحد 0350) ===
+  'dawn-call',
+  'finish-line',
+  'flat-12b',
+  'last-bell',
+  'last-update',
+  'mud-print',
+  'old-estate',
+  'postponed-engagement',
+  'recorded-voice',
+  'red-thread',
+  'vault-key',
+  'warehouse-fire',
+  // === إضافات جلسة تصحيح الـ82 صورة (اكتشاف وإصلاح الـ"إزاحة" بين الملفات) ===
+  'closed-file',
+  'forged-will',
+  'grandma-ring',
+  'missing-twin',
+  'var-conspiracy',
+  'coded-message',
+  'behind-scenes',
+  'vanished-wife',
+  // === القضايا التانية اللي كانت ناقصة صورة واحدة بس، واكتملت
+  // بفضل نفس دفعة الـ82 صورة (لقينا الصور الناقصة بتاعتها في نفس الأرشيف) ===
+  'last-laugh',
+  'nile-cruise',
+  'old-photo',
+  'one-comment',
+  'secret-clinic',
+  // === اكتملت بعد رفع 4 صور إضافية (كان ناقص واحدة بس لكل قضية) ===
+  'secret-recipe',
+  'opening-night',
+  'suspicious-transfer',
+  // === آخر قضية! second-face اكتملت بصورة face-witness.jpg ===
+  'second-face',
+  // === buffalo-case رجعت جاهزة (22 أغسطس) — كان في غلط مني في فحصها،
+  // صورها فعليًا تحت images/buffalo/ (مش images/buffalo-case/) وكلها موجودة ===
+  'buffalo-case',
+  // === القضايا الـ8 دي لسه ناقصة صور فعليًا (اتفحصت وأكدت):
+  // 93rd-minute, bribery, broken-faucet, dating-app,
+  // dawn-club (بريميوم!), deleted-scene, overbilled, wedding-gold
+  // رجّعهم للسِت دي لما تكتمل صورهم فعليًا (شوف قايمة البرومتات الناقصة) ===
 ]);

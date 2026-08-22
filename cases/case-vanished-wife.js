@@ -18,7 +18,8 @@ const CASE_VANISHED_WIFE = {
   investigationPoints: 21,
   teaser: 'زوجة اختفت فجأة من بيتها من غير أي أثر واضح. التحقيق بيكشف خلفية سيطرة وتحكم كانت مخبية ورا واجهة زواج طبيعي، وأمانها على المحك.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['disappearance', 'social'],
   seriesId: null,
   seriesOrder: null,

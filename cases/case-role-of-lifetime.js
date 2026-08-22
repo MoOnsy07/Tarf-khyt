@@ -18,7 +18,8 @@ const CASE_ROLE_OF_LIFETIME = {
   investigationPoints: 22,
   teaser: 'ممثل باخد بطولة مسلسل عن شخصية حقيقية "متوفية"، ويكتشف إنها حية فعلاً وبتدير كل حاجة من الخفاء. رسائل مشفرة جوه السيناريو بتهدده بمحاولة قتل حقيقية.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['thriller', 'drama'],
   seriesId: null,
   seriesOrder: null,

@@ -428,6 +428,35 @@
     .thread-row { display: none; }
   }
 
+  /* ============ الباقة الشاملة — بانر منفصل ومميز تحت الباقات العادية ============ */
+  .full-bundle{
+    position: relative;
+    margin-top: 16px;
+    padding: 20px 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(244,200,105,.45);
+    background: linear-gradient(120deg, #2c2412 0%, #1a1610 60%, #120e08 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 18px; flex-wrap: wrap;
+  }
+  .full-bundle-stamp{
+    position: absolute; top: -11px; right: 20px;
+    background: var(--gold, #e0a458); color: #1a1305;
+    font-size: 10px; font-weight: 900; letter-spacing: .06em;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .full-bundle-text{ flex: 1 1 260px; }
+  .full-bundle-title{ font-size: 16px; font-weight: 900; color: var(--ink); margin-bottom: 4px; }
+  .full-bundle-sub{ font-size: 12.5px; color: var(--ink-dim); line-height: 1.6; }
+  .full-bundle-price{ display: flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+  .full-bundle-price > span{ font-size: 26px; font-weight: 900; color: var(--gold, #e0a458); }
+  .full-bundle-price small{ font-size: 14px; }
+
+  @media (max-width: 600px) {
+    .full-bundle{ flex-direction: column; align-items: stretch; text-align: center; padding-top: 26px; }
+    .full-bundle-price{ justify-content: center; }
+  }
+
 </style>
 
 <template id="bundleBannerTemplate">
@@ -442,38 +471,50 @@
   <div class="header">
     <div class="eyebrow">CASE ARCHIVE — BULK ACCESS</div>
     <h1>كل ما تحقق أكتر، توفّر أكتر</h1>
-    <div class="subtitle"><span class="ltr-token">Premium A · 25ج</span> &nbsp;|&nbsp; <span class="ltr-token">Premium B · 15ج</span> — اختار الباقة الأنسب ليك</div>
+    <div class="subtitle">25 قضية بريميوم متاحة — اختار عدد القضايا وحدد بنفسك أنهي قضايا عايزها على واتساب</div>
   </div>
 
   <div class="tiers">
     <div class="tier">
       <div class="tier-count mono">BUNDLE · 3</div>
-      <div class="tier-label tier-label-ltr" dir="ltr">1 Premium A + 2 Premium B</div>
-      <div class="tier-price mono">50<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">55ج</bdi> — وفّر <bdi class="amount" dir="ltr">5ج</bdi></div>
-      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%203%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%281%20Premium%20A%20%2B%202%20Premium%20B%29%20%D8%A8%D9%80%2050%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
+      <div class="tier-label">3 قضايا من اختيارك</div>
+      <div class="tier-price mono">40<small>ج</small></div>
+      <div class="tier-per-case">وفّر لغاية <bdi class="amount" dir="ltr">15ج</bdi> عن الشراء منفصل</div>
+      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%203%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%28%D8%AA%D8%AE%D8%AA%D8%A7%D8%B1%20%D9%85%D9%86%D9%87%D8%A7%20%D8%A7%D9%84%D9%84%D9%8A%20%D8%B9%D8%A7%D9%8A%D8%B2%D9%87%29%20%D8%A8%D9%80%2040%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
     </div>
     <div class="tier">
       <div class="tier-count mono">BUNDLE · 6</div>
-      <div class="tier-label tier-label-ltr" dir="ltr">2 Premium A + 4 Premium B</div>
-      <div class="tier-price mono">100<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">110ج</bdi> — وفّر <bdi class="amount" dir="ltr">10ج</bdi></div>
-      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%206%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%282%20Premium%20A%20%2B%204%20Premium%20B%29%20%D8%A8%D9%80%20100%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
+      <div class="tier-label">6 قضايا من اختيارك</div>
+      <div class="tier-price mono">75<small>ج</small></div>
+      <div class="tier-per-case">وفّر لغاية <bdi class="amount" dir="ltr">25ج</bdi> عن الشراء منفصل</div>
+      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%206%20%D9%82%D8%B6%D8%A7%D9%8A%D8%A7%20%28%D8%AA%D8%AE%D8%AA%D8%A7%D8%B1%20%D9%85%D9%86%D9%87%D8%A7%20%D8%A7%D9%84%D9%84%D9%8A%20%D8%B9%D8%A7%D9%8A%D8%B2%D9%87%29%20%D8%A8%D9%80%2075%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الباقة</a>
     </div>
     <div class="tier best">
       <div class="best-stamp">أفضل قيمة</div>
       <div class="tier-count mono">BUNDLE · 12</div>
-      <div class="tier-label tier-label-ltr" dir="ltr">4 Premium A + 8 Premium B</div>
-      <div class="tier-price mono">180<small>ج</small></div>
-      <div class="tier-per-case">السعر العادي: <bdi class="amount" dir="ltr">220ج</bdi> — وفّر <bdi class="amount" dir="ltr">40ج</bdi></div>
-      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%2012%20%D9%82%D8%B6%D9%8A%D8%A9%20%284%20Premium%20A%20%2B%208%20Premium%20B%29%20%D8%A8%D9%80%20180%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب باقة 12 قضية</a>
+      <div class="tier-label">12 قضية من اختيارك</div>
+      <div class="tier-price mono">140<small>ج</small></div>
+      <div class="tier-per-case">وفّر لغاية <bdi class="amount" dir="ltr">60ج</bdi> عن الشراء منفصل</div>
+      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A8%D8%A7%D9%82%D8%A9%2012%20%D9%82%D8%B6%D9%8A%D8%A9%20%28%D8%AA%D8%AE%D8%AA%D8%A7%D8%B1%20%D9%85%D9%86%D9%87%D8%A7%20%D8%A7%D9%84%D9%84%D9%8A%20%D8%B9%D8%A7%D9%8A%D8%B2%D9%87%29%20%D8%A8%D9%80%20140%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب باقة 12 قضية</a>
+    </div>
+  </div>
+
+  <div class="full-bundle">
+    <div class="full-bundle-stamp">الأرشيف كامل</div>
+    <div class="full-bundle-text">
+      <div class="full-bundle-title">الباقة الشاملة — كل الـ25 قضية بريميوم</div>
+      <div class="full-bundle-sub">وصول كامل لأرشيف البريميوم بالكامل، مرة واحدة، من غير ما تختار ولا تفكر</div>
+    </div>
+    <div class="full-bundle-price">
+      <span class="mono">250<small>ج</small></span>
+      <a class="tier-cta" href="https://wa.me/201145785696?text=%D8%B9%D8%A7%D9%8A%D8%B2%20%D8%A3%D8%B7%D9%84%D8%A8%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%B4%D8%A7%D9%85%D9%84%D8%A9%20%E2%80%94%20%D9%83%D9%84%20%D8%A7%D9%84%D9%8025%20%D9%82%D8%B6%D9%8A%D8%A9%20%D8%A8%D8%B1%D9%8A%D9%85%D9%8A%D9%88%D9%85%20%D8%A8%D9%80%20250%20%D8%AC%D9%86%D9%8A%D9%87" target="_blank" rel="noopener">اطلب الأرشيف كامل</a>
     </div>
   </div>
 
   <div class="thread-row"></div>
 
   <div class="footer-note">
-    <span class="thread-dot">●</span> اختار الباقة، وحدد قضايا Premium A و Premium B اللي عايزها على واتساب <span class="thread-dot">●</span>
+    <span class="thread-dot">●</span> اختار الباقة، وحدد القضايا اللي عايزها على واتساب <span class="thread-dot">●</span>
   </div>
 </div>
 </template>
@@ -624,9 +665,9 @@
    - Mobile: كارت صغير تحت اللوجو يفتح Popup بالباقات
 */
 (function () {
-  // بانر الباقات متوقف مؤقتًا — رجّعه true وقت ما يبقى وقته تاني
+  // بانر الباقات التلقائي فوق المكتبة اتقفل تاني — الباقات دلوقتي
+  // بتظهر بس جوه قسم "ملفات سرية للغاية" (كارت مخصوص بيفتح نفس الـmodal).
   const BUNDLE_BANNER_ENABLED = false;
-  if (!BUNDLE_BANNER_ENABLED) return;
 
   const appRoot = document.getElementById('app');
   const tpl = document.getElementById('bundleBannerTemplate');
@@ -684,6 +725,12 @@
     document.body.style.overflow = 'hidden';
   }
 
+  // متاحة لأي حتة في الموقع (زي قسم "ملفات سرية للغاية" في engine.js)
+  // عشان تفتح نفس نافذة الباقات من غير ما البانر يبقى ظاهر فوق المكتبة
+  window.openBundlesModal = openMobileModal;
+
+  if (!BUNDLE_BANNER_ENABLED) return;
+
   function placePackagesUnderLogo() {
     const hero = appRoot.querySelector('.lib-hero');
 
@@ -709,7 +756,7 @@
         <div class="bundle-mobile-teaser-top">
           <div>
             <div class="bundle-mobile-teaser-title">🎁 باقات القضايا</div>
-            <div class="bundle-mobile-teaser-sub">Premium A و Premium B — شوف الباقات والخصومات</div>
+            <div class="bundle-mobile-teaser-sub">وفّر لغاية 165ج على القضايا البريميوم — شوف الباقات</div>
           </div>
           <div class="bundle-mobile-teaser-arrow">←</div>
         </div>

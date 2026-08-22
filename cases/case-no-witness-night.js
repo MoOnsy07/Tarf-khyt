@@ -18,7 +18,8 @@ const CASE_NO_WITNESS_NIGHT = {
   investigationPoints: 21,
   teaser: 'شاب متهم باعتداء حصل في حفلة خطوبة، وشاهدة بتأكد إنها شافته خارج من مكان الحادثة. المشكلة إن قريب العريس بيشبهه بشكل ملحوظ.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['mystery', 'drama'],
   seriesId: null,
   seriesOrder: null,

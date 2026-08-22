@@ -18,7 +18,8 @@ const CASE_VAR_CONSPIRACY = {
   investigationPoints: 20,
   teaser: 'حكم كورة بيموت في أوضة الـVAR بعد نهائي كأس، وكل الشبهة على اللاعب اللي سجل الجون الحاسم. الحقيقة شبكة رهانات على تفاصيل صغيرة محدش كان واخد باله منها.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['sports', 'murder'],
   seriesId: null,
   seriesOrder: null,

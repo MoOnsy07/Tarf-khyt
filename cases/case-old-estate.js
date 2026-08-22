@@ -21,7 +21,6 @@ const CASE_OLD_ESTATE = {
   teaser: 'عيلة كبيرة بتتجمع في عزبة قديمة لقراءة وصية الجد المتوفى، وأثناء عشاء العائلة بيتسمم واحد من الورثة الرئيسيين. مين من العيلة كان مستعد يقتل عشان الميراث؟',
 
   isPremium: true,
-  premiumTier: 'A',
   categories: ['murder', 'family'],
   seriesId: null,
   seriesOrder: null,

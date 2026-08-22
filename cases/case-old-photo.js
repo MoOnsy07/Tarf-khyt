@@ -17,7 +17,8 @@ const CASE_OLD_PHOTO = {
   investigationPoints: 20,
   teaser: 'أثناء تنظيف بيت عائلي قديم، بتتلاقى صورة عيلية من 20 سنة فيها تفاصيل غريبة على ضهرها بتشير لجريمة قتل اتقفلت وقتها كحادثة عادية.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['murder', 'coldcase'],
   seriesId: null,
   seriesOrder: null,

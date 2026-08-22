@@ -21,7 +21,6 @@ const CASE_CLOSED_FILE = {
   teaser: 'ضابط شرطة متقاعد بيتقتل في بيته وهو بيحاول يفتح من جديد قضية قديمة كان مقتنع طول حياته إنها اتقفلت غلط. الملف القديم نفسه هو مفتاح الجريمة الجديدة.',
 
   isPremium: true,
-  premiumTier: 'A',
   categories: ['murder', 'coldcase'],
   seriesId: null,
   seriesOrder: null,

@@ -66,13 +66,6 @@ const LIBRARY_FILTER_CATEGORIES = [
   'murder', 'theft', 'disappearance', 'mystery', 'corruption', 'social', 'comedy'
 ];
 
-function getPremiumTier(caseData){
-  if(!caseData || !caseData.isPremium) return null;
-  if(caseData.premiumTier) return String(caseData.premiumTier).toUpperCase();
-  const price = parseFloat(String(caseData.price || '').replace(/[^0-9.]/g,'')) || 0;
-  return price >= 25 ? 'A' : 'B';
-}
-
 let CASE = null;         // القضية الحالية (object)
 let game = null;         // حالة اللعب داخل القضية الحالية
 
@@ -635,6 +628,69 @@ function showLibrary(){
     `<button class="lib-filter ${app.libraryFilter===f.key?'active':''}" data-filter="${f.key}">${f.label}</button>`
   ).join('');
 
+  /* ============================================================
+     PREMIUM SPOTLIGHT — شريط "ملفات سرية للغاية" فوق الشبكة العادية.
+     بيعرض القضايا البريميوم الجاهزة كملفات مختومة، أولوية للي لسه
+     ملعبهاش اللاعب (المشترى بالفعل بيتنزل لآخر الترتيب مش بيختفي).
+     ============================================================ */
+  function premiumSpotlightHTML(){
+    const premiumReady = CASES_REGISTRY.filter(c => c.isPremium && isCaseReady(c));
+    if(!premiumReady.length) return '';
+    const owned = new Set(app.unlockedIds || []);
+    const spotlightCases = [...premiumReady]
+      .sort((a,b)=> (owned.has(a.id)?1:0) - (owned.has(b.id)?1:0))
+      .slice(0, 10);
+
+    const dossierCards = spotlightCases.map(c=>{
+      const lock = isCaseLocked(c);
+      return `
+        <div class="lib-card dossier-card" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="true">
+          <div class="wax-seal">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+              <path d="M12,3 C7,3 4,6.5 4,11 C4,15.5 7,18.5 12,18.5" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.4"/>
+              <path d="M12,6.5 C8.7,6.5 6.8,8.8 6.8,11 C6.8,13.7 8.7,15.5 12,15.5" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.1"/>
+              <path d="M12,10 C10.2,10 9.3,10.6 9.3,11 C9.3,11.6 10.2,12 12,12" fill="none" stroke="rgba(255,255,255,.85)" stroke-width=".9"/>
+            </svg>
+          </div>
+          <div class="dossier-cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
+          <div class="dossier-title">${c.title}</div>
+          <div class="dossier-meta">${c.caseNo} · ${c.estMinutes} د</div>
+          ${owned.has(c.id)
+            ? `<div class="dossier-price" style="color:var(--signal);">✓ متاحة ليك</div>`
+            : `<div class="dossier-price">${c.price || ''}</div>`}
+        </div>
+      `;
+    }).join('');
+
+    const bundleCard = `
+      <div class="dossier-card bundle-card" id="openBundlesCard">
+        <div class="bundle-card-inner">
+          <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+            <rect x="6" y="12" width="22" height="16" rx="1.5" fill="none" stroke="rgba(244,200,105,.7)" stroke-width="1.4"/>
+            <rect x="10" y="8" width="22" height="16" rx="1.5" fill="#1a1610" stroke="rgba(244,200,105,.9)" stroke-width="1.4"/>
+            <line x1="14" y1="14" x2="28" y2="14" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
+            <line x1="14" y1="18" x2="24" y2="18" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
+          </svg>
+          <div class="bundle-card-title">شوف كل الباقات</div>
+          <div class="bundle-card-sub">وفّر لغاية 165ج</div>
+        </div>
+      </div>
+    `;
+
+    return `
+      <div class="premium-spotlight">
+        <div class="premium-spotlight-head">
+          <div>
+            <div class="premium-spotlight-eyebrow mono">TOP SECRET</div>
+            <div class="premium-spotlight-title">ملفات <span class="accent">سرية للغاية</span></div>
+          </div>
+          <div class="premium-spotlight-count mono">${premiumReady.length} ملف مختوم</div>
+        </div>
+        <div class="dossier-track">${dossierCards}${bundleCard}</div>
+      </div>
+    `;
+  }
+
   const allMatching = sortCases(CASES_REGISTRY.filter(c => matchesFilter(c) && matchesSearch(c)));
   const visibleCases = allMatching.slice(0, app.libraryShown);
   const hasMore = allMatching.length > visibleCases.length;
@@ -644,8 +700,7 @@ function showLibrary(){
     const ready = isCaseReady(c);
     const badges = [];
     if(c.isPremium){
-      const tier = getPremiumTier(c);
-      badges.push(`<span class="lib-badge premium mono">PREMIUM ${tier || ''}</span>`);
+      badges.push(`<span class="lib-badge premium mono">PREMIUM</span>`);
     }
     if(c.isPremium && c.discountLabel) badges.push(`<span class="lib-badge discount mono">${c.discountLabel}</span>`);
     if(c.seriesId) badges.push(`<span class="lib-badge series mono">الحلقة ${c.seriesOrder}</span>`);
@@ -731,6 +786,8 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
+
+    ${premiumSpotlightHTML()}
 
     <div class="lib-toolbar">
       <div class="lib-search-wrap">
@@ -839,6 +896,15 @@ function showLibrary(){
       enterCase(caseData);
     });
   });
+
+  // ------- كارت "شوف كل الباقات" جوه قسم الملفات السرية -------
+  const bundlesCard = document.getElementById('openBundlesCard');
+  if(bundlesCard){
+    bundlesCard.addEventListener('click', ()=>{
+      gaTrack('bundles_card_click', {});
+      if(typeof window.openBundlesModal === 'function') window.openBundlesModal();
+    });
+  }
 }
 
 /* ============================================================
@@ -932,7 +998,7 @@ function openPurchasePopup(caseData){
   overlay.className = 'overlay';
   overlay.innerHTML = `
     <div class="modal">
-      <div class="tag" style="color:var(--amber);">قضية بريميوم ${getPremiumTier(caseData) ? `· Premium ${getPremiumTier(caseData)}` : ''}</div>
+      <div class="tag" style="color:var(--amber);">قضية بريميوم</div>
       <h3>${caseData.title}</h3>
       ${priceHTML}
       <p>تواصل معانا على واتساب لشراء القضية، هتوصلك كود تفتح بيه القضية على طول.</p>
@@ -3596,9 +3662,8 @@ function pickEndingRecommendations(){
 
 function endingRecCardHTML(c){
   if(!c) return '';
-  const tier = getPremiumTier(c);
   const badge = c.isPremium
-    ? `<span class="lib-badge premium mono">PREMIUM ${tier||''}</span>`
+    ? `<span class="lib-badge premium mono">PREMIUM</span>`
     : `<span class="lib-badge mono" style="background:var(--signal); color:#0c231d;">مجانية</span>`;
   const priceHTML = (c.isPremium && c.price) ? `<div class="lib-price mono">${c.price}</div>` : '';
   return `

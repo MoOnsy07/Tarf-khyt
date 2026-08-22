@@ -17,7 +17,8 @@ const CASE_FINAL_TESTAMENT = {
   estMinutes: 42,
   investigationPoints: 24,
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['murder'],
   seriesId: null,
   seriesOrder: null,

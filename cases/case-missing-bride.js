@@ -20,7 +20,6 @@ const CASE_MISSING_BRIDE = {
   discountLabel: 'خصم 37%',
 
   isPremium: true,
-  premiumTier: 'A',
   categories: ['disappearance', 'social'],
   seriesId: null,
   seriesOrder: null,

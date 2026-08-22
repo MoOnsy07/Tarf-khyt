@@ -21,7 +21,6 @@ const CASE_RED_THREAD = {
   teaser: 'عارضة أزياء بتتلاقي مقتولة في الأتيليه ليلة قبل عرض حاسم لمصممة صاعدة. خيط أحمر من قماش نادر هو الدليل الوحيد اللي ممكن يفضح القاتل.',
 
   isPremium: true,
-  premiumTier: 'B',
   categories: ['murder', 'fashion'],
   seriesId: null,
   seriesOrder: null,

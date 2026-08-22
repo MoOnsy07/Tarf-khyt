@@ -18,7 +18,8 @@ const CASE_LAST_CALL = {
   investigationPoints: 22,
   teaser: 'رجل أعمال بيتلاقى ميت في عربيته، وآخر مكالمة عنده صوت بنته اللي مركّبة من تسجيلات قديمة. هو نفسه جهزها كخطة ابتزاز، لكن حد تاني استغلها عشان يقتله.',
 
-  isPremium: false,
+  isPremium: true,
+  price: '15 جنيه',
   categories: ['murder', 'mystery'],
   seriesId: null,
   seriesOrder: null,

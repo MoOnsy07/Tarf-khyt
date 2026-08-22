@@ -21,7 +21,6 @@ const CASE_SECRET_CLINIC = {
   teaser: 'مريضة بتروح عملية تجميل سرية في عيادة غير مرخصة جوه شقة سكنية عادية، وبعدها بتختفي تمامًا من غير أي أثر رسمي لوجودها هناك أصلاً.',
 
   isPremium: true,
-  premiumTier: 'B',
   categories: ['disappearance', 'corruption'],
   seriesId: null,
   seriesOrder: null,

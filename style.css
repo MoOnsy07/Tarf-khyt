@@ -776,3 +776,98 @@ body{
 @media (max-width:480px){
   .ending-recs{ grid-template-columns:1fr; }
 }
+
+/* ============================================================
+   PREMIUM SPOTLIGHT — "ملفات مقيدة الوصول"
+   شريط قصص مصورة أفقي فوق المكتبة مباشرة، بيعرض القضايا البريميوم
+   كملفات مختومة بشمع أحمر (زي أرشيف سري) بدل بادچ دهب عادي —
+   هوية بصرية مختلفة عن كروت الشبكة العادية، مبنية على نفس عالم
+   "الأرشيف/البصمة/الخيط الأحمر" اللي أصلاً في الهيرو.
+   ============================================================ */
+.premium-spotlight{
+  position:relative; margin-bottom:26px; padding:22px 0 26px;
+  border-radius:6px; overflow:hidden;
+  background: linear-gradient(160deg, #241d10 0%, #15100a 60%, #0d0a06 100%);
+  border:1px solid rgba(244,200,105,.18);
+}
+.premium-spotlight::before{
+  /* نسيج خشبي/درج خفيف في الخلفية عشان يحس إنه "درج ملفات" مش مجرد كارت */
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0px, transparent 1px, transparent 34px, rgba(0,0,0,.18) 35px);
+}
+.premium-spotlight-head{
+  position:relative; z-index:1; padding:0 22px; margin-bottom:16px;
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.premium-spotlight-eyebrow{
+  font-size:10.5px; letter-spacing:.16em; color:var(--premium-gold);
+  display:flex; align-items:center; gap:8px;
+}
+.premium-spotlight-eyebrow::before{
+  content:''; width:16px; height:1px; background:var(--premium-gold-deep); display:inline-block;
+}
+.premium-spotlight-title{
+  font-family:'Rakkas', serif; font-size:clamp(19px,2.6vw,25px); font-weight:400;
+  color:var(--ink); margin-top:4px;
+}
+.premium-spotlight-title .accent{ color:var(--premium-gold); }
+.premium-spotlight-count{ font-size:11px; color:var(--ink-dim); font-family:'JetBrains Mono',monospace; align-self:flex-end; }
+
+.dossier-track{
+  position:relative; z-index:1; display:flex; gap:16px; overflow-x:auto;
+  padding:6px 22px 10px; scroll-snap-type:x proximity;
+}
+.dossier-track::-webkit-scrollbar{ height:5px; }
+.dossier-track::-webkit-scrollbar-thumb{ background:rgba(244,200,105,.3); border-radius:3px; }
+
+.dossier-card{
+  flex:0 0 auto; width:168px; scroll-snap-align:start; cursor:pointer;
+  background:linear-gradient(165deg, #3a2f1a 0%, #241d10 100%);
+  border:1px solid rgba(244,200,105,.22); border-radius:4px 4px 3px 3px;
+  padding:9px 9px 12px; position:relative;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  transform: rotate(var(--tilt, -1.2deg));
+}
+.dossier-track .dossier-card:nth-child(3n){ --tilt: 1.3deg; }
+.dossier-track .dossier-card:nth-child(3n+1){ --tilt: -1.6deg; }
+.dossier-track .dossier-card:nth-child(3n+2){ --tilt: .8deg; }
+.dossier-card:hover{
+  transform: rotate(0deg) translateY(-5px);
+  border-color:var(--premium-gold);
+  box-shadow: 0 10px 24px rgba(0,0,0,.4), 0 0 0 1px rgba(244,200,105,.35);
+  z-index:2;
+}
+.dossier-cover{ aspect-ratio:3/4; border-radius:2px; overflow:hidden; position:relative; background:#000; }
+.dossier-cover img{ width:100%; height:100%; object-fit:cover; filter:saturate(.85) contrast(1.05); }
+.dossier-cover::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, transparent 55%, rgba(13,10,6,.85) 100%); }
+
+/* الختم الشمعي — العنصر المميز الوحيد في القسم ده */
+.wax-seal{
+  position:absolute; top:-10px; right:-8px; z-index:3;
+  width:40px; height:40px; border-radius:50%;
+  background: radial-gradient(circle at 32% 28%, #d9695a 0%, var(--danger) 45%, #8f3b30 100%);
+  box-shadow: 0 3px 6px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  transform: rotate(-9deg);
+  border:1px solid rgba(0,0,0,.25);
+}
+
+.dossier-title{ font-size:12.5px; color:var(--ink); margin-top:9px; line-height:1.35; min-height:32px; }
+.dossier-meta{ font-size:9.5px; color:var(--ink-dim); font-family:'JetBrains Mono',monospace; margin-top:4px; }
+.dossier-price{
+  margin-top:7px; font-size:13px; font-weight:800; font-family:'JetBrains Mono',monospace;
+  color:var(--premium-gold);
+}
+
+@media (max-width:520px){
+  .dossier-card{ width:138px; }
+}
+
+/* ============ كارت "شوف كل الباقات" — آخر عنصر في شريط الملفات السرية ============ */
+.bundle-card{
+  border-style:dashed; background:linear-gradient(165deg, #241d10 0%, #17130a 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.bundle-card-inner{ text-align:center; padding:14px 4px; }
+.bundle-card-title{ font-size:12.5px; color:var(--premium-gold); font-weight:800; margin-top:10px; }
+.bundle-card-sub{ font-size:10.5px; color:var(--ink-dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }

@@ -21,7 +21,6 @@ const CASE_ONE_COMMENT = {
   teaser: 'يوتيوبر مشهور بينشر فيديو فيه تعليق عابر بيلمح لسر شخصي خطير عن حد معين، وبعد ساعات بيتلاقى ميت في استوديو التصوير بتاعه.',
 
   isPremium: true,
-  premiumTier: 'B',
   categories: ['murder', 'digital'],
   seriesId: null,
   seriesOrder: null,
