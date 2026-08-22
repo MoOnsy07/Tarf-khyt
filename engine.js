@@ -652,25 +652,10 @@ function isCaseLocked(caseData){
   return { locked:false };
 }
 
-// كل القضايا الجاهزة مجانية؛ زر البداية يختار قضية مفتوحة فعلًا للاعب.
-// الأولوية لقضية لسه ما بدأهاش، وبعدها قضية غير مكتملة،
-// عشان الزر يفضل مفيد للزائر الجديد واللاعب الراجع من غير ربطه بقضية ثابتة.
-function getFreeStartCase(){
-  const readyFreeCases = CASES_REGISTRY.filter(c =>
-    isCaseReady(c) && !isCaseLocked(c).locked
-  );
-  return readyFreeCases.find(c => !app.completedIds.includes(c.id) && !loadLocalProgress(c.id))
-    || readyFreeCases.find(c => !app.completedIds.includes(c.id))
-    || readyFreeCases[0]
-    || null;
-}
-
 let librarySearchDebounce = null;
 
 function showLibrary(){
   app.view = 'library';
-
-  const freeStartCase = getFreeStartCase();
 
   // بناء قايمة الفلاتر المتاحة فعليًا (بس اللي عنده قضية واحدة على الأقل)
   const usedCategories = new Set(CASES_REGISTRY.flatMap(c=>c.categories||[]));
@@ -802,20 +787,18 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-eyebrow mono">CASE ARCHIVE</div>
       <h1 class="lib-hero-title">طرف <span class="accent">الخيط</span></h1>
-      ${freeStartCase ? `
-        <button type="button" class="lib-free-start-cta" id="lib-start-free" data-free-start-case="${freeStartCase.id}">
-          <span>ابدأ قضية مجانية</span>
-          <span class="lib-free-start-arrow" aria-hidden="true">←</span>
-        </button>
-        <div class="lib-free-start-note">كل القضايا الجاهزة مجانية بالكامل — من غير تسجيل أو دفع</div>
-      ` : ''}
+      <button type="button" class="lib-free-start-cta" id="lib-browse-cases">
+        <span>تصفّح القضايا المتاحة</span>
+        <span class="lib-free-start-arrow" aria-hidden="true">↓</span>
+      </button>
+      <div class="lib-free-start-note">كل القضايا الجاهزة مجانية بالكامل — من غير تسجيل أو دفع</div>
       <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
         <path d="M6,6 C60,18 150,-2 214,10"/>
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
 
-    <div class="lib-toolbar">
+    <div class="lib-toolbar" id="case-browser">
       <div class="lib-search-wrap">
         <span class="lib-search-icon mono">⌕</span>
         <input type="text" id="lib-search" class="lib-search-input" placeholder="دوّر باسم القضية..." value="${app.librarySearch.replace(/"/g,'&quot;')}" autocomplete="off">
@@ -841,20 +824,13 @@ function showLibrary(){
     ${loadMoreHTML}
   `;
 
-  // ------- البداية المجانية الواضحة في أول الشاشة -------
-  const freeStartBtn = document.getElementById('lib-start-free');
-  if(freeStartBtn){
-    freeStartBtn.addEventListener('click', ()=>{
-      const caseData = CASES_REGISTRY.find(c => c.id === freeStartBtn.dataset.freeStartCase);
-      if(!caseData || !isCaseReady(caseData) || isCaseLocked(caseData).locked) return;
-      gaTrack('free_case_cta_click', {
-        case_id: String(caseData.id || ''),
-        case_title: String(caseData.title || ''),
-        case_no: String(caseData.caseNo || ''),
-        case_premium: 'no',
-        cta_location: 'library_hero',
-      });
-      enterCase(caseData, { playMode:'normal', modeChosen:true, skipSplash:true });
+  // ------- زر تصفح القضايا في أول الشاشة -------
+  const browseCasesBtn = document.getElementById('lib-browse-cases');
+  if(browseCasesBtn){
+    browseCasesBtn.addEventListener('click', ()=>{
+      gaTrack('browse_cases_cta_click', { cta_location:'library_hero' });
+      const target = document.getElementById('case-browser');
+      if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
     });
   }
 
