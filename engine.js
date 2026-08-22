@@ -566,10 +566,25 @@ function isCaseLocked(caseData){
   return { locked:false };
 }
 
+// زر البداية المجانية يختار قضية جاهزة فعلًا ومفتوحة للاعب.
+// الأولوية لقضية مجانية لسه ما بدأهاش، وبعدها قضية غير مكتملة،
+// عشان الزر يفضل مفيد للزائر الجديد واللاعب الراجع من غير ربطه بقضية ثابتة.
+function getFreeStartCase(){
+  const readyFreeCases = CASES_REGISTRY.filter(c =>
+    !c.isPremium && isCaseReady(c) && !isCaseLocked(c).locked
+  );
+  return readyFreeCases.find(c => !app.completedIds.includes(c.id) && !loadLocalProgress(c.id))
+    || readyFreeCases.find(c => !app.completedIds.includes(c.id))
+    || readyFreeCases[0]
+    || null;
+}
+
 let librarySearchDebounce = null;
 
 function showLibrary(){
   app.view = 'library';
+
+  const freeStartCase = getFreeStartCase();
 
   // بناء قايمة الفلاتر المتاحة فعليًا (بس اللي عنده قضية واحدة على الأقل)
   const hasFree = CASES_REGISTRY.some(c=>!c.isPremium);
@@ -785,6 +800,13 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-eyebrow mono">CASE ARCHIVE</div>
       <h1 class="lib-hero-title">طرف <span class="accent">الخيط</span></h1>
+      ${freeStartCase ? `
+        <button type="button" class="lib-free-start-cta" id="lib-start-free" data-free-start-case="${freeStartCase.id}">
+          <span>ابدأ قضية مجانية</span>
+          <span class="lib-free-start-arrow" aria-hidden="true">←</span>
+        </button>
+        <div class="lib-free-start-note">من غير تسجيل أو دفع</div>
+      ` : ''}
       <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
         <path d="M6,6 C60,18 150,-2 214,10"/>
       </svg>
@@ -819,6 +841,23 @@ function showLibrary(){
 
     ${loadMoreHTML}
   `;
+
+  // ------- البداية المجانية الواضحة في أول الشاشة -------
+  const freeStartBtn = document.getElementById('lib-start-free');
+  if(freeStartBtn){
+    freeStartBtn.addEventListener('click', ()=>{
+      const caseData = CASES_REGISTRY.find(c => c.id === freeStartBtn.dataset.freeStartCase);
+      if(!caseData || caseData.isPremium || !isCaseReady(caseData) || isCaseLocked(caseData).locked) return;
+      gaTrack('free_case_cta_click', {
+        case_id: String(caseData.id || ''),
+        case_title: String(caseData.title || ''),
+        case_no: String(caseData.caseNo || ''),
+        case_premium: 'no',
+        cta_location: 'library_hero',
+      });
+      enterCase(caseData);
+    });
+  }
 
   // ------- الفلاتر -------
   document.querySelectorAll('.lib-filter').forEach(btn=>{

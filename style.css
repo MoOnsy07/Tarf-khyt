@@ -407,9 +407,34 @@ body{
   text-shadow: 0 1px 0 #6b5738, 0 2px 0 #574627, 0 3px 6px rgba(0,0,0,.6);
 }
 .lib-hero-title .accent{ color:#d3ab61; }
+.lib-free-start-cta{
+  position:relative; z-index:2;
+  width:min(100%,320px); margin:22px auto 7px; padding:15px 28px;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  border:1px solid #f4c869; border-radius:5px;
+  background:linear-gradient(135deg,#f4c869 0%,#e0a458 55%,#bd7f2c 100%);
+  color:#1a1305; font-family:'Cairo',sans-serif; font-size:17px; font-weight:900;
+  cursor:pointer; box-shadow:0 10px 30px rgba(224,164,88,.3),0 0 0 4px rgba(244,200,105,.07);
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+.lib-free-start-cta:hover{
+  transform:translateY(-2px); filter:brightness(1.08);
+  box-shadow:0 14px 36px rgba(224,164,88,.4),0 0 0 5px rgba(244,200,105,.1);
+}
+.lib-free-start-cta:focus-visible{ outline:3px solid #fff1c7; outline-offset:4px; }
+.lib-free-start-arrow{ font-size:21px; line-height:1; transition:transform .18s ease; }
+.lib-free-start-cta:hover .lib-free-start-arrow{ transform:translateX(-4px); }
+.lib-free-start-note{
+  position:relative; z-index:2; color:#d9cfb6; font-size:11.5px; font-weight:600;
+}
 .lib-hero-thread{ position:relative; z-index:2; width:200px; height:20px; margin:6px auto 14px; display:block; }
 .lib-hero-thread path{ fill:none; stroke:#a8382f; stroke-width:3; stroke-linecap:round; filter:drop-shadow(0 0 3px rgba(168,56,47,.4)); }
 .lib-hero-sub{ position:relative; z-index:2; font-size:13px; color:#c7bb9c; }
+
+@media (max-width:600px){
+  .lib-hero{ padding:38px 16px 30px; }
+  .lib-free-start-cta{ width:100%; max-width:300px; padding:14px 20px; font-size:16px; }
+}
 
 /* ============================================================
    INVESTIGATION NOTEBOOK — دفتر التحقيق + لوحة تصنيف المشتبهين
