@@ -24,7 +24,6 @@ const READY_CASE_IDS = new Set([
   'forged-canvas',
   'ghost-author',
   'exam-leak',
-  'charity-funds',
   // === إضافات جلسة استكمال مطابقة الصور (من صورة 0156 لحد 0350) ===
   'dawn-call',
   'finish-line',
