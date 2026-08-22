@@ -64,7 +64,7 @@ const Leaderboard = (() => {
    * تسجيل نتيجة لاعب بعد ما يحل قضية بنجاح.
    * لازم يتنادى مرة واحدة بس لكل حل ناجح، بعد نهاية "good".
    */
-  async function submitScore({ caseId, caseTitle, points, solveTimeSeconds, endingType }) {
+  async function submitScore({ caseId, caseTitle, points, solveTimeSeconds, endingType, visitorId }) {
     let playerName = getSavedPlayerName();
 
     // أول مرة يحل فيها اللاعب قضية، نطلب منه اسم مستعار
@@ -88,6 +88,7 @@ const Leaderboard = (() => {
         .from('leaderboard_entries')
         .insert([{
           player_name: playerName,
+          visitor_id: String(visitorId || '').slice(0, 128) || null,
           case_id: caseId,
           case_title: caseTitle,
           points: safePoints,

@@ -624,6 +624,10 @@
    - Mobile: كارت صغير تحت اللوجو يفتح Popup بالباقات
 */
 (function () {
+  // بانر الباقات متوقف مؤقتًا — رجّعه true وقت ما يبقى وقته تاني
+  const BUNDLE_BANNER_ENABLED = false;
+  if (!BUNDLE_BANNER_ENABLED) return;
+
   const appRoot = document.getElementById('app');
   const tpl = document.getElementById('bundleBannerTemplate');
   if (!appRoot || !tpl) return;

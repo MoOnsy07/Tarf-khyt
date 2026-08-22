@@ -106,6 +106,42 @@ async function logCaseEvent({ caseId, visitorId, eventType, completed=null, endi
   }
 }
 
+/* ============================================================
+   تقييمات اللاعبين — نجوم (1-5) + تعليق اختياري بعد كل قضية.
+   تقييم واحد بس لكل (قضية + جهاز)، بيتحدّث لو اللاعب غيّر رأيه.
+   شغّل CASE_REVIEWS_SETUP.sql مرة واحدة في Supabase قبل رفع
+   هذا الملف.
+   ============================================================ */
+async function submitReview({ caseId, visitorId, playerName, rating, comment }){
+  try{
+    const { error } = await sb.rpc('submit_review', {
+      p_case_id: String(caseId || '').slice(0, 120),
+      p_visitor_id: String(visitorId || '').slice(0, 128),
+      p_player_name: String(playerName || '').slice(0, 30),
+      p_rating: rating,
+      p_comment: String(comment || '').slice(0, 240),
+    });
+    if(error){ console.error('submitReview error', error); return false; }
+    return true;
+  }catch(err){
+    console.error('submitReview failed', err);
+    return false;
+  }
+}
+
+async function fetchCaseReviewStats(caseId){
+  try{
+    const { data, error } = await sb.rpc('get_case_review_stats', { p_case_id: caseId });
+    if(error){ console.error('fetchCaseReviewStats error', error); return null; }
+    const row = Array.isArray(data) ? data[0] : data;
+    if(!row) return { avg: 0, count: 0 };
+    return { avg: Number(row.avg_rating || 0), count: Number(row.review_count || 0) };
+  }catch(err){
+    console.error('fetchCaseReviewStats failed', err);
+    return null;
+  }
+}
+
 async function fetchCaseStats(){
   const { data, error } = await sb.rpc('get_case_stats');
   if(error){ console.error('fetchCaseStats error', error); return []; }

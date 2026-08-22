@@ -319,6 +319,28 @@ function addCompletedId(caseId){
   if(!list.includes(caseId)){ list.push(caseId); localStorage.setItem('ca_completed', JSON.stringify(list)); }
 }
 
+// تقييم اللاعب للقضية (نجوم 1-5 + تعليق اختياري) — محفوظ محليًا بعد الإرسال
+// عشان شاشة النهاية تعرض "شكرًا" بدل الفورم لو رجع لنفس القضية تاني
+function getSavedReview(caseId){
+  try { return JSON.parse(localStorage.getItem('ca_review_'+caseId) || 'null'); }
+  catch(e){ return null; }
+}
+function saveReviewLocally(caseId, review){
+  try { localStorage.setItem('ca_review_'+caseId, JSON.stringify(review)); }
+  catch(e){ /* localStorage ممكن يكون معطّل، مش مشكلة كبيرة */ }
+}
+
+// القضايا اللي اتبعت نتيجتها للـ leaderboard العام من الجهاز ده قبل كده —
+// عشان إعادة لعب نفس القضية متضخّمش "إجمالي النقاط" بصفوف مكررة بلا حد أقصى
+function getGlobalLeaderboardSubmittedIds(){
+  try { return JSON.parse(localStorage.getItem('ca_global_lb_submitted') || '[]'); }
+  catch(e){ return []; }
+}
+function markGlobalLeaderboardSubmitted(caseId){
+  const list = getGlobalLeaderboardSubmittedIds();
+  if(!list.includes(caseId)){ list.push(caseId); localStorage.setItem('ca_global_lb_submitted', JSON.stringify(list)); }
+}
+
 function loadLocalProgress(caseId){
   try { return JSON.parse(localStorage.getItem('ca_progress_'+caseId) || 'null'); }
   catch(e){ return null; }
@@ -1982,7 +2004,7 @@ function openEvidenceModal(id){
   const ev = evidenceById(id);
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
-  const modalImg = ev.img ? `<div class="ev-zoom-wrap"><img class="ev-thumb photo-tone ev-zoom-img" style="height:180px;" src="${ev.img}" alt="${ev.title}" loading="lazy"></div>` : '';
+  const modalImg = ev.img ? `<div class="ev-zoom-wrap"><img class="ev-thumb photo-tone ev-zoom-img" src="${ev.img}" alt="${ev.title}" loading="lazy"></div>` : '';
   overlay.innerHTML = `
     <div class="modal">
       ${modalImg}
@@ -3411,6 +3433,9 @@ function computeEnding(){
 function submitToGlobalLeaderboard(){
   if(typeof Leaderboard === 'undefined') return; // leaderboard.js مش متحمّل
   if(game.ending !== 'good') return; // بيتسجل بس لما القضية تتحل صح بالكامل
+  // منع التسجيل المكرر: أول حل ناجح للقضية دي بس هو اللي بيتبعت للـ leaderboard
+  // العام، حتى لو اللاعب عاد لعبها تاني بعد كده (إعادة لعب لازم متزودش إجمالي نقاطه)
+  if(getGlobalLeaderboardSubmittedIds().includes(CASE.id)) return;
   const solveTimeSeconds = game.startedAt ? Math.round((Date.now() - game.startedAt) / 1000) : 0;
   Leaderboard.submitScore({
     caseId: CASE.id,
@@ -3418,6 +3443,9 @@ function submitToGlobalLeaderboard(){
     points: Math.max(0, Math.floor(game.score || 0)),
     solveTimeSeconds,
     endingType: 'good',
+    visitorId: getVisitorId(),
+  }).then(res => {
+    if(!res || !res.error) markGlobalLeaderboardSubmitted(CASE.id);
   }).catch(err => console.error('submitToGlobalLeaderboard failed', err));
 }
 
@@ -3484,6 +3512,123 @@ async function renderLeaderboardBox(){
 }
 
 /* ============================================================
+   تقييم القضية — نجوم (1-5) + تعليق اختياري بعد كل قضية.
+   شغّل CASE_REVIEWS_SETUP.sql مرة واحدة في Supabase قبل رفع
+   النسخة الجديدة من supabase-client.js.
+   ============================================================ */
+function reviewBoxHTML(){
+  const saved = getSavedReview(CASE.id);
+  if(saved){
+    return `
+      <div class="review-box mono">
+        <h4 style="font-size:13px; color:var(--signal); margin-bottom:8px;">✓ شكرًا على تقييمك للتحقيق ده</h4>
+        <div class="review-stars-display">${'★'.repeat(saved.rating)}${'☆'.repeat(5-saved.rating)}</div>
+        ${saved.comment ? `<p class="dim" style="font-size:13px; margin-top:8px;">"${saved.comment}"</p>` : ''}
+        <div id="reviewAverageBox" style="margin-top:10px; font-size:12px; color:var(--ink-dim);"></div>
+      </div>
+    `;
+  }
+  return `
+    <div class="review-box">
+      <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:10px;">قيّم التحقيق</h4>
+      <div class="star-rating" id="reviewStars" data-rating="0">
+        ${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-star="${n}" aria-label="تقييم ${n} نجوم">☆</button>`).join('')}
+      </div>
+      <textarea id="reviewComment" class="review-comment" placeholder="رأيك في القضية (اختياري)..." maxlength="240" rows="2"></textarea>
+      <button class="btn ghost" id="submitReviewBtn" disabled style="width:100%; margin-top:10px;">أرسل التقييم</button>
+      <div id="reviewAverageBox" style="margin-top:10px; font-size:12px; color:var(--ink-dim);"></div>
+    </div>
+  `;
+}
+
+async function renderCaseReviewStats(){
+  const box = document.getElementById('reviewAverageBox');
+  if(!box) return;
+  if(typeof fetchCaseReviewStats !== 'function') return; // supabase-client.js مش متحمّل أو محدّث
+  try{
+    const stats = await fetchCaseReviewStats(CASE.id);
+    if(!stats || !stats.count){
+      box.textContent = 'كن أول واحد يقيّم القضية دي';
+      return;
+    }
+    box.innerHTML = `متوسط تقييم اللاعبين: <strong style="color:var(--amber);">${stats.avg.toFixed(1)} ★</strong> من ${stats.count} تقييم`;
+  }catch(err){
+    console.error('renderCaseReviewStats failed', err);
+  }
+}
+
+async function submitCaseReview(rating, comment){
+  gaTrack('case_review_submitted', { rating: String(rating) });
+  saveReviewLocally(CASE.id, { rating, comment });
+  if(typeof submitReview === 'function'){
+    try{
+      await submitReview({
+        caseId: CASE.id,
+        visitorId: getVisitorId(),
+        playerName: getPlayerName() || 'محقق مجهول',
+        rating, comment,
+      });
+    }catch(err){ console.error('submitCaseReview failed', err); }
+  }
+  const box = document.querySelector('.review-box');
+  if(box) box.outerHTML = reviewBoxHTML();
+  renderCaseReviewStats();
+}
+
+/* ============================================================
+   جاهز لقضية تانية؟ — بنعرض قضية مجانية وقضية بريميوم بعد كل
+   قضية، من بين القضايا الجاهزة اللي لسه ما لعبهاش (بالأولوية).
+   ============================================================ */
+function pickEndingRecommendations(){
+  const completed = new Set(getCompletedIds());
+  const pool = CASES_REGISTRY.filter(c => isCaseReady(c) && c.id !== CASE.id);
+  function pickFrom(list){
+    if(!list.length) return null;
+    const notDone = list.filter(c=>!completed.has(c.id));
+    const source = notDone.length ? notDone : list;
+    return source[Math.floor(Math.random()*source.length)];
+  }
+  return {
+    freePick: pickFrom(pool.filter(c=>!c.isPremium)),
+    premiumPick: pickFrom(pool.filter(c=>c.isPremium)),
+  };
+}
+
+function endingRecCardHTML(c){
+  if(!c) return '';
+  const tier = getPremiumTier(c);
+  const badge = c.isPremium
+    ? `<span class="lib-badge premium mono">PREMIUM ${tier||''}</span>`
+    : `<span class="lib-badge mono" style="background:var(--signal); color:#0c231d;">مجانية</span>`;
+  const priceHTML = (c.isPremium && c.price) ? `<div class="lib-price mono">${c.price}</div>` : '';
+  return `
+    <div class="lib-card ending-rec-card" data-rec-case="${c.id}">
+      ${badge}
+      <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy"></div>
+      <div class="body">
+        <h4>${c.title}</h4>
+        <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة</div>
+        ${priceHTML}
+      </div>
+    </div>
+  `;
+}
+
+function endingRecommendationsHTML(){
+  const { freePick, premiumPick } = pickEndingRecommendations();
+  if(!freePick && !premiumPick) return '';
+  return `
+    <div class="ending-recs-section">
+      <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:10px;">جاهز لقضية تانية؟</h4>
+      <div class="ending-recs">
+        ${endingRecCardHTML(freePick)}
+        ${endingRecCardHTML(premiumPick)}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
    ENDING
    ============================================================ */
 
@@ -3510,10 +3655,12 @@ function endingHTML(){
       <h4 class="mono" style="font-size:13px; color:var(--signal); margin-bottom:8px;">🏆 الليدربورد — طرف الخيط</h4>
       <div id="leaderboardBox"><p class="dim mono" style="font-size:12px;">جارِ تحميل الليدربورد...</p></div>
     </div>
+    ${reviewBoxHTML()}
     ${socialLinksHTML('ending')}
     ${classificationNoteHTML()}
     ${redHerringNoteHTML()}
     ${theoryNoteHTML()}
+    ${endingRecommendationsHTML()}
     <div class="divider"></div>
     <button class="btn ghost" data-restart>ابدأ القضية دي من الأول</button>
     <button class="btn" data-back-to-lib style="margin-right:10px;">رجوع للأرشيف</button>
@@ -3856,6 +4003,49 @@ function attachPanelEvents(){
   const backLibBtn = document.querySelector('[data-back-to-lib]');
   if(backLibBtn) backLibBtn.addEventListener('click', ()=>{
     returnToLibraryFromCase();
+  });
+
+  // ---- تقييم القضية (شاشة النهاية) ----
+  const starsBox = document.getElementById('reviewStars');
+  if(starsBox){
+    starsBox.querySelectorAll('.star-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const n = parseInt(btn.dataset.star, 10);
+        starsBox.dataset.rating = String(n);
+        starsBox.querySelectorAll('.star-btn').forEach(b=>{
+          const bn = parseInt(b.dataset.star, 10);
+          b.textContent = bn<=n ? '★' : '☆';
+          b.classList.toggle('active', bn<=n);
+        });
+        const submitBtn = document.getElementById('submitReviewBtn');
+        if(submitBtn) submitBtn.disabled = false;
+      });
+    });
+  }
+  const submitReviewBtn = document.getElementById('submitReviewBtn');
+  if(submitReviewBtn) submitReviewBtn.addEventListener('click', ()=>{
+    const box = document.getElementById('reviewStars');
+    const rating = parseInt(box && box.dataset.rating || '0', 10);
+    if(!rating) return;
+    const commentEl = document.getElementById('reviewComment');
+    const comment = commentEl ? commentEl.value.trim().slice(0,240) : '';
+    submitReviewBtn.disabled = true;
+    submitReviewBtn.textContent = 'جارِ الإرسال...';
+    submitCaseReview(rating, comment);
+  });
+  if(document.getElementById('reviewAverageBox')) renderCaseReviewStats();
+
+  // ---- جاهز لقضية تانية؟ (شاشة النهاية) ----
+  document.querySelectorAll('[data-rec-case]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const c = CASES_REGISTRY.find(x=>x.id===card.dataset.recCase);
+      if(!c) return;
+      gaTrack('ending_recommendation_click', {
+        case_id: String(c.id || ''),
+        case_premium: c.isPremium ? 'yes' : 'no',
+      });
+      openCasePreview(c, isCaseLocked(c));
+    });
   });
 }
 

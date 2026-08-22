@@ -128,7 +128,7 @@ body{
 .ev-card h4{ font-size:15px; color:var(--ink); margin-bottom:6px; font-weight:700; }
 .ev-card .preview{ font-size:12.5px; color:var(--ink-dim); line-height:1.7; }
 .ev-locked{ display:flex; align-items:center; justify-content:center; min-height:100px; border:1px dashed var(--line); border-radius:4px; color:var(--ink-dim); font-size:13px; padding:16px; text-align:center; }
-.ev-thumb{ width:100%; aspect-ratio:2/1; height:auto; object-fit:cover; border-radius:3px; margin-bottom:12px; display:block; transition:transform .3s ease; }
+.ev-thumb{ width:100%; aspect-ratio:2/1; height:auto; object-fit:contain; background:var(--panel); border-radius:3px; margin-bottom:12px; display:block; transition:transform .3s ease; }
 .ev-card:hover .ev-thumb{ transform:scale(1.04); }
 
 .overlay{ position:fixed; inset:0; background:rgba(4,5,8,.82); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; }
@@ -475,8 +475,8 @@ body{
 .ev-card.link-selected{ border-color:var(--signal); box-shadow:0 0 0 1px var(--signal); }
 
 /* Phase 2: evidence zoom */
-.ev-zoom-wrap{ overflow:hidden; border-radius:3px; margin-bottom:14px; }
-.ev-zoom-img{ transition:transform .3s ease; cursor:zoom-in; display:block; width:100%; object-fit:cover; }
+.ev-zoom-wrap{ overflow:hidden; border-radius:3px; margin-bottom:14px; background:var(--panel); display:flex; align-items:center; justify-content:center; max-height:420px; }
+.ev-zoom-img{ transition:transform .3s ease; cursor:zoom-in; display:block; width:100%; max-height:420px; object-fit:contain; aspect-ratio:auto; }
 .ev-zoom-img.zoomed{ transform:scale(2.2); cursor:zoom-out; }
 
 /* Phase 4: interactive timeline puzzle */
@@ -748,4 +748,31 @@ body{
 @media (max-width:520px){
   .lib-toolbar{ flex-direction:column; }
   .lib-sort-select{ width:100%; }
+}
+
+/* ============ تقييم القضية (شاشة النهاية) ============ */
+.review-box{
+  margin-top:18px; background:var(--panel-2); border:1px solid var(--line);
+  border-radius:6px; padding:16px 18px;
+}
+.star-rating{ display:flex; gap:6px; direction:ltr; }
+.star-btn{
+  background:none; border:none; font-size:26px; line-height:1; cursor:pointer;
+  color:var(--ink-dim); padding:2px; transition:.15s;
+}
+.star-btn.active, .star-btn:hover{ color:var(--amber); }
+.review-comment{
+  width:100%; margin-top:12px; padding:10px 12px; background:var(--panel);
+  border:1px solid var(--line); border-radius:6px; color:var(--ink);
+  font-family:inherit; font-size:13px; resize:vertical;
+}
+.review-stars-display{ font-size:20px; color:var(--amber); letter-spacing:2px; }
+
+/* ============ جاهز لقضية تانية؟ (شاشة النهاية) ============ */
+.ending-recs-section{ margin-top:22px; }
+.ending-recs{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.ending-rec-card{ cursor:pointer; }
+.ending-rec-card .cover{ aspect-ratio:16/10; }
+@media (max-width:480px){
+  .ending-recs{ grid-template-columns:1fr; }
 }
