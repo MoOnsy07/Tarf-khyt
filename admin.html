@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المتابعة | طرف الخيط</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0c12'/%3E%3Cpath d='M50 15 C25 15 12 32 12 50 C12 78 25 92 50 92 M50 25 C32 25 20 36 20 50 C20 76 32 84 50 84 M50 35 C40 35 30 42 30 50 C30 72 40 76 50 76' stroke='%23e0a458' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Rakkas&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .ad-wrap{ max-width:980px; margin:0 auto; padding:34px 16px 70px; }
+  .ad-back{
+    display:inline-flex; align-items:center; gap:6px; color:var(--ink-dim);
+    text-decoration:none; font-size:13px; margin-bottom:22px; transition:.15s;
+  }
+  .ad-back:hover{ color:var(--amber); }
+
+  .ad-summary{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:26px 0 22px; }
+  @media (max-width:640px){ .ad-summary{ grid-template-columns:1fr 1fr; } }
+  .ad-stat{ background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px; text-align:center; }
+  .ad-stat .num{ font-family:'JetBrains Mono', monospace; font-size:24px; font-weight:800; color:var(--amber); text-shadow:var(--gold-glow); }
+  .ad-stat .lbl{ font-size:11.5px; color:var(--ink-dim); margin-top:4px; }
+
+  .ad-table-wrap{ overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:6px; }
+  table.ad-table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
+  table.ad-table th{
+    text-align:right; padding:12px 14px; color:var(--amber); font-size:12px;
+    font-family:'JetBrains Mono', monospace; border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  table.ad-table td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink); white-space:nowrap; }
+  table.ad-table tr:last-child td{ border-bottom:none; }
+  table.ad-table tr:hover td{ background:var(--panel-2); }
+  .ad-case-title{ font-weight:700; }
+  .ad-case-no{ color:var(--ink-dim); font-size:11px; font-family:'JetBrains Mono', monospace; }
+  .ad-num{ font-family:'JetBrains Mono', monospace; text-align:center; }
+  .ad-good{ color:#8fd6a4; }
+  .ad-partial{ color:var(--amber); }
+  .ad-bad{ color:#e08a7c; }
+  .ad-dropped{ color:var(--ink-dim); }
+  .ad-rate{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-dim); }
+
+  .ad-loading, .ad-error, .ad-empty{ text-align:center; padding:40px 16px; color:var(--ink-dim); font-size:14px; }
+  .ad-error{ color:#e08a7c; }
+
+  .ad-refresh-btn{ margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="scan"></div>
+
+<div class="ad-wrap">
+  <a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
+
+  <div class="lib-hero" style="margin-bottom:6px;">
+    <svg class="lib-fingerprint" viewBox="0 0 200 200" aria-hidden="true">
+      <path d="M100,20 C50,20 20,60 20,100 C20,150 50,180 100,180"/>
+      <path d="M100,35 C62,35 35,68 35,100 C35,142 62,165 100,165"/>
+      <path d="M100,50 C74,50 50,76 50,100 C50,134 74,150 100,150"/>
+      <path d="M100,65 C86,65 65,84 65,100 C65,126 86,135 100,135"/>
+      <path d="M100,20 C150,20 180,60 180,100 C180,150 150,180 100,180" stroke-dasharray="4 6"/>
+      <path d="M100,35 C138,35 165,68 165,100 C165,142 138,165 100,165" stroke-dasharray="3 7"/>
+    </svg>
+    <div class="lib-hero-eyebrow mono">OWNER ONLY</div>
+    <h1 class="lib-hero-title">لوحة <span class="accent">المتابعة</span></h1>
+    <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M6,6 C60,18 150,-2 214,10"/>
+    </svg>
+    <div class="lib-hero-sub">كام واحد لعب كل قضية، حلّها، أو طلع منها من غير ما يخلّص</div>
+  </div>
+
+  <button class="btn ghost mono ad-refresh-btn" id="ad-refresh">↻ تحديث الأرقام</button>
+
+  <div id="ad-root"></div>
+</div>
+
+<!-- كل ملفات القضايا — عشان نعرف اسم كل قضية من الـ id بتاعها -->
+<script src="cases/case-last-episode.js"></script>
+<script src="cases/case-buffalo.js"></script>
+<script src="cases/case-dark-testimony.js"></script>
+<script src="cases/case-leaked-video.js"></script>
+<script src="cases/case-missing-bride.js"></script>
+<script src="cases/case-final-testament.js"></script>
+<script src="cases/case-93rd-minute.js"></script>
+<script src="cases/case-bribery.js"></script>
+<script src="cases/case-charity-funds.js"></script>
+<script src="cases/case-deleted-scene.js"></script>
+<script src="cases/case-exam-leak.js"></script>
+<script src="cases/case-fake-audio.js"></script>
+<script src="cases/case-false-rumor.js"></script>
+<script src="cases/case-forged-canvas.js"></script>
+<script src="cases/case-ghost-author.js"></script>
+<script src="cases/case-hit-and-run.js"></script>
+<script src="cases/case-illusion-startup.js"></script>
+<script src="cases/case-last-call.js"></script>
+<script src="cases/case-last-dish.js"></script>
+<script src="cases/case-last-rehearsal.js"></script>
+<script src="cases/case-lost-wallet.js"></script>
+<script src="cases/case-no-witness-night.js"></script>
+<script src="cases/case-number-19.js"></script>
+<script src="cases/case-role-of-lifetime.js"></script>
+<script src="cases/case-room-307.js"></script>
+<script src="cases/case-shifting-painting.js"></script>
+<script src="cases/case-vanished-wife.js"></script>
+<script src="cases/case-var-conspiracy.js"></script>
+<script src="cases/case-wedding-gold.js"></script>
+<script src="cases/case-behind-scenes.js"></script>
+<script src="cases/case-broken-faucet.js"></script>
+<script src="cases/case-closed-file.js"></script>
+<script src="cases/case-coded-message.js"></script>
+<script src="cases/case-dating-app.js"></script>
+<script src="cases/case-dawn-call.js"></script>
+<script src="cases/case-dawn-club.js"></script>
+<script src="cases/case-finish-line.js"></script>
+<script src="cases/case-flat-12b.js"></script>
+<script src="cases/case-forged-will.js"></script>
+<script src="cases/case-grandma-ring.js"></script>
+<script src="cases/case-last-bell.js"></script>
+<script src="cases/case-last-laugh.js"></script>
+<script src="cases/case-last-update.js"></script>
+<script src="cases/case-missing-twin.js"></script>
+<script src="cases/case-mud-print.js"></script>
+<script src="cases/case-nile-cruise.js"></script>
+<script src="cases/case-old-estate.js"></script>
+<script src="cases/case-old-photo.js"></script>
+<script src="cases/case-one-comment.js"></script>
+<script src="cases/case-opening-night.js"></script>
+<script src="cases/case-overbilled.js"></script>
+<script src="cases/case-postponed-engagement.js"></script>
+<script src="cases/case-recorded-voice.js"></script>
+<script src="cases/case-red-thread.js"></script>
+<script src="cases/case-second-face.js"></script>
+<script src="cases/case-secret-clinic.js"></script>
+<script src="cases/case-secret-recipe.js"></script>
+<script src="cases/case-suspicious-transfer.js"></script>
+<script src="cases/case-vault-key.js"></script>
+<script src="cases/case-warehouse-fire.js"></script>
+<script>
+  const CASES_REGISTRY = [
+    CASE_LAST_EPISODE, CASE_BUFFALO, CASE_DARK_TESTIMONY, CASE_LEAKED_VIDEO,
+    CASE_MISSING_BRIDE, CASE_FINAL_TESTAMENT, CASE_93RD_MINUTE, CASE_BRIBERY,
+    CASE_CHARITY_FUNDS, CASE_DELETED_SCENE, CASE_EXAM_LEAK, CASE_FAKE_AUDIO,
+    CASE_FALSE_RUMOR, CASE_FORGED_CANVAS, CASE_GHOST_AUTHOR, CASE_HIT_AND_RUN,
+    CASE_ILLUSION_STARTUP, CASE_LAST_CALL, CASE_LAST_DISH, CASE_LAST_REHEARSAL,
+    CASE_LOST_WALLET, CASE_NO_WITNESS_NIGHT, CASE_NUMBER_19, CASE_ROLE_OF_LIFETIME,
+    CASE_ROOM_307, CASE_SHIFTING_PAINTING, CASE_VANISHED_WIFE, CASE_VAR_CONSPIRACY,
+    CASE_WEDDING_GOLD,
+    CASE_BEHIND_SCENES, CASE_BROKEN_FAUCET, CASE_CLOSED_FILE, CASE_CODED_MESSAGE,
+    CASE_DATING_APP, CASE_DAWN_CALL, CASE_DAWN_CLUB, CASE_FINISH_LINE,
+    CASE_FLAT_12B, CASE_FORGED_WILL, CASE_GRANDMA_RING, CASE_LAST_BELL,
+    CASE_LAST_LAUGH, CASE_LAST_UPDATE, CASE_MISSING_TWIN, CASE_MUD_PRINT,
+    CASE_NILE_CRUISE, CASE_OLD_ESTATE, CASE_OLD_PHOTO, CASE_ONE_COMMENT,
+    CASE_OPENING_NIGHT, CASE_OVERBILLED, CASE_POSTPONED_ENGAGEMENT, CASE_RECORDED_VOICE,
+    CASE_RED_THREAD, CASE_SECOND_FACE, CASE_SECRET_CLINIC, CASE_SECRET_RECIPE,
+    CASE_SUSPICIOUS_TRANSFER, CASE_VAULT_KEY, CASE_WAREHOUSE_FIRE,
+  ];
+</script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+
+<script>
+(function(){
+  const root = document.getElementById('ad-root');
+  const refreshBtn = document.getElementById('ad-refresh');
+
+  const caseById = {};
+  CASES_REGISTRY.forEach(c => { caseById[c.id] = c; });
+
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function load(){
+    root.innerHTML = '<div class="ad-loading mono">بيجيب الأرقام من Supabase...</div>';
+    let rows;
+    try{
+      rows = await fetchCaseStats();
+    }catch(e){
+      root.innerHTML = '<div class="ad-error mono">حصل خطأ في الاتصال. تأكد إنك شغّلت CASE_EVENTS_SETUP.sql في Supabase.</div>';
+      return;
+    }
+    if(!rows || !rows.length){
+      root.innerHTML = '<div class="ad-empty mono">مفيش بيانات لسه. الأرقام هتبدأ تظهر أول ما لاعب يفتح قضية بعد رفع التحديث ده.</div>';
+      return;
+    }
+
+    let totalStarted = 0, totalCompleted = 0, totalDropped = 0, totalGood = 0;
+    rows.forEach(r=>{
+      totalStarted += Number(r.started_count)||0;
+      totalCompleted += Number(r.completed_count)||0;
+      totalDropped += Number(r.dropped_count)||0;
+      totalGood += Number(r.good_count)||0;
+    });
+
+    const rowsHTML = rows.map(r=>{
+      const c = caseById[r.case_id];
+      const title = c ? c.title : r.case_id;
+      const caseNo = c ? c.caseNo : '';
+      const started = Number(r.started_count)||0;
+      const completed = Number(r.completed_count)||0;
+      const dropped = Number(r.dropped_count)||0;
+      const completionRate = started ? Math.round((completed/started)*100) : 0;
+      return `
+        <tr>
+          <td>
+            <div class="ad-case-title">${escapeHTML(title)}</div>
+            <div class="ad-case-no">${escapeHTML(caseNo)}</div>
+          </td>
+          <td class="ad-num">${started}</td>
+          <td class="ad-num">${completed}</td>
+          <td class="ad-num ad-good">${Number(r.good_count)||0}</td>
+          <td class="ad-num ad-partial">${Number(r.partial_count)||0}</td>
+          <td class="ad-num ad-bad">${Number(r.bad_count)||0}</td>
+          <td class="ad-num ad-dropped">${dropped}</td>
+          <td class="ad-rate">${started ? completionRate + '%' : '—'}</td>
+        </tr>
+      `;
+    }).join('');
+
+    root.innerHTML = `
+      <div class="ad-summary">
+        <div class="ad-stat"><div class="num mono">${totalStarted}</div><div class="lbl">إجمالي مرات اللعب</div></div>
+        <div class="ad-stat"><div class="num mono">${totalCompleted}</div><div class="lbl">إجمالي مرات الإنهاء</div></div>
+        <div class="ad-stat"><div class="num mono">${totalGood}</div><div class="lbl">نجاح كامل</div></div>
+        <div class="ad-stat"><div class="num mono">${totalDropped}</div><div class="lbl">طلعوا من غير ما يخلّصوا</div></div>
+      </div>
+
+      <div class="ad-table-wrap">
+        <table class="ad-table">
+          <thead>
+            <tr>
+              <th>القضية</th>
+              <th>لعبها</th>
+              <th>خلّصها</th>
+              <th>نجاح</th>
+              <th>جزئي</th>
+              <th>غلط</th>
+              <th>طلع منها</th>
+              <th>نسبة الإنهاء</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  refreshBtn.addEventListener('click', load);
+  load();
+})();
+</script>
+</body>
+</html>

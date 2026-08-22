@@ -662,18 +662,21 @@ function showLibrary(){
       `;
     }).join('');
 
-    const bundleCard = `
-      <div class="dossier-card bundle-card" id="openBundlesCard">
-        <div class="bundle-card-inner">
-          <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+    const bundleStrip = `
+      <div class="bundle-strip" id="openBundlesCard">
+        <div class="bundle-strip-icon">
+          <svg viewBox="0 0 40 40" width="26" height="26" aria-hidden="true">
             <rect x="6" y="12" width="22" height="16" rx="1.5" fill="none" stroke="rgba(244,200,105,.7)" stroke-width="1.4"/>
             <rect x="10" y="8" width="22" height="16" rx="1.5" fill="#1a1610" stroke="rgba(244,200,105,.9)" stroke-width="1.4"/>
             <line x1="14" y1="14" x2="28" y2="14" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
             <line x1="14" y1="18" x2="24" y2="18" stroke="rgba(244,200,105,.55)" stroke-width="1"/>
           </svg>
-          <div class="bundle-card-title">شوف كل الباقات</div>
-          <div class="bundle-card-sub">وفّر لغاية 165ج</div>
         </div>
+        <div class="bundle-strip-text">
+          <div class="bundle-strip-title">شوف كل الباقات</div>
+          <div class="bundle-strip-sub">وفّر لغاية 165ج على الأرشيف كامل</div>
+        </div>
+        <div class="bundle-strip-arrow">←</div>
       </div>
     `;
 
@@ -686,7 +689,8 @@ function showLibrary(){
           </div>
           <div class="premium-spotlight-count mono">${premiumReady.length} ملف مختوم</div>
         </div>
-        <div class="dossier-track">${dossierCards}${bundleCard}</div>
+        <div class="dossier-track">${dossierCards}</div>
+        ${bundleStrip}
       </div>
     `;
   }
