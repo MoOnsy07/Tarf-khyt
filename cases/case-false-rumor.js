@@ -19,8 +19,7 @@ const CASE_FALSE_RUMOR = {
   investigationPoints: 20,
   teaser: 'صورة مفبركة انتشرت في جروب نساء القرية وقلبت الدنيا على فتاة مخطوبة. خطوبتها وأمانها على المحك، ولازم توصل للحقيقة قبل ما العيلة تتصرف بسرعة.',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['social', 'drama'],
   seriesId: null,
   seriesOrder: null,

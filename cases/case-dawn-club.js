@@ -21,6 +21,7 @@ const CASE_DAWN_CLUB = {
   teaser: 'رجل أعمال معروف بيموت فجأة في غرفة كبار الشخصيات بنادي ليلي فاخر، وسط أجواء صاخبة وشهود كتير بس رواياتهم متضاربة تمامًا.',
 
   isPremium: true,
+  premiumTier: 'B',
   categories: ['murder', 'nightlife'],
   seriesId: null,
   seriesOrder: null,

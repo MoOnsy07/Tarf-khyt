@@ -18,8 +18,7 @@ const CASE_SHIFTING_PAINTING = {
   investigationPoints: 20,
   teaser: 'جامع لوحات بيلاحظ تغيّر تدريجي في تفاصيل لوحة اشتراها، وقبل ما يفضح الموضوع بيتقتل. لوحة أقدم وأثمن مخبأة تحت السطح، وحد مستعد يقتل عشانها.',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['murder', 'mystery'],
   seriesId: null,
   seriesOrder: null,

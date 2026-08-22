@@ -21,6 +21,7 @@ const CASE_BEHIND_SCENES = {
   teaser: 'متسابقة صاعدة في برنامج مواهب بتوجه اتهام خطير لمنتج البرنامج قبل ما تختفي فجأة من الاستوديو. هل سكتوها عشان الاتهام ده؟',
 
   isPremium: true,
+  premiumTier: 'A',
   categories: ['disappearance', 'corruption'],
   seriesId: null,
   seriesOrder: null,

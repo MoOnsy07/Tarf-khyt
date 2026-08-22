@@ -21,6 +21,7 @@ const CASE_DAWN_CALL = {
   teaser: 'زوجة بتتلقى مكالمة غامضة الفجر من رقم زوجها المتوفى من أسبوعين، بصوت شبيه بصوته بيقولها جملة واحدة غامضة قبل ما الخط يقفل.',
 
   isPremium: true,
+  premiumTier: 'B',
   categories: ['murder', 'mystery'],
   seriesId: null,
   seriesOrder: null,

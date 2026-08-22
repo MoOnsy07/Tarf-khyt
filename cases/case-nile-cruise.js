@@ -21,6 +21,7 @@ const CASE_NILE_CRUISE = {
   teaser: 'راكب بيختفي من كابينته على مركب نيلي فاخر نص الليل، والمركب في وسط النيل من غير أي مكان قريب يمشي منه. إزاي حد يختفي من مكان مقفول تمامًا؟',
 
   isPremium: true,
+  premiumTier: 'B',
   categories: ['disappearance', 'mystery'],
   seriesId: null,
   seriesOrder: null,

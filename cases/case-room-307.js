@@ -18,8 +18,7 @@ const CASE_ROOM_307 = {
   investigationPoints: 21,
   teaser: 'سيدة بتتعرض لإصابة خطيرة في غرفة فندق، وزوجها مختفي. كل حاجة بتشاور لخناقة زوجية، لكن كارت الفندق بيكشف إن حد تاني دخل الغرفة بعد ما هو خرج.',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['mystery', 'corruption'],
   seriesId: null,
   seriesOrder: null,

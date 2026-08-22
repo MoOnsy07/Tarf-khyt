@@ -21,6 +21,7 @@ const CASE_MISSING_TWIN = {
   teaser: 'واحد من توأم متطابق بيبلغ عن اختفاء أخوه فجأة من شقتهم المشتركة، بس تفاصيل القصة اللي بيحكيها فيها تناقضات غريبة من البداية.',
 
   isPremium: true,
+  premiumTier: 'B',
   categories: ['disappearance', 'mystery'],
   seriesId: null,
   seriesOrder: null,

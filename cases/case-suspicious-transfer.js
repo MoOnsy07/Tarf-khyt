@@ -17,8 +17,7 @@ const CASE_SUSPICIOUS_TRANSFER = {
   investigationPoints: 20,
   teaser: 'محاسب بنك بيكتشف تحويلات مالية غريبة بمبالغ ضخمة، وبعد يومين بيختفي فجأة من غير أي أثر. هل اكتشافه هو اللي كان السبب في اختفائه؟',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['disappearance', 'corruption'],
   seriesId: null,
   seriesOrder: null,

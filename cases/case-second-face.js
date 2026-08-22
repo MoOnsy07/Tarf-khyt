@@ -21,6 +21,7 @@ const CASE_SECOND_FACE = {
   teaser: 'ممثلة صاعدة بتكتشف حساب مزيف بينتحل شخصيتها بالكامل باستخدام صور مولّدة بالذكاء الاصطناعي، وبعد ما تفضح الموضوع علنًا، بتختفي فجأة.',
 
   isPremium: true,
+  premiumTier: 'B',
   categories: ['disappearance', 'digital'],
   seriesId: null,
   seriesOrder: null,

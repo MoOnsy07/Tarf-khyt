@@ -17,8 +17,7 @@ const CASE_FORGED_CANVAS = {
   investigationPoints: 21,
   teaser: 'صاحب جاليري بيتقتل ليلة افتتاح معرض بيضم لوحة أثرية نادرة، بعد ما اكتشف إنها مزوّرة. مين في دايرة معرفته كان مستعد يقتل عشان يخبي السر ده؟',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['murder', 'mystery'],
   seriesId: null,
   seriesOrder: null,

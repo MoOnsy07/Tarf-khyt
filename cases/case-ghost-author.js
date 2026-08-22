@@ -17,8 +17,7 @@ const CASE_GHOST_AUTHOR = {
   investigationPoints: 22,
   teaser: 'روائي مشهور بيموت فجأة قبل حفل توقيع أهم رواياته. وراء نجاحه سر كبير محدش كان يعرفه — ومين اللي كان مستعد يقتل عشان السر ده يفضل مدفون؟',
 
-  isPremium: true,
-  price: '15 جنيه',
+  isPremium: false,
   categories: ['murder', 'drama'],
   seriesId: null,
   seriesOrder: null,
