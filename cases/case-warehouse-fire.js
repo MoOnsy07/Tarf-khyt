@@ -1,7 +1,10 @@
 /* ============================================================
    بيانات قضية: حريق المخزن
-   قضية قتل/حريق — حريق كبير في مخزن ملابس، وجثة عامل جواه
-   رغم إن المفروض إنه مسافر خارج البلد وقت الحريق.
+   النسخة المنظفة — 2026-08-24
+   الحقيقة النهائية:
+   - حسني دبّر حريقًا متعمدًا لتغطية نقص المخزون والاستفادة من التأمين.
+   - فريد هو من نفّذ إشعال الحريق مقابل دفعة مالية.
+   - سعيد لم يكن هدف قتل مخططًا؛ وفاته حدثت لأنه كان ما يزال داخل المخزن.
    ============================================================ */
 
 const IMG_BASE_WAREHOUSEFIRE = 'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/images/warehouse-fire/';
@@ -15,7 +18,7 @@ const CASE_WAREHOUSE_FIRE = {
   difficulty: 'متوسطة',
   estMinutes: 32,
   investigationPoints: 18,
-  teaser: 'حريق ضخم بيلتهم مخزن ملابس بالكامل، وجثة عامل بتتلاقى جوه الرماد رغم إن المفروض إنه كان مسافر خارج البلد وقت الحريق بالظبط.',
+  teaser: 'حريق ضخم يلتهم مخزن ملابس، وجثة عامل تتلاقى جواه رغم إن المفروض إنه كان مسافر. المطلوب تعرف مين أشعل النار، ومين كان ورا الخطة.',
 
   isPremium: false,
   categories: ['murder', 'arson'],
@@ -26,13 +29,13 @@ const CASE_WAREHOUSE_FIRE = {
   briefing: {
     heroImg: IMG_BASE_WAREHOUSEFIRE + 'cover.webp',
     heroCaption: 'CASE 043 — بعد إخماد الحريق',
-    text1: 'حريق كبير اندلع في مخزن ملابس تابع لشركة "النسيج الذهبي" نص الليل، والتهم جزء كبير من المخزون. لما فريق الإطفاء دخل بعد إخماد النيران، لقوا جثة العامل "سعيد" جوه المخزن.',
-    text2: 'الغريب إن سعيد كان مفروض مسافر خارج البلد في إجازة من أسبوع، وأهله أكدوا إنه سافر فعلاً. صاحب الشركة طلب منك تحقق قبل ما التأمين يرفض تعويض الحريق بسبب الشكوك حوالين الحادثة.',
+    text1: 'حريق كبير اندلع نص الليل في مخزن ملابس تابع لشركة "النسيج الذهبي". بعد السيطرة على النار، فريق الإطفاء لقى جثة العامل سعيد وسط بقايا المخزن.',
+    text2: 'سعيد كان المفروض مسافر في إجازة، لكن وجوده جوه المخزن قلب الحادثة كلها. شركة التأمين طلبت مراجعة مستقلة بعد ظهور شبهة إن الحريق مش عرضي.',
     meta: [
       { label:'المجني عليه', value:'سعيد — عامل في المخزن' },
       { label:'مكان الحادثة', value:'مخزن ملابس النسيج الذهبي' },
       { label:'الغموض', value:'سعيد كان مفروض مسافر وقت الحريق' },
-      { label:'طلب التحقيق', value:'صاحب الشركة' },
+      { label:'هدف التحقيق', value:'تحديد منفذ الحريق ومدبره' },
     ],
   },
 
@@ -40,22 +43,22 @@ const CASE_WAREHOUSE_FIRE = {
     {
       scene:'المشهد ١ — قبل الحريق',
       img: IMG_BASE_WAREHOUSEFIRE + 'fire-scene1.jpg',
-      text:'المخزن هادي ومقفول بعد نهاية الشفت، رفوف الملابس مرتبة في صفوف طويلة تحت إضاءة خافتة.'
+      text:'المخزن هادي ومقفول بعد نهاية الشفت، ورفوف الملابس ممتدة تحت إضاءة ليلية خافتة.'
     },
     {
-      scene:'المشهد ٢ — اندلاع الحريق',
+      scene:'المشهد ٢ — اندلاع النار',
       img: IMG_BASE_WAREHOUSEFIRE + 'fire-scene2.jpg',
-      text:'ألسنة نار بتبدأ تنتشر بسرعة من زاوية معينة في المخزن، والدخان بيتصاعد في السما نص الليل.'
+      text:'النار تبدأ من نقطة محددة جوه المخزن وتنتشر بسرعة غير معتادة بين المخزون.'
     },
     {
-      scene:'المشهد ٣ — الاكتشاف',
+      scene:'المشهد ٣ — الجثة',
       img: IMG_BASE_WAREHOUSEFIRE + 'fire-scene3.jpg',
-      text:'فريق الإطفاء بعد إخماد النيران بيكتشف جثة محترقة جزئيًا جوه بقايا المخزن.'
+      text:'بعد الإخماد، رجال الإطفاء يلاقوا جثة سعيد جوه المخزن، رغم إن الكل كان فاكره خارج البلد.'
     },
     {
-      scene:'المشهد ٤ — التحقيق',
+      scene:'المشهد ٤ — بداية التحقيق',
       img: IMG_BASE_WAREHOUSEFIRE + 'fire-scene4.jpg',
-      text:'صاحب الشركة بيديك تقرير خبير الحرائق الأولي، وقائمة الموظفين اللي كان عندهم وصول للمخزن.'
+      text:'قدامك تقرير خبير الحرائق، سجلات المخزون، وأسماء الناس اللي عندهم علاقة بالمخزن. الحريق نفسه واضح، لكن مين نفذه ومين خطط له لسه محتاج إثبات.'
     },
   ],
 
@@ -63,80 +66,187 @@ const CASE_WAREHOUSE_FIRE = {
     {
       id:'warehouse_manager_gamal', name:'جمال', role:'مدير المخزن', img: IMG_BASE_WAREHOUSEFIRE + 'gamal.jpg', avatarEmoji:'📦',
       alibi:'قال إنه كان في بيته وقت اندلاع الحريق.',
+      loseMsg:'جمال اكتشف نقص المخزون وبدأ يراجع الأرقام، لكن مفيش دليل إنه استفاد من الحريق أو كان قريب من نقطة الاشتعال وقت التنفيذ.',
       questions:[
-        { q:'المخزون كان في حالة مالية إيه قبل الحريق؟', unlockId:'gamal_inventory_shortage',
-          a:'"صراحة، كان فيه نقص غريب في بعض الأصناف من فترة، كنت بحقق فيه بهدوء."' },
-        { q:'سعيد كان عارف حاجة عن النقص ده؟', requires:['gamal_inventory_shortage'],
-          a:'(بيتردد) "سعيد كان لاحظ الموضوع قبلي، وكان بيسألني أسئلة كتير عنه."' },
-      ]
+        {
+          q:'المخزون كان وضعه إيه قبل الحريق؟', unlockId:'gamal_inventory_shortage',
+          a:'"كان فيه نقص ملحوظ في أصناف معينة، وكنت بدأت أراجع الأرقام قبل الحريق بأيام."'
+        },
+        {
+          q:'مين كان ممكن يتضرر لو النقص اتكشف رسميًا؟', requires:['gamal_inventory_shortage'],
+          a:'"المراجعة كانت هتوصل للإدارة العليا أكيد، خصوصًا إن قيمة النقص كبيرة ومش سهل تتفسر كخطأ جرد."'
+        },
+      ],
+      confrontations:{
+        gamal_inventory_shortage:'أنا اللي بلغت عن النقص، مش منطقي أولع المخزن وأنا أصلًا براجع المشكلة.',
+        fire_investigator_report:'كون الحريق متعمد ما يثبتش إن مدير المخزن هو اللي نفذه.'
+      }
     },
     {
-      id:'business_owner_hosny', name:'حسني', role:'صاحب شركة النسيج الذهبي، طلب التحقيق', img: IMG_BASE_WAREHOUSEFIRE + 'hosny.jpg', avatarEmoji:'🏭',
-      alibi:'قال إنه كان في اجتماع عمل خارج المدينة وقت الحريق.',
+      id:'business_owner_hosny', name:'حسني', role:'صاحب شركة النسيج الذهبي', img: IMG_BASE_WAREHOUSEFIRE + 'hosny.jpg', avatarEmoji:'🏭',
+      alibi:'قال إنه كان في اجتماع عمل خارج المنطقة الصناعية وقت الحريق.',
+      loseMsg:'حسني مش بريء؛ الأدلة بتكشف إنه مدبر الخطة. لكن الاتهام النهائي في القضية بيسأل عن الشخص اللي أشعل الحريق فعليًا، وده لازم يتثبت بشكل منفصل.',
       questions:[
-        { q:'الشركة كانت في وضع مالي صعب قبل الحريق؟', unlockId:'hosny_financial_trouble',
-          a:'"كنا في أزمة سيولة حقيقية، والتأمين على المخزون كان هيساعدنا نتخطى الأزمة دي."' },
-        { q:'سعيد كان عارف تفاصيل عن حالة الشركة المالية؟', requires:['hosny_financial_trouble'], unlockId:'hosny_saeed_knowledge',
-          a:'(بيتوتر) "سعيد كان قريب من الحسابات أكتر مما ينفع، كان بيسأل أسئلة محرجة."' },
-      ]
+        {
+          q:'الشركة كانت في أزمة مالية قبل الحريق؟', unlockId:'hosny_financial_trouble',
+          a:'"كان عندنا ضغط سيولة، آه، لكن الشركات بتمر بأزمات وبتعديها. التأمين موجود عشان الكوارث، مش أكتر."'
+        },
+        {
+          q:'سعيد كان قريب من حسابات المخزون؟', requires:['hosny_financial_trouble'], unlockId:'hosny_saeed_knowledge',
+          a:'(بيتوتر) "كان بيسأل عن فرق في الأرقام أكتر من الطبيعي، بس ده ماكانش شغله الأساسي."'
+        },
+        {
+          q:'راجعنا التحويل المالي لفريد قبل الحريق بيوم. كان مقابل إيه؟',
+          requires:['hosny_farid_payment'],
+          a:'(بيحاول يتمالك نفسه) "كان شغل إضافي... اتفاق خاص بيني وبينه. مفيش عقد مكتوب، وده كان غلط إداري مني."'
+        },
+      ],
+      confrontations:{
+        hosny_financial_trouble:'الأزمة المالية دافع محتمل، مش دليل إني أمرت بحريق.',
+        gamal_inventory_shortage:'أي شركة ممكن يحصل فيها فرق مخزون، الموضوع ماكانش وصل لاتهام رسمي.',
+        hosny_farid_payment:'التحويل حقيقي، بس أنا بقول إنه مقابل شغل إضافي. لازم تثبتوا إنه كان ثمن الحريق.'
+      }
     },
     {
       id:'security_guard_reda', name:'رضا', role:'حارس أمن المخزن الليلي', img: IMG_BASE_WAREHOUSEFIRE + 'reda.jpg', avatarEmoji:'🔦',
-      alibi:'قال إنه كان بيعمل جولة تفقدية طبيعية وقت الحريق.',
+      alibi:'قال إنه كان في جولته المعتادة على الناحية الرئيسية وقت بداية الحريق.',
+      loseMsg:'رضا عنده تقصير في المراقبة، لكن شهادته ومسار الحراسة يوضحوا إنه ماكانش عند نقطة الاشتعال ومفيش دافع مالي يربطه بالخطة.',
       questions:[
-        { q:'لاحظت أي حاجة غريبة قبل اندلاع الحريق؟', unlockId:'reda_observation',
-          a:'"شفت سيارة صاحب الشركة قريبة من المخزن قبل الحريق بساعة تقريبًا، مع إنه قال إنه في اجتماع بره المدينة."' },
-        { q:'إنت كنت فين بالظبط وقت اندلاع النار؟', requires:['reda_observation'],
-          a:'"كنت في الجولة التفقدية على الجانب التاني من المخزن، ده اللي أخرني عن ملاحظة الحريق بدري."' },
-      ]
+        {
+          q:'لاحظت حركة غير طبيعية حوالين المخزن قبل الحريق؟', unlockId:'reda_observation',
+          a:'"البوابة الرئيسية كانت هادية. اللي شد انتباهي إن الممر الجانبي ماكانش ظاهر من نقطة الحراسة طول الجولة."'
+        },
+        {
+          q:'يعني حد كان يقدر يدخل من الجنب من غير ما تعدي عليه؟', requires:['reda_observation'],
+          a:'"لو عارف المكان كويس، آه. الممر الجانبي بيلف بعيد عن غرفة الحراسة."'
+        },
+      ],
+      confrontations:{
+        farid_route_access:'المخطط متوافق مع كلامي: الممر الجانبي هو النقطة اللي ماكنتش شايفها.',
+        fire_investigator_report:'أنا اتعاملت مع النار بعد ما بدأت، لكن ما شوفتش لحظة الاشتعال نفسها.'
+      }
     },
     {
       id:'colleague_farid', name:'فريد', role:'زميل سعيد في المخزن', img: IMG_BASE_WAREHOUSEFIRE + 'farid.jpg', avatarEmoji:'👕',
-      alibi:'قال إنه كان في بيته وقت الحريق زي أي يوم إجازة عادي.',
+      alibi:'قال إنه كان في بيته وقت الحريق، وإنه ماقربش من المخزن في يوم إجازته.',
       questions:[
-        { q:'كنت عارف إن سعيد ماسافرش فعلاً؟', unlockId:'farid_knew_saeed_present',
-          a:'"أيوه، كلمني قبل الحريق بساعتين، قالي إنه راجع المخزن يجيب حاجة نساها."' },
-        { q:'شاهد أكد إن سيارتك كانت قريبة من المخزن وقت الحريق، رغم إنك قلت كنت في بيتك — عايز تفسر؟', requires:['farid_knew_saeed_present','hosny_saeed_knowledge','gamal_inventory_shortage'], closesInterrogation:true,
-          a:'(بيسكت) "حسني عرض عليّ فلوس كبيرة أشعل حريق يغطي على نقص المخزون قبل ما التدقيق يكشفه. مكنتش أعرف إن سعيد جوه المخزن وقتها."' },
-      ]
+        {
+          q:'آخر مرة كلمت سعيد قبل الحريق كانت إمتى؟', unlockId:'farid_knew_saeed_present',
+          a:'"كلمني قبل الحريق بساعتين. قال إنه هيعدي المخزن ياخد حاجة نسيها ويمشي بسرعة. أنا افترضت إنه خلص ومشي."'
+        },
+        {
+          q:'كان بينك وبين حسني شغل خاص أو فلوس خارج مرتبك؟',
+          requires:['hosny_farid_payment'],
+          a:'(بيتردد) "كان ساعات يطلب مني شغل إضافي ويدفعلي مباشرة... بس مكنتش كل التفاصيل بتدخل في حسابات الشركة."'
+        },
+        {
+          q:'عربيتك ظهرت قرب المخزن، والتحويل المالي جاي من حسني، ومسار الممر الجانبي يوصلك لنقطة الاشتعال من غير ما تعدي على الحراسة. تفسر السلسلة دي إزاي؟',
+          requires:['fire_investigator_report','farid_car_seen','farid_route_access','hosny_farid_payment'],
+          closesInterrogation:true,
+          a:'(بيسكت طويل) "حسني دفعلي عشان أولع في جزء من المخزن ويبان كأنه حادث يغطي على نقص البضاعة. أنا كنت فاكر سعيد دخل ياخد حاجته ومشي. لما ولعت النار ماكنتش أعرف إنه لسه جوه."'
+        },
+      ],
+      confrontations:{
+        farid_knew_saeed_present:'أنا عرفت إنه هيعدي، بس كنت فاكره خرج قبل الحريق بوقت.',
+        farid_car_seen:'العربية شبه عربيتي، بس الشهادة لوحدها ما تثبتش إني دخلت المخزن.',
+        farid_route_access:'معرفتي بالممر طبيعية لأني شغال في المخزن، مش دليل إني استخدمته الليلة دي.',
+        hosny_farid_payment:'حسني دفعلي قبل كده على شغل إضافي، مش كل تحويل بينا معناه جريمة.',
+        fire_investigator_report:'التقرير يثبت إن حد ولعها، لكنه ما بيقولش اسمي.'
+      }
     },
   ],
 
   evidence: [
-    { id:'fire_investigator_report', tag:'من تقرير خبير الحرائق', crit:true, title:'الحريق مفتعل عمدًا', img: IMG_BASE_WAREHOUSEFIRE + 'fire-report.jpg',
-      short:'آثار مادة معجّلة للاشتعال في نقطة بداية الحريق',
-      full:'تقرير خبير الحرائق أكد وجود آثار مادة معجّلة للاشتعال في نقطة بداية الحريق، وده بيستبعد تمامًا فرضية الحادث العرضي.',
-      unlocked:true, order:1 },
+    {
+      id:'fire_investigator_report', tag:'من خبير الحرائق', crit:true,
+      title:'الحريق مفتعل عمدًا', img: IMG_BASE_WAREHOUSEFIRE + 'fire-report.jpg',
+      short:'مادة معجّلة للاشتعال ونقطة بداية محددة',
+      full:'تقرير خبير الحرائق أثبت وجود مادة معجّلة للاشتعال في نقطة بداية واحدة، ونمط الانتشار يستبعد ماس كهربائي أو حادث عرضي.',
+      unlocked:true, order:1
+    },
+    {
+      id:'gamal_inventory_shortage', tag:'من استجواب جمال', crit:false,
+      title:'نقص كبير في المخزون', img:null,
+      short:'فرق جرد كان على وشك يتحول لمراجعة رسمية',
+      full:'جمال أكد إن فيه نقصًا ملحوظًا في أصناف مرتفعة القيمة، وإنه بدأ مراجعة داخلية قبل الحريق بأيام.',
+      unlocked:false, order:2
+    },
+    {
+      id:'hosny_financial_trouble', tag:'من استجواب حسني', crit:false,
+      title:'أزمة سيولة في الشركة', img:null,
+      short:'تعويض التأمين كان هيخفف ضغط مالي حقيقي',
+      full:'حسني أقر إن الشركة كانت تحت ضغط سيولة، وإن تعويض المخزون المؤمن عليه كان هيحل جزءًا كبيرًا من الأزمة.',
+      unlocked:false, order:3
+    },
+    {
+      id:'hosny_saeed_knowledge', tag:'من استجواب حسني', crit:false,
+      title:'سعيد كان بيسأل عن فرق المخزون', img:null,
+      short:'سعيد لاحظ أرقامًا مقلقة قبل الحريق',
+      full:'حسني اعترف إن سعيد كان بيسأل عن فروق الجرد والحسابات، وده يوضح إن مشكلة المخزون كانت ممكن تتكشف قريب.',
+      unlocked:false, order:4
+    },
+    {
+      id:'reda_observation', tag:'من استجواب رضا', crit:false,
+      title:'الممر الجانبي خارج مجال الحراسة', img:null,
+      short:'الدخول الجانبي ممكن يتم من غير المرور على غرفة الأمن',
+      full:'رضا أكد إن جولته غطت المدخل الرئيسي، بينما الممر الجانبي فيه نقطة عمياء تسمح لشخص يعرف المكان يدخل من غير ما يمر عليه.',
+      unlocked:false, order:5
+    },
+    {
+      id:'farid_knew_saeed_present', tag:'من استجواب فريد', crit:false,
+      title:'اتصال سعيد قبل الحريق', img:null,
+      short:'سعيد قال لفريد إنه هيمر على المخزن لفترة قصيرة',
+      full:'فريد أكد إن سعيد اتصل به قبل الحريق وقال إنه هيمر على المخزن ياخد حاجة نسيها ثم يخرج. المعلومة تثبت علم فريد بالزيارة، لكنها لا تثبت إنه كان يعرف إن سعيد ما زال بالداخل وقت الاشتعال.',
+      unlocked:false, order:6
+    },
+    {
+      id:'hosny_farid_payment', tag:'من مراجعة التحويلات', crit:true,
+      title:'تحويل غير مبرر من حسني لفريد', img:null,
+      short:'دفعة كبيرة قبل الحريق بيوم بلا عقد أو فاتورة',
+      full:'مراجعة الحسابات كشفت تحويلًا ماليًا كبيرًا من حسني لفريد قبل الحريق بيوم، من غير عقد أو فاتورة أو بند رواتب يبرره. التوقيت والظروف يربطوا صاحب المصلحة بمنفذ محتمل، لكن يحتاجوا إثبات وجود وتنفيذ.',
+      unlocked:false, order:7
+    },
+    {
+      id:'farid_car_seen', tag:'من شاهد خارجي', crit:true,
+      title:'سيارة فريد قرب المخزن', img: IMG_BASE_WAREHOUSEFIRE + 'fire-witness.jpg',
+      short:'شاهد مستقل حط عربية فريد في المنطقة وقت الحريق',
+      full:'جار للمخزن أكد إنه شاف سيارة فريد متوقفة في شارع جانبي قريب من المخزن في النافذة الزمنية للحريق، رغم إن فريد قال إنه كان في بيته.',
+      unlocked:false, order:8
+    },
+    {
+      id:'farid_route_access', tag:'من إعادة بناء المسار', crit:true,
+      title:'مسار وصول فريد لنقطة الاشتعال', img:null,
+      short:'الممر الجانبي يسمح له بالوصول من غير المرور بالحراسة',
+      full:'بعد ربط شهادة رضا بمخطط المخزن ومكان سيارة فريد، إعادة بناء الحركة أثبتت إن فريد كان يقدر يدخل من الممر الجانبي ويصل لنقطة بداية الحريق ثم يرجع للعربية من غير المرور بغرفة الحراسة.',
+      unlocked:false, order:9
+    },
+  ],
 
-    { id:'gamal_inventory_shortage', tag:'من استجواب جمال', crit:false, title:'نقص غريب في المخزون', img:null,
-      short:'نقص ملحوظ في بعض أصناف المخزون قبل الحريق',
-      full:'جمال أكد ملاحظته لنقص غريب في بعض أصناف المخزون قبل الحريق بفترة، وكان بيحقق فيه بهدوء.',
-      unlocked:false, order:2 },
-
-    { id:'hosny_financial_trouble', tag:'من استجواب حسني', crit:true, title:'أزمة مالية في الشركة', img:null,
-      short:'الشركة كانت في أزمة سيولة حقيقية قبل الحريق',
-      full:'حسني اعترف بوجود أزمة سيولة حقيقية في الشركة، وإن تعويض التأمين على المخزون كان هيساعد بشكل كبير في تخطي الأزمة.',
-      unlocked:false, order:3 },
-
-    { id:'hosny_saeed_knowledge', tag:'من استجواب حسني', crit:true, title:'قرب سعيد من الحسابات', img:null,
-      short:'سعيد كان بيسأل أسئلة محرجة عن الحسابات المالية',
-      full:'حسني اعترف إن سعيد كان قريب من التفاصيل المالية للشركة أكتر من اللازم، وبيسأل أسئلة محرجة.',
-      unlocked:false, order:4 },
-
-    { id:'reda_observation', tag:'من استجواب رضا', crit:true, title:'سيارة حسني قريبة من المخزن', img: IMG_BASE_WAREHOUSEFIRE + 'fire-car.jpg',
-      short:'رضا شاف سيارة حسني قريبة من المخزن قبل الحريق بساعة',
-      full:'رضا أكد إنه شاف سيارة تشبه سيارة حسني قريبة من المخزن قبل اندلاع الحريق بساعة تقريبًا، رغم إن حسني ادّعى إنه كان في اجتماع خارج المدينة.',
-      unlocked:false, order:5 },
-
-    { id:'farid_knew_saeed_present', tag:'من استجواب فريد', crit:true, title:'سعيد كان في المخزن فعلاً', img:null,
-      short:'فريد أكد إن سعيد رجع المخزن قبل الحريق بساعتين',
-      full:'فريد اعترف إن سعيد كلمه قبل الحريق بساعتين وقاله إنه راجع المخزن يجيب حاجة نساها، رغم إن العيلة كانت فاكرة إنه مسافر.',
-      unlocked:false, order:6 },
-
-    { id:'farid_car_seen', tag:'من شهادة جار المخزن', crit:true, title:'سيارة فريد قريبة من المخزن', img: IMG_BASE_WAREHOUSEFIRE + 'fire-witness.jpg',
-      short:'جار المخزن أكد وجود سيارة فريد قريبة وقت الحريق',
-      full:'جار للمخزن أكد إنه شاف سيارة تشبه سيارة فريد قريبة من المكان وقت اندلاع الحريق، رغم إن فريد ادّعى إنه كان في بيته.',
-      unlocked:false, order:7 },
+  investigationActions: [
+    {
+      id:'audit_hosny_payments', kind:'مراجعة مالية',
+      label:'راجع التحويلات غير المعتادة قبل الحريق',
+      description:'بعد ظهور أزمة السيولة ونقص المخزون، راجع المدفوعات الخارجة من حساب الإدارة في الأيام السابقة للحريق.',
+      requires:['gamal_inventory_shortage','hosny_financial_trouble','hosny_saeed_knowledge'],
+      resultEvidenceIds:['hosny_farid_payment'],
+      successText:'ظهر تحويل كبير من حسني لفريد قبل الحريق بيوم من غير مستند يبرره.'
+    },
+    {
+      id:'ask_warehouse_neighbor', kind:'شاهد خارجي',
+      label:'راجع حركة العربيات بعد جمع دوافع الأطراف',
+      description:'بعد تثبيت إن الحريق متعمد ومراجعة النقص المالي ومعرفة زيارة سعيد، اسأل شاهدًا مستقلًا عن الحركة حول المخزن.',
+      requires:['fire_investigator_report','gamal_inventory_shortage','hosny_financial_trouble','farid_knew_saeed_present'],
+      resultEvidenceIds:['farid_car_seen'],
+      successText:'الشاهد حط عربية فريد في شارع جانبي قريب من المخزن وقت الحريق.'
+    },
+    {
+      id:'reconstruct_fire_route', kind:'إعادة بناء مسار',
+      label:'أعد بناء طريق الدخول لنقطة الاشتعال',
+      description:'بعد وجود فريد قرب المكان ومعرفة نقطة العمى في الحراسة، قارن مخطط المخزن بالحركة الممكنة بدل اختيار مشتبه من مخطط مفتوح من البداية.',
+      requires:['farid_car_seen','reda_observation','fire_investigator_report'],
+      resultEvidenceIds:['farid_route_access'],
+      successText:'إعادة البناء أثبتت وجود مسار جانبي يربط مكان سيارة فريد بنقطة الاشتعال من غير المرور على الحراسة.'
+    },
   ],
 
   contradictionPuzzle: { enabled:false },
@@ -152,51 +262,50 @@ const CASE_WAREHOUSE_FIRE = {
   polygraphPuzzle: { enabled:false },
   witnessReliabilityPuzzle: { enabled:false },
   handwritingPuzzle: { enabled:false },
+  floorPlanPuzzle: { enabled:false },
 
-  floorPlanPuzzle: {
-    enabled: true,
-    tabLabel: 'مخطط مسار الحريق',
-    introText: 'تتبع اتجاه انتشار الحريق من نقطة الاشتعال، وحدد مين من المشتبه بيهم كان يقدر يوصل لنقطة البداية دي من غير ما يمر على غرفة الحراسة.',
-    resultText: 'المسار بيوضح إن فريد قدر يوصل لنقطة الاشتعال من المدخل الجانبي من غير ما يمر على رضا في غرفة الحراسة.',
-    rooms: ['المدخل الرئيسي', 'المدخل الجانبي', 'نقطة الاشتعال', 'غرفة الحراسة'],
-    suspectPaths: {
-      warehouse_manager_gamal: ['المدخل الرئيسي'],
-      business_owner_hosny:    ['المدخل الرئيسي', 'غرفة الحراسة'],
-      security_guard_reda:     ['غرفة الحراسة'],
-      colleague_farid:         ['المدخل الجانبي', 'نقطة الاشتعال'],
-    },
-    correctSuspectId: 'colleague_farid',
-    resultEvidenceIds: ['farid_car_seen'],
-  },
+  evidenceCombinations: [],
 
-  evidenceCombinations: [
-    { parts:['hosny_financial_trouble','farid_knew_saeed_present'], resultId:'farid_car_seen' },
-  ],
-
+  // الاتهام هنا يحدد منفذ الإشعال الفعلي؛ المدبر يُثبت في بناء النظرية.
   correctSuspectId: 'colleague_farid',
-  conclusiveEvidenceIds: ['farid_knew_saeed_present', 'farid_car_seen', 'hosny_financial_trouble'],
-  conclusiveRequired: 3,
+  conclusiveEvidenceIds: [
+    'fire_investigator_report',
+    'hosny_farid_payment',
+    'farid_car_seen',
+    'farid_route_access'
+  ],
+  conclusiveRequired: 4,
 
   theoryBuilder: {
     enabled: true,
     questions: [
       {
-        id:'howidentified',
-        label:'إزاي عرفت إن فريد هو الفاعل؟',
+        id:'executor',
+        label:'مين أشعل الحريق فعليًا؟',
         options: [
-          { id:'a', text:'مسار الحريق اللي أثبت وصوله لنقطة الاشتعال من المدخل الجانبي + شهادة الجار اللي كذّبت حجة غيابه + معرفته المسبقة إن سعيد كان في المخزن فعلاً' },
-          { id:'b', text:'لأنه زميل سعيد وده يكفي كدافع' },
-          { id:'c', text:'لأن حسني صاحب الشركة وده أوضح مستفيد من التأمين' },
+          { id:'a', text:'فريد — وجود عربيته + مسار دخوله لنقطة الاشتعال + ارتباطه المالي بالخطة' },
+          { id:'b', text:'حسني — لأنه صاحب المصلحة المالية، إذن لازم يكون هو اللي أشعل النار بنفسه' },
+          { id:'c', text:'رضا — لأنه حارس الأمن وكان موجود في الموقع' },
         ],
         correctOptionId:'a',
       },
       {
-        id:'twist',
-        label:'إيه كانت خطة فريد الحقيقية؟',
+        id:'planner',
+        label:'مين دبّر الحريق وليه؟',
         options: [
-          { id:'a', text:'حسني عرض عليه فلوس كبيرة يشعل حريق يغطي على نقص المخزون قبل ما التدقيق المالي يكشفه، لكنه ما كانش يعرف إن سعيد رجع المخزن في نفس التوقيت' },
-          { id:'b', text:'كان ناوي يقتل سعيد عمدًا بسبب خلاف شخصي' },
-          { id:'c', text:'كان بيحاول يخوّف حسني بس من غير نية إشعال حريق فعلي' },
+          { id:'a', text:'حسني — دفع لفريد عشان يغطي نقص المخزون بحريق متعمد ويستفيد من تعويض التأمين' },
+          { id:'b', text:'جمال — ولّع المخزن عشان يخفي إنه اكتشف نقص البضاعة' },
+          { id:'c', text:'سعيد — خطط للحريق قبل سفره عشان ينتقم من الشركة' },
+        ],
+        correctOptionId:'a',
+      },
+      {
+        id:'death',
+        label:'إيه تفسير وفاة سعيد؟',
+        options: [
+          { id:'a', text:'كان داخل المخزن وقت التنفيذ من غير ما فريد يعرف إنه لسه جوه؛ الوفاة نتيجة الحريق وليست هدف الخطة الأصلي' },
+          { id:'b', text:'فريد وحسني خططوا من البداية لقتل سعيد بالحريق' },
+          { id:'c', text:'سعيد مات قبل الحريق واتحطت جثته جوه بعدين' },
         ],
         correctOptionId:'a',
       },
@@ -205,191 +314,31 @@ const CASE_WAREHOUSE_FIRE = {
 
   endings: {
     good: {
-      stamp:'القضية اتقفلت', badgeLabel:'القضية اتقفلت — إدانة', title:'الحريق اللي خبى الحقيقة بدل ما يمحيها',
+      stamp:'القضية اتقفلت',
+      badgeLabel:'القضية اتقفلت — كشف المنفذ والمدبر',
+      title:'الحريق كان خطة... والضحية كانت مفاجأة مأساوية',
       paragraphs:[
-        'حسني كان في أزمة سيولة حقيقية، وقرر يستغل الحريق كوسيلة لتغطية نقص مخزون كان حصل بسبب تلاعب مالي، عشان يحصل على تعويض التأمين. عرض على فريد مبلغ كبير عشان يشعل الحريق، لكن محدش منهم كان يعرف إن سعيد رجع المخزن في نفس التوقيت يجيب حاجة نساها.',
-        'مسار الحريق اللي أثبت وصول فريد لنقطة الاشتعال من المدخل الجانبي، وشهادة الجار اللي كذّبت حجة غيابه، ومعرفته المسبقة بوجود سعيد في المخزن، كلها أدلة حاصرته وكشفت مأساة كان ممكن تتجنب.',
+        'تقرير الحرائق أثبت إن النار اتولعت عمدًا. مراجعة الحسابات كشفت إن حسني، تحت ضغط أزمة السيولة ونقص المخزون، حوّل مبلغًا كبيرًا لفريد قبل الحريق بيوم من غير أي مبرر تجاري حقيقي.',
+        'شهادة الجار حطت عربية فريد قرب المخزن في التوقيت الحرج، وإعادة بناء المسار أثبتت إنه يقدر يدخل من الممر الجانبي ويوصل لنقطة الاشتعال من غير ما يمر على الحراسة. فريد اعترف إنه نفذ الحريق بطلب من حسني عشان يبان كحادث ويغطي على النقص.',
+        'سعيد كان قال لفريد إنه هيمر على المخزن ياخد حاجة نسيها. فريد افترض إنه خرج قبل التنفيذ، لكن سعيد كان لسه بالداخل. كده التحقيق فرّق بين منفذ الإشعال، مدبر الخطة، ووفاة حصلت كنتيجة مباشرة للجريمة من غير ما تكون هدف القتل الأصلي.'
       ]
     },
     partial: {
-      stamp:'جزئي', badgeLabel:'القضية اتقفلت — أدلة غير كافية', title:'الشك في مكانه، الإثبات ناقص',
+      stamp:'جزئي',
+      badgeLabel:'القضية اتقفلت — السلسلة ناقصة',
+      title:'عرفت الاتجاه... لكن لسه ناقص رابط في سلسلة الإثبات',
       paragraphs:[
-        'التحقيق بيتجه صح ناحية فريد، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
+        'الشك في فريد وحسني له أساس، لكن القضية محتاجة سلسلة كاملة تربط التعمد بالمدبر والمنفذ ومكان التنفيذ قبل ما تتقفل بشكل قوي.'
       ],
-      hint:'اجمع على الأقل تلات أدلة من: مسار الحريق، شهادة الجار، ومعرفته بوجود سعيد، قبل ما تتهم.'
+      hint:'لازم تجمع الأربع أدلة الحاسمة: تقرير إن الحريق متعمد، تحويل حسني لفريد، وجود عربية فريد قرب المخزن، ومسار دخوله لنقطة الاشتعال.'
     },
     bad: {
-      stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',
+      stamp:'الاستنتاج ناقص',
+      badgeLabel:'القضية اتقفلت — منفذ الحريق لم يُحدد',
+      title:'جزء من الصورة مش كفاية',
       paragraphs:[
-        'اتهمت {wrongName}، وذكرى سعيد فضلت مرتبطة بحادثة مالهاش تفسير حقيقي، والفاعل الحقيقي فضل طليق. الأدلة كانت بتشاور بوضوح على اتجاه تاني من البداية.',
+        'اتهام {wrongName} ما أثبتش مين أشعل الحريق فعليًا. في القضية دي لازم تفرق بين صاحب المصلحة، مدبر الخطة، والشخص اللي نفذ الإشعال على الأرض.'
       ]
     }
   }
 };
-
-/* ============================================================
-   ملاحظة: برومبتات الصور المقترحة لقضية "حريق المخزن"
-
-   الغلاف (cover.webp):
-   "Photorealistic shot of a burned out clothing warehouse interior
-   at dawn, charred racks and debris, smoky atmosphere, documentary
-   photography style, no text, no watermark, photorealistic"
-
-   المشهد ١ (fire-scene1.jpg):
-   "Photorealistic shot of a quiet clothing warehouse at night, rows
-   of hanging clothes under dim lighting, photorealistic, no text,
-   no watermark"
-
-   المشهد ٢ (fire-scene2.jpg):
-   "Photorealistic dramatic shot of flames spreading inside a
-   warehouse at night, thick smoke rising, photorealistic, no text,
-   no watermark"
-
-   المشهد ٣ (fire-scene3.jpg):
-   "Photorealistic shot of firefighters investigating a burned
-   warehouse interior after extinguishing a fire, smoky atmosphere,
-   photorealistic, no text, no watermark"
-
-   المشهد ٤ (fire-scene4.jpg):
-   "Photorealistic shot of a businessman handing a fire report
-   document to an investigator outside a burned warehouse, daylight,
-   photorealistic, no text, no watermark"
-
-   جمال (gamal.jpg):
-   "Photorealistic portrait of a middle-aged Egyptian male warehouse
-   manager, work uniform, worried guarded expression, standing near
-   warehouse shelves, warm indoor lighting, candid documentary
-   photography style, no text, no watermark, photorealistic"
-
-   حسني (hosny.jpg):
-   "Photorealistic portrait of a middle-aged Egyptian male business
-   owner, formal business suit, nervous calculating expression,
-   standing outside a burned warehouse, daylight, candid documentary
-   photography style, no text, no watermark, photorealistic"
-
-   رضا (reda.jpg):
-   "Photorealistic portrait of a middle-aged Egyptian male security
-   guard, simple uniform with a flashlight, watchful tired
-   expression, standing near a warehouse entrance at night, candid
-   documentary photography style, no text, no watermark,
-   photorealistic"
-
-   فريد (farid.jpg):
-   "Photorealistic portrait of a young Egyptian male warehouse
-   worker, simple work clothes, nervous guilty expression, standing
-   outside a building, natural daylight, candid documentary
-   photography style, no text, no watermark, photorealistic"
-
-   دليل التقرير (fire-report.jpg):
-   "Photorealistic close-up of a fire investigation report document
-   with burn pattern diagrams, clinical lighting, no text, no
-   watermark, photorealistic"
-
-   دليل السيارة (fire-car.jpg):
-   "Photorealistic security camera style still frame of a car parked
-   near a warehouse at night, grainy surveillance footage look, no
-   text, no watermark, photorealistic"
-
-   دليل الشاهد (fire-witness.jpg):
-   "Photorealistic shot of a neighbor watching a burning warehouse
-   from a distance at night, dim orange glow lighting, documentary
-   photography style, no text, no watermark, photorealistic"
-   ============================================================ */
-
-
-/* ============================================================
-   مراجعة محتوى 2026-08-19 — ضبط منطق التحقيق وربط الأدلة
-   ملاحظة: التعديلات هنا تخص محتوى القضية فقط، بدون افتراضات عن المحرك.
-   ============================================================ */
-(() => {
-  const c = CASE_WAREHOUSE_FIRE;
-  const evidence = (id) => c.evidence.find(e => e.id === id);
-  const addEvidence = (item) => { if (!evidence(item.id)) c.evidence.push(item); };
-  const setTheory0 = (text) => { const q=c.theoryBuilder?.questions?.[0]; if(q){const o=q.options.find(x=>x.id===q.correctOptionId); if(o)o.text=text;} };
-  const setTheory1 = (text) => { const q=c.theoryBuilder?.questions?.[1]; if(q){const o=q.options.find(x=>x.id===q.correctOptionId); if(o)o.text=text;} };
-
-  addEvidence({ id:'farid_fire_route', tag:'من مخطط الحريق', crit:true, title:'فريد قدر يوصل لنقطة الاشتعال من المدخل الجانبي', img:null,
-    short:'مخطط الحركة بيحط فريد على المسار الوحيد اللي يتفادى غرفة الحراسة',
-    full:'تحليل مخطط المخزن بيوضح إن فريد كان يقدر يوصل لنقطة بداية الحريق من المدخل الجانبي من غير ما يعدي على رضا في غرفة الحراسة.', unlocked:false, order:90 });
-  addEvidence({ id:'hosny_farid_payment', tag:'من تحويل مالي', crit:true, title:'دفعة من حسني لفريد قبل الحريق', img:null,
-    short:'تحويل مالي كبير من حسني لفريد قبل الحريق بيوم',
-    full:'مراجعة التحويلات كشفت دفعة مالية غير معتادة من حساب حسني لفريد قبل الحريق بيوم، وحسني حاول يبررها على إنها مقابل شغل إضافي من غير مستندات.', unlocked:false, order:91 });
-  c.floorPlanPuzzle.resultEvidenceIds = ['farid_fire_route'];
-  const farid=c.suspects.find(s=>s.id==='colleague_farid');
-  if(farid){
-    farid.questions[0].q='آخر مرة كلمت سعيد قبل الحريق كانت إمتى؟';
-    farid.questions[0].a='"كلمني قبل الحريق بساعتين وقال إنه هيعدي على المخزن يجيب حاجة نسيها ويمشي على طول. كنت فاكر إنه خرج قبل ما يحصل أي حاجة."';
-    const fq=farid.questions.find(q=>q.closesInterrogation); if(fq){fq.requires=['farid_car_seen','farid_fire_route','hosny_farid_payment']; fq.a='(بيسكت) "حسني دفعلي عشان أشعل الحريق ويبان كأنه حادث يغطي على نقص المخزون. كنت فاكر سعيد عدى وخلاص وخرج، ماكنتش أعرف إنه لسه جوه وقت ما ولعت النار."';}
-  }
-  const old=evidence('farid_knew_saeed_present'); if(old){old.title='اتصال سعيد قبل الحريق'; old.short='سعيد قال لفريد إنه هيمر على المخزن بسرعة ويخرج'; old.full='فريد أكد إن سعيد اتصل بيه قبل الحريق وقال إنه هيمر على المخزن يجيب حاجة نسيها ويمشي، وفريد ادعى إنه كان فاكره خرج قبل اندلاع النار.'; old.crit=false;}
-  const hosny=c.suspects.find(s=>s.id==='business_owner_hosny');
-  if(hosny && !hosny.questions.some(q=>q.unlockId==='hosny_farid_payment')) hosny.questions.push({
-    q:'في تحويل كبير خرج من حسابك لفريد قبل الحريق بيوم من غير فاتورة أو عقد. كان مقابل إيه؟',
-    requires:['hosny_financial_trouble','gamal_inventory_shortage'], unlockId:'hosny_farid_payment',
-    a:'(بيتوتر) "كان مقابل شغل إضافي... مفيش ورق رسمي عليه. كنت محتاج مشكلة المخزون تختفي قبل مراجعة التأمين."'
-  });
-  c.conclusiveEvidenceIds = ['farid_car_seen','farid_fire_route','hosny_farid_payment'];
-  setTheory0('مسار الحريق اللي أثبت وصول فريد لنقطة الاشتعال + شهادة الجار اللي حطت عربيته قرب المخزن + التحويل المالي من حسني لفريد قبل الحريق');
-  setTheory1('حسني دفع لفريد عشان يشعل حريق يغطي على نقص المخزون قبل التدقيق والتأمين. فريد كان فاكر إن سعيد مرّ على المخزن وخرج، لكنه كان لسه جوه وقت التنفيذ');
-  c.endings.good.paragraphs[0] = 'حسني كان في أزمة سيولة ونقص المخزون كان ممكن يفتح عليه تدقيق كبير. دفع لفريد عشان يشعل حريق يبان كأنه حادث ويغطي على النقص. فريد كان عارف إن سعيد هيعدي على المخزن بسرعة، لكنه كان مقتنع إنه خرج قبل تنفيذ الخطة؛ سعيد كان لسه جوه وقت اندلاع النار.';
-  c.endings.good.paragraphs[1] = 'مسار الحريق اللي حط فريد عند نقطة الاشتعال، وشهادة الجار على وجود عربيته، والتحويل المالي غير المبرر من حسني قبل الحريق، عملوا سلسلة إثبات واضحة وكشفوا إن الحريق كان متعمد وإن وفاة سعيد كانت نتيجة الخطة.';
-  c.endings.partial.hint = 'اجمع على الأقل 4 أدلة من: سيارة فريد، مساره لنقطة الاشتعال، والتحويل المالي من حسني، قبل ما تتهم.';
-
-})();
-
-(() => {
-  const s = CASE_WAREHOUSE_FIRE.suspects.find(x => x.id === 'colleague_farid');
-  if (s && !s.questions.some(x => x.q === 'كان بينك وبين حسني شغل خاص أو فلوس خارج مرتبك؟')) {
-    const idx = s.questions.findIndex(x => x.closesInterrogation);
-    const item = { q:'كان بينك وبين حسني شغل خاص أو فلوس خارج مرتبك؟', requires:['farid_car_seen'], a:'(بيتردد) "عملت له شغل إضافي كذا مرة، وكان ساعات بيدفعلي بشكل مباشر. مش كل حاجة بينا كانت بتدخل في حسابات الشركة."' };
-    if (idx >= 0) s.questions.splice(idx, 0, item); else s.questions.push(item);
-  }
-})();
-
-/* FINAL REVIEW PATCH 2026-08-19 */
-(() => {
-  const c = CASE_WAREHOUSE_FIRE;
-  c.evidenceCombinations = [];
-  if (c.floorPlanPuzzle) {
-    c.floorPlanPuzzle.resultText = 'المخطط يثبت إن فريد كان يقدر يوصل لنقطة الاشتعال من المدخل الجانبي من غير المرور بالحراسة. ده يثبت فرصة الوصول فقط.';
-    c.floorPlanPuzzle.resultEvidenceIds = ['farid_route_access'];
-  }
-  const ev = id => c.evidence.find(e => e.id === id);
-  if (!ev('farid_route_access')) {
-    c.evidence.push({
-      id:'farid_route_access', tag:'من مخطط المخزن', crit:true,
-      title:'مسار وصول فريد لنقطة الاشتعال', img:null,
-      short:'الممر الجانبي يتيح الوصول لنقطة بداية الحريق بعيدًا عن الحراسة',
-      full:'مخطط المخزن يثبت إن فريد كان يقدر يدخل من الممر الجانبي ويصل لنقطة بداية الحريق من غير المرور على رضا. ده يثبت الإمكانية، مش التنفيذ وحده.',
-      unlocked:false, order:90
-    });
-  }
-  const f = c.suspects.find(s => s.id === 'colleague_farid');
-  if (f) {
-    const q = f.questions.find(q => q.closesInterrogation);
-    if (q) {
-      q.q = 'عربيتك كانت قرب المخزن، وإنت عارف إن سعيد رجع، والمخطط يثبت إنك تقدر تدخل من الممر الجانبي. تفسر ده إزاي؟';
-      q.requires = ['farid_knew_saeed_present','farid_car_seen','farid_route_access'];
-      q.a = '(بيسكت) "كنت قريب من المكان فعلًا وعرفت إن سعيد رجع، لكن ده مش اعتراف إني ولعت المخزن. لازم تثبتوا مين استخدم مادة الاشتعال."';
-    }
-  }
-  c.conclusiveEvidenceIds = ['fire_investigator_report','farid_knew_saeed_present','farid_car_seen','farid_route_access'];
-  c.conclusiveRequired = 4;
-})();
-
-/* EVIDENCE ROUTE FIX 2026-08-20 */
-(() => {
-  const c = CASE_WAREHOUSE_FIRE;
-  // إزالة نسخة قديمة مكررة من دليل المسار؛ farid_route_access هو الإصدار المعتمد في المراجعة الأخيرة.
-  c.evidence = c.evidence.filter(e=>e.id!=='farid_fire_route');
-  c.conclusiveEvidenceIds = (c.conclusiveEvidenceIds||[]).map(id=>id==='farid_fire_route'?'farid_route_access':id);
-  const f = c.suspects.find(s=>s.id==='colleague_farid');
-  if(f) (f.questions||[]).forEach(q=>{ if(q.requires) q.requires=q.requires.map(id=>id==='farid_fire_route'?'farid_route_access':id); });
-  c.investigationActions = c.investigationActions || [];
-  if (!c.investigationActions.some(a=>a.id==='ask_warehouse_neighbor')) c.investigationActions.push({
-    id:'ask_warehouse_neighbor', kind:'شاهد خارجي', label:'اسأل جار المخزن عن العربيات وقت الحريق',
-    description:'راجع الحركة حوالين المخزن مع شاهد مستقل عن موظفي الشركة.',
-    requires:['fire_investigator_report'], resultEvidenceIds:['farid_car_seen'],
-    successText:'تم توثيق شهادة الجار عن حركة العربيات وقت الحريق.'
-  });
-})();
