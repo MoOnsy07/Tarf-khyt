@@ -88,3 +88,13 @@ const READY_CASE_IDS = new Set([
   s.dataset.tarafCloudGoogleOnly = '1';
   (document.head || document.documentElement).appendChild(s);
 })();
+
+// ملفات تعريف الشخصيات — طبقة نهائية ثابتة للسن/المهنة/العنوان والسجل الإداري المحايد.
+(function loadTarafSuspectProfiles(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-suspect-profiles]')) return;
+  const s = document.createElement('script');
+  s.src = 'suspect-profiles.js?v=20260823-2';
+  s.async = false;
+  s.dataset.tarafSuspectProfiles = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
