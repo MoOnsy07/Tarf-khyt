@@ -78,7 +78,9 @@
   <div id="ad-root"></div>
 </div>
 
-<!-- كل ملفات القضايا — عشان نعرف اسم كل قضية من الـ id بتاعها -->
+<!-- النسخة القديمة كانت بتحمّل ملفات القضايا كلها، وده كان بيسقط الصفحة على بعض الموبايلات. -->
+<template id="legacy-case-loader">
+<!-- كل ملفات القضايا — محفوظة هنا كمرجع فقط ولا يتم تنفيذها -->
 <script src="cases/case-last-episode.js"></script>
 <script src="cases/case-buffalo.js"></script>
 <script src="cases/case-dark-testimony.js"></script>
@@ -159,6 +161,72 @@
     CASE_SUSPICIOUS_TRANSFER, CASE_VAULT_KEY, CASE_WAREHOUSE_FIRE,
   ];
 </script>
+</template>
+
+<script>
+const CASE_META = {
+  "93rd-minute": { title:"الدقيقة 93", caseNo:"CASE 001" },
+  "behind-scenes": { title:"كواليس البرنامج", caseNo:"CASE 039" },
+  "bribery": { title:"قبول بالواسطة", caseNo:"CASE 016" },
+  "broken-faucet": { title:"صنبور مكسور", caseNo:"CASE 057" },
+  "buffalo-case": { title:"قضية الجاموسة", caseNo:"CASE 003" },
+  "charity-funds": { title:"تبرعات في الهوا", caseNo:"CASE 019" },
+  "closed-file": { title:"ملف مغلق", caseNo:"CASE 051" },
+  "coded-message": { title:"الرسالة المشفرة", caseNo:"CASE 060" },
+  "dark-testimony": { title:"شهادة في العتمة", caseNo:"CASE 004" },
+  "dating-app": { title:"تطبيق التعارف", caseNo:"CASE 038" },
+  "dawn-call": { title:"مكالمة الفجر", caseNo:"CASE 047" },
+  "dawn-club": { title:"نادي الفجر", caseNo:"CASE 042" },
+  "deleted-scene": { title:"المشهد المحذوف", caseNo:"CASE 023" },
+  "exam-leak": { title:"ورقة الامتحان", caseNo:"CASE 011" },
+  "fake-audio": { title:"التسجيل المفبرك", caseNo:"CASE 013" },
+  "false-rumor": { title:"الوشاية", caseNo:"CASE 014" },
+  "final-testament": { title:"الوصية الأخيرة", caseNo:"CASE 007" },
+  "finish-line": { title:"خط النهاية", caseNo:"CASE 040" },
+  "flat-12b": { title:"الشقة 12 ب", caseNo:"CASE 031" },
+  "forged-canvas": { title:"اللوحة المزيفة", caseNo:"CASE 008" },
+  "forged-will": { title:"الوصية المزورة", caseNo:"CASE 041" },
+  "ghost-author": { title:"القلم الخفي", caseNo:"CASE 009" },
+  "grandma-ring": { title:"خاتم الجدة", caseNo:"CASE 049" },
+  "hit-and-run": { title:"حادثة الطريق", caseNo:"CASE 018" },
+  "illusion-startup": { title:"مشروع الوهم", caseNo:"CASE 017" },
+  "last-bell": { title:"الجرس الأخير", caseNo:"CASE 048" },
+  "last-call": { title:"آخر مكالمة", caseNo:"CASE 029" },
+  "last-dish": { title:"الطبخة الأخيرة", caseNo:"CASE 010" },
+  "last-episode": { title:"الحلقة الأخيرة", caseNo:"FILE NO. 0417" },
+  "last-laugh": { title:"ضحكة أخيرة", caseNo:"CASE 053" },
+  "last-rehearsal": { title:"آخر بروفة", caseNo:"CASE 021" },
+  "last-update": { title:"آخر تحديث", caseNo:"CASE 044" },
+  "leaked-video": { title:"قضية الفيديو المسرّب", caseNo:"CASE 005" },
+  "lost-wallet": { title:"المحفظة المفقودة", caseNo:"CASE 012" },
+  "missing-bride": { title:"قضية العروسة المفقودة", caseNo:"CASE 006" },
+  "missing-twin": { title:"التوأم المفقود", caseNo:"CASE 054" },
+  "mud-print": { title:"بصمة في الوحل", caseNo:"CASE 033" },
+  "nile-cruise": { title:"الرحلة النيلية", caseNo:"CASE 050" },
+  "no-witness-night": { title:"ليلة من غير شاهد", caseNo:"CASE 024" },
+  "number-19": { title:"القميص رقم 19", caseNo:"CASE 022" },
+  "old-estate": { title:"العزبة القديمة", caseNo:"CASE 037" },
+  "old-photo": { title:"صورة قديمة", caseNo:"CASE 045" },
+  "one-comment": { title:"تعليق واحد", caseNo:"CASE 052" },
+  "opening-night": { title:"ليلة الافتتاح", caseNo:"CASE 034" },
+  "overbilled": { title:"فاتورة زيادة", caseNo:"CASE 055" },
+  "postponed-engagement": { title:"خطوبة مؤجلة", caseNo:"CASE 058" },
+  "recorded-voice": { title:"الصوت المسجل", caseNo:"CASE 036" },
+  "red-thread": { title:"خيط أحمر", caseNo:"CASE 030" },
+  "role-of-lifetime": { title:"دور العمر", caseNo:"CASE 028" },
+  "room-307": { title:"باب 307", caseNo:"CASE 025" },
+  "second-face": { title:"الوش التاني", caseNo:"CASE 056" },
+  "secret-clinic": { title:"العيادة السرية", caseNo:"CASE 046" },
+  "secret-recipe": { title:"الوصفة السرية", caseNo:"CASE 059" },
+  "shifting-painting": { title:"اللوحة اللي بتتغير", caseNo:"CASE 026" },
+  "suspicious-transfer": { title:"تحويل مشبوه", caseNo:"CASE 032" },
+  "vanished-wife": { title:"اختفاء منى", caseNo:"CASE 015" },
+  "var-conspiracy": { title:"الجون اللي ما اتحسبش", caseNo:"CASE 020" },
+  "vault-key": { title:"مفتاح الخزنة", caseNo:"CASE 035" },
+  "warehouse-fire": { title:"حريق المخزن", caseNo:"CASE 043" },
+  "wedding-gold": { title:"دهب الفرح", caseNo:"CASE 002" },
+};
+</script>
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -171,7 +239,7 @@
   const refreshBtn = document.getElementById('ad-refresh');
 
   const caseById = {};
-  CASES_REGISTRY.forEach(c => { caseById[c.id] = c; });
+  Object.assign(caseById, CASE_META);
 
   function escapeHTML(str){
     const div = document.createElement('div');
