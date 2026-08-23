@@ -17,10 +17,10 @@ begin
       and t.relname='case_scores'
       and c.contype='u'
       and (
-        select array_agg(a.attname order by u.ord)
+        select string_agg(a.attname::text, ',' order by u.ord)
         from unnest(c.conkey) with ordinality u(attnum, ord)
         join pg_attribute a on a.attrelid=t.oid and a.attnum=u.attnum
-      ) = array['case_id','visitor_id']::text[]
+      ) = 'case_id,visitor_id'
   loop
     execute format('alter table public.case_scores drop constraint %I', r.conname);
   end loop;
