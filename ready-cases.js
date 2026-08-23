@@ -61,11 +61,17 @@ const READY_CASE_IDS = new Set([
   // === buffalo-case رجعت جاهزة (22 أغسطس) — كان في غلط مني في فحصها،
   // صورها فعليًا تحت images/buffalo/ (مش images/buffalo-case/) وكلها موجودة ===
   'buffalo-case',
-  // === القضايا الـ10 دي لسه ناقصة صور فعليًا (اتفحصت وأكدت):
-  // 93rd-minute, bribery, broken-faucet, dating-app,
-  // dawn-club (بريميوم!), deleted-scene, overbilled, wedding-gold,
-  // charity-funds, grandma-ring
-  // رجّعهم للسِت دي لما تكتمل صورهم فعليًا (شوف قايمة البرومتات الناقصة) ===
+  // === اكتملت أصول آخر 10 قضايا في 23 أغسطس 2026 ===
+  '93rd-minute',
+  'bribery',
+  'broken-faucet',
+  'dating-app',
+  'dawn-club',
+  'deleted-scene',
+  'overbilled',
+  'wedding-gold',
+  'charity-funds',
+  'grandma-ring',
 ]);
 
 // Cloud progress — ملف مستقل بيتحمّل في اللعبة وprofile.html من غير تعديل المحرك.
