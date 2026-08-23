@@ -314,4 +314,13 @@ const CASE_MISSING_TWIN = {
   }
   c.conclusiveEvidenceIds = ['karim_t_relationship','dna_traces_room','nourhan_plans'];
   c.conclusiveRequired = 3;
+
+  c.evidence.push({id:'karim_storage_link_v2',tag:'تحريات ملكية',crit:true,title:'مخزن مستأجر باسم كريم',img:null,short:'سجل الإيجار كشف مخزنًا استأجره كريم سرًا',full:'مراجعة التحركات المالية بعد الخلاف كشفت إيجار كريم لمخزن خارج المدينة باسم وسيط، في نفس أسبوع اختفاء تامر.',unlocked:false,order:98});
+  c.evidence.push({id:'tamer_rescued_v2',tag:'نتيجة التتبع والمداهمة',crit:true,title:'العثور على تامر',img:null,short:'تم العثور على تامر محتجزًا في المخزن',full:'بعد مطابقة سجل الإيجار بآخر نطاق لهاتف تامر، تمت مداهمة المخزن والعثور عليه حيًا. شهادته أكدت إن كريم احتجزه بعد الخلاف.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),
+    {id:'twin_trace_storage_v2',kind:'تحريات مالية',label:'راجع تحركات كريم وعقود التخزين',requires:['dna_traces_room','karim_t_relationship'],resultEvidenceIds:['karim_storage_link_v2'],successText:'تم كشف مخزن استأجره كريم باسم وسيط.'},
+    {id:'twin_raid_storage_v2',kind:'تتبع ومداهمة',label:'طابق إشارة الهاتف وداهم المخزن',requires:['karim_storage_link_v2','nourhan_plans'],resultEvidenceIds:['tamer_rescued_v2'],successText:'تم العثور على تامر وإنقاذه من المخزن.'}
+  ];
+  c.conclusiveEvidenceIds=['dna_traces_room','karim_storage_link_v2','tamer_rescued_v2'];
+  c.endings.good.paragraphs[1]='آثار دم تامر أثبتت بداية الاعتداء داخل غرفة كريم، وسجل الإيجار كشف المخزن السري، ثم قادت مطابقة إشارة الهاتف للمداهمة. العثور على تامر وشهادته أثبتا واقعة الاحتجاز.';
 })();

@@ -329,6 +329,15 @@ const CASE_DAWN_CLUB = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_DAWN_CLUB;
+  c.evidence.push({id:'sherif_payment_to_ehab',tag:'تحليل التحويلات',crit:true,title:'تحويل شريف للنادل',img:null,short:'تحويل مالي من شريف لإيهاب قبل الحادثة',full:'كشف التحويلات أثبت إن شريف حول لإيهاب مبلغًا غير معتاد قبل الحادثة بساعات، وإيهاب أكد إنه مقابل إضافة المادة للمشروب.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'audit_club_payments',kind:'تحليل مالي',label:'راجع التحويلات بين شريف وإيهاب',requires:['ehab_bribe_offer'],resultEvidenceIds:['sherif_payment_to_ehab'],successText:'التحويل المالي وثّق اتفاق شريف مع إيهاب.'}];
+  c.conclusiveEvidenceIds=['toxicology_report_c','ehab_bribe_offer','sherif_payment_to_ehab']; c.conclusiveRequired=3;
+  c.endings.good.paragraphs[1]='تقرير السموم أثبت المادة وجرعتها، واعتراف إيهاب شرح طريقة دسها، والتحويل المالي من شريف للنادل وثّق الاتفاق بينهما. السلسلة دي أثبتت مسؤولية شريف بدل الاعتماد على كشف الكذب وحده.';
+})();
+
 /* REVIEW PATCH 2026-08-19 */
 (() => {
   const c = CASE_DAWN_CLUB;
@@ -352,7 +361,7 @@ const CASE_DAWN_CLUB = {
       q.a = '(بيتوتر) "إيهاب بيحاول يعلق غلطه فيا، واتصالي بمريم كان عشان أعرف اللي شافته. ده مش اعتراف إني طلبت تسميم عمرو."';
     }
   }
-  c.conclusiveEvidenceIds = ['toxicology_report_c','ehab_bribe_offer','threat_call_record'];
+  c.conclusiveEvidenceIds = ['toxicology_report_c','ehab_bribe_offer','sherif_payment_to_ehab'];
   c.conclusiveRequired = 3;
   const tq = c.theoryBuilder?.questions?.[0];
   if (tq) {

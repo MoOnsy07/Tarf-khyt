@@ -322,4 +322,13 @@ const CASE_DATING_APP = {
   });
   c.teaser = 'مايا خرجت لأول مقابلة مع شخص عرفته من تطبيق تعارف، وبعدها اختفت. المشكلة إن الشخص اللي قابلته مش هو الشخص اللي كانت شايفاه على الشاشة.';
 
+  addEvidence({id:'ali_vehicle_route_v2',tag:'كاميرات الطريق',crit:true,title:'مسار عربية علي',img:null,short:'الكاميرات تتبعت العربية بعد خروجها وراء مايا',full:'كاميرات الشارع سجلت علي وهو يُدخل مايا العربية بالقوة، ثم التقطت رقم اللوحة واتجاهها نحو أطراف المدينة.',unlocked:false,order:98});
+  addEvidence({id:'maya_rescued_v2',tag:'نتيجة التتبع والمداهمة',crit:true,title:'العثور على مايا',img:null,short:'تم العثور على مايا في شقة استأجرها علي باسم مزيف',full:'ربط رقم اللوحة بعقد إيجار حديث قاد لشقة باسم مزيف يستخدمه علي. المداهمة عثرت على مايا بالداخل، وشهادتها أكدت واقعة الاحتجاز.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),
+    {id:'dating_trace_vehicle_v2',kind:'كاميرات وتتبع',label:'تتبّع العربية بعد المقهى',requires:['farouk_observation','cafe_camera_followup'],resultEvidenceIds:['ali_vehicle_route_v2'],successText:'تم تحديد رقم العربية واتجاهها بعد خروجها وراء مايا.'},
+    {id:'dating_raid_flat_v2',kind:'تحريات ومداهمة',label:'اربط اللوحة بعقد الإيجار وداهم الموقع',requires:['ali_vehicle_route_v2','ali_fake_profile'],resultEvidenceIds:['maya_rescued_v2'],successText:'تم العثور على مايا وإنقاذها من الشقة.'}
+  ];
+  c.conclusiveEvidenceIds=['cafe_camera_followup','ali_vehicle_route_v2','maya_rescued_v2']; c.conclusiveRequired=3;
+  c.endings.good.paragraphs[1]='كاميرا المقهى أثبتت التتبع، وكاميرات الطريق سجلت إجبار مايا على دخول العربية وحددت اللوحة، ثم قاد عقد الإيجار للمكان. المداهمة أنقذت مايا وشهادتها أكدت الاحتجاز.';
+
 })();

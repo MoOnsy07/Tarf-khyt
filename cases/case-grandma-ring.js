@@ -286,6 +286,14 @@ const CASE_GRANDMA_RING = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_GRANDMA_RING;
+  c.evidence.push({id:'ring_found_kamal',tag:'نتيجة التفتيش',crit:true,title:'الخاتم داخل جراب كمال',img:null,short:'الخاتم اتلاقى مخفيًا وسط مقتنيات كمال',full:'تفتيش جراب القطع الخاص بكمال أسفر عن العثور على خاتم الجدة ملفوفًا داخل قطعة قماش، وبياناته تطابقت مع وصف العائلة.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'search_kamal_case',kind:'تفتيش',label:'فتّش جراب مقتنيات كمال',requires:['kamal_r_alibi_broken'],resultEvidenceIds:['ring_found_kamal'],successText:'تم العثور على الخاتم داخل جراب كمال.'}];
+  c.conclusiveEvidenceIds=['amr_r_saw_someone','kamal_r_alibi_broken','ring_found_kamal']; c.conclusiveRequired=3;
+})();
+
 (() => {
   const s = CASE_GRANDMA_RING.suspects.find(x => x.id === 'family_friend_kamal_r');
   if (s && !s.questions.some(x => x.q === 'وقت التصوير، سبت مكانك لأي سبب؟')) {
@@ -306,5 +314,8 @@ const CASE_GRANDMA_RING = {
       q.a = '(بيسكت) "وقفت عند الطاولة عشان أشوف الخاتم عن قرب، مش أكتر. أنا مهتم بالقطع القديمة فعلًا، لكن ده مش دليل إني أخدته."';
     }
   }
+  const searchAction=(c.investigationActions||[]).find(a=>a.id==='search_kamal_case');
+  if(searchAction) searchAction.requires=['kamal_r_interest','amr_r_saw_someone','kamal_r_alibi_broken'];
+  c.endings.good.paragraphs[1]='شهادة عمرو وضعت كمال عند الطاولة، وجدول المواقع كسر أليبيه، وبعد اكتمال القرائن تم تفتيش جراب مقتنياته والعثور على الخاتم مخفيًا بداخله. استرداد المسروق حسم القضية بدل الاعتماد على هوسه وحده.';
   c.conclusiveRequired = 3;
 })();

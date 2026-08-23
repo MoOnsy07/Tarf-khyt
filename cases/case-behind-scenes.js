@@ -318,3 +318,11 @@ const CASE_BEHIND_SCENES = {
   c.teaser = 'رنا اتهمت منتج البرنامج بسلوك خطير، وتاني يوم اختفت من الكواليس. بين الكاميرات والضغوط اللي حصلت بعد الشكوى، مين كان عنده سبب يخليها تسكت؟';
 
 })();
+
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_BEHIND_SCENES;
+  c.evidence.push({id:'rasha_hideout_trace',tag:'تتبع سيارة الإنتاج',crit:true,title:'الوصول لمكان احتجاز رنا',img:null,short:'خط سير سيارة الإنتاج قاد لمخزن تابع لشركة رشا',full:'مراجعة GPS سيارة الإنتاج أظهرت توقفها عند مخزن تابع لشركة رشا ليلة الاختفاء. المداهمة عثرت على رنا محتجزة بالداخل.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'track_production_car',kind:'تتبع ومداهمة',label:'تتبّع سيارة الإنتاج وداهم المخزن',requires:['naguib_footage','naguib_cover_request'],resultEvidenceIds:['rasha_hideout_trace'],successText:'تم العثور على رنا محتجزة في مخزن تابع لشركة رشا.'}];
+  c.conclusiveEvidenceIds=['naguib_footage','naguib_cover_request','rasha_hideout_trace']; c.conclusiveRequired=3;
+})();

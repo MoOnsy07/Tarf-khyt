@@ -312,7 +312,8 @@ const CASE_LEAKED_VIDEO = {
   if (m) {
     const q = m.questions.find(q => q.closesInterrogation);
     if (q) {
-      q.a = '(بتتوتر) "الجهاز بتاعي كان عليه الملفات فعلًا، وده يحرجني، بس الجهاز كان بيتساب في مكان الشغل وناس تانية كان ممكن توصل له. أنا مش هاعترف بحاجة لمجرد بصمة جهاز."';
+      q.requires = ['old_dispute','upload_verified','ip_log','leak_timeline_confirmed'];
+      q.a = '(بتنهار) "أنا اللي رفعت الفيديو من جهازي الساعة 3:15. كنت غاضبة من الاستغلال ونسب شغلي لغيري، لكن اللي عملته كان انتقام وانتهاك لخصوصيتها."';
     }
   }
   c.conclusiveRequired = 4;

@@ -314,4 +314,13 @@ const CASE_SECOND_FACE = {
   }
   c.conclusiveEvidenceIds = ['sherif_f_client','khaled_f_dm_contact','khaled_f_seen_building'];
   c.conclusiveRequired = 3;
+
+  c.evidence.push({id:'khaled_vehicle_route_v2',tag:'كاميرات الشارع',crit:true,title:'خالد غادر بجنى',img:null,short:'الكاميرات سجلت جنى داخل عربية خالد',full:'كاميرات شارع جانبي سجلت خالد وهو يغادر المنطقة بعربيته وجنى بجواره في حالة مقاومة واضحة، ثم حددت اتجاه العربية.',unlocked:false,order:98});
+  c.evidence.push({id:'jana_rescued_v2',tag:'نتيجة التتبع والمداهمة',crit:true,title:'العثور على جنى',img:null,short:'تم العثور على جنى في استراحة يستخدمها خالد',full:'تتبع العربية قاد لاستراحة يستعملها خالد. المداهمة عثرت على جنى بالداخل، وشهادتها أكدت إنه أخذها بالقوة.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),
+    {id:'second_face_trace_car_v2',kind:'كاميرات وتتبع',label:'راجع كاميرات الشوارع حول العمارة',requires:['khaled_f_seen_building','khaled_f_dm_contact'],resultEvidenceIds:['khaled_vehicle_route_v2'],successText:'الكاميرات سجلت جنى داخل عربية خالد وحددت اتجاهها.'},
+    {id:'second_face_raid_resthouse_v2',kind:'تتبع ومداهمة',label:'تتبّع العربية وداهم الاستراحة',requires:['khaled_vehicle_route_v2','sherif_f_client'],resultEvidenceIds:['jana_rescued_v2'],successText:'تم العثور على جنى وإنقاذها.'}
+  ];
+  c.conclusiveEvidenceIds=['khaled_f_seen_building','khaled_vehicle_route_v2','jana_rescued_v2'];
+  c.endings.good.paragraphs[1]='شهادة الجار وضعت خالد عند العمارة، وكاميرات الشارع سجلت خروجه بجنى وحددت العربية، ثم قاد التتبع للاستراحة. المداهمة أنقذت جنى وشهادتها أكدت إنه أخذها بالقوة.';
 })();

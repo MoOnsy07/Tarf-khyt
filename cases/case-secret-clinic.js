@@ -342,6 +342,8 @@ const CASE_SECRET_CLINIC = {
         a:'(بيتردد) "خرجت بيها لمكان طبي قريب عشان تتلحق. استخدمت اسم مختلف عشان مايتكشفش موضوع العيادة، وده كان قرار غلط."'
       });
     }
+    const hospitalQuestion=s.questions.find(q=>q.unlockId==='hospital_admission_record');
+    if(hospitalQuestion) hospitalQuestion.unlockId=null;
     const q = s.questions.find(q => q.closesInterrogation);
     if (q) {
       q.q = 'سجل المستشفى باسم مستعار مطابق لحالة إيمان، وغادة ما شافتهاش تخرج سليمة. ليه أخفيت مكانها؟';
@@ -350,6 +352,12 @@ const CASE_SECRET_CLINIC = {
   }
 
   c.correctSuspectId = 'unlicensed_doctor_sabry';
+  c.investigationActions=[...(c.investigationActions||[]),{
+    id:'clinic_check_hospitals_v2',kind:'تحريات طبية',label:'راجع سجلات المستشفيات القريبة',
+    description:'ابحث عن حالة نزيف دخلت بعد العملية، بما في ذلك الحالات المسجلة بأسماء غير مطابقة.',
+    requires:['sabry_complication','ghada_saw_leaving'],resultEvidenceIds:['hospital_admission_record'],
+    successText:'ظهر دخول طارئ باسم مستعار يطابق حالة إيمان وتوقيت نقلها.'
+  }];
   c.conclusiveEvidenceIds = ['sabry_no_license','sabry_complication','ghada_saw_leaving','hospital_admission_record'];
   c.conclusiveRequired = 4;
 })();

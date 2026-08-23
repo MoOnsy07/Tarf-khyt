@@ -360,7 +360,8 @@ const CASE_FINAL_TESTAMENT = {
   if (k) {
     const q = k.questions.find(q => q.closesInterrogation);
     if (q) {
-      q.a = '(بيسكت لحظة) "الورق ده صدمني، آه. بس معرفتي إني ابنه مش معناها إني قتلته. وبصمتي على الشباك ممكن تكون من شغلي في الفيلا قبل كده."';
+      q.requires = ['window_print','new_will_copy','birth_certificate','entry_method_confirmed','true_motive_revealed','contradiction_noted_testament'];
+      q.a = '(بينهار) "دخلت من شباك الحمام قبل العشا وحطيت السم في ترمس الشاي. كنت فاكر إنه عمره ما هيعترف بيا... ماكنتش أعرف إن الوصية الجديدة كانت هتصلح كل حاجة."';
     }
   }
   if (c.timelinePuzzle) {

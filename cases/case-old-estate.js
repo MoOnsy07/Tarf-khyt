@@ -314,6 +314,14 @@ const CASE_OLD_ESTATE = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_OLD_ESTATE;
+  c.evidence.push({id:'youssef_poison_container',tag:'تفتيش متعلقات يوسف',crit:true,title:'عبوة المادة مع يوسف',img:null,short:'عبوة تحمل بقايا نفس سم طبق وليد',full:'عُثر بين متعلقات يوسف على عبوة صغيرة تحمل بقايا مطابقة للمادة الموجودة في طبق وليد، مع أثر من صوص الطبق على فوهتها.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'search_youssef_belongings',kind:'تفتيش وتحليل',label:'فتّش متعلقات يوسف وافحصها',requires:['witness_youssef_near_plate','poisoned_plate'],resultEvidenceIds:['youssef_poison_container'],successText:'العثور على العبوة ربط يوسف مباشرة بتسميم الطبق.'}];
+  c.conclusiveEvidenceIds=['witness_youssef_near_plate','poisoned_plate','youssef_poison_container']; c.conclusiveRequired=3;
+})();
+
 (() => {
   const s = CASE_OLD_ESTATE.suspects.find(x => x.id === 'nephew_youssef_o');
   if (s && !s.questions.some(x => x.q === 'وقت تقديم الأكل، كنت بتتحرك بين الأطباق بنفسك؟')) {
@@ -334,7 +342,7 @@ const CASE_OLD_ESTATE = {
       q.a = '(بيسكت) "قربت من طبق وليد فعلًا وأنا بساعد على السفرة، وكنت غضبان من الوصية. لكن ده مش اعتراف إني حطيت السم. لازم تثبتوا التلوث ومسار وصولي للطبق."';
     }
   }
-  c.conclusiveEvidenceIds = ['youssef_o_exclusion','witness_youssef_near_plate','poisoned_plate'];
+  c.conclusiveEvidenceIds = ['witness_youssef_near_plate','poisoned_plate','youssef_poison_container'];
   c.conclusiveRequired = 3;
 })();
 

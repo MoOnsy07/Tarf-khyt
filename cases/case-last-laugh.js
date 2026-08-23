@@ -321,6 +321,15 @@ const CASE_LAST_LAUGH = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_LAST_LAUGH;
+  c.evidence.push({id:'maher_cup_forensics',tag:'فحص جنائي للكوباية',crit:true,title:'أثر ماهر على غطاء السم',img:null,short:'بصمة ماهر وأثر المادة اتجمعوا على الغطاء',full:'الفحص وجد بصمة ماهر على الغطاء الداخلي لعبوة المادة المستخدمة، مع بقايا من نفس السم الموجود في كوباية المشهد.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'forensic_prop_cup',kind:'تحليل جنائي',label:'افحص الكوباية وعبوات الكواليس',requires:['poisoned_prop_cup','maher_seen_backstage_l'],resultEvidenceIds:['maher_cup_forensics'],successText:'الفحص ربط ماهر مباشرة بعبوة السم المستخدمة.'}];
+  c.conclusiveEvidenceIds=['maher_seen_backstage_l','poisoned_prop_cup','maher_cup_forensics']; c.conclusiveRequired=3;
+  c.endings.good.paragraphs[1]='شهادة الفريق أثبتت وجود ماهر في الكواليس، والتحليل أثبت السم في كوباية المشهد، وبصمته مع بقايا المادة على غطاء العبوة ربطته مباشرة بتحضيرها. الأدلة المادية هي اللي حسمت القضية.';
+})();
+
 /* REVIEW PATCH 2026-08-19 */
 (() => {
   const c = CASE_LAST_LAUGH;

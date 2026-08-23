@@ -328,17 +328,18 @@ const CASE_OLD_PHOTO = {
   if (r) {
     const q = r.questions.find(q => q.closesInterrogation);
     if (q) {
-      q.a = '(بيصمت طويل) "أنا كتبت الجملة فعلًا لأني شفت خناقة قوية بين نعيم وكمال قرب المية. وقتها خفت أتكلم، وفضلت ساكت السنين دي كلها. اللي شفته يخليني أشك في نعيم، لكن أنا ما شفتش لحظة الغرق نفسها بوضوح."';
+      q.a = '(بيصمت طويل) "أنا كتبت الجملة فعلًا لأني شفت نعيم يدفع كمال في المية بعد الخناقة. خفت أتكلم وقتها، وفضلت ساكت السنين دي كلها."';
+      q.unlockId = 'ramzy_witness_confession';
     }
   }
   const n = c.suspects.find(s => s.id === 'business_partner_naeem');
   if (n) {
     const q = n.questions.find(q => q.closesInterrogation);
     if (q) {
-      q.a = '(بيتضايق) "اتخانقنا على الفلوس فعلًا وكنت آخر واحد معاه. لكن رمزي نفسه بيقول إنه ما شافش لحظة الغرق بوضوح. لو هتتهمني لازم تثبت أكتر من كده."';
+      q.a = '(بينهار) "اتخانقنا على الفلوس ودفعته بعصبية. لما وقع في المية خفت وسيبته، ورمزي كان شايف."';
     }
   }
-  c.conclusiveEvidenceIds = ['naeem_business_dispute','naeem_last_seen','handwriting_match_ramzy'];
+  c.conclusiveEvidenceIds = ['naeem_business_dispute','naeem_last_seen','ramzy_witness_confession'];
   c.conclusiveRequired = 3;
   if (c.handwritingPuzzle) {
     c.handwritingPuzzle.resultText = 'الخط على ظهر الصورة بيتطابق مع دفتر رمزي. ده يثبت إنه صاحب الملاحظة القديمة، لكنه يحوله لشاهد على الشبهة لا للقاتل تلقائيًا.';

@@ -315,6 +315,15 @@ const CASE_WEDDING_GOLD = {
       a:'(بيتوتر) "فتشوا لو عايزين... أنا ماخدتش حاجة."'
     });
   }
+  c.evidenceCombinations=(c.evidenceCombinations||[]).filter(x=>x.resultId!=='gold_bag_found');
+  const searchQuestion=i && i.questions.find(q=>q.unlockId==='gold_bag_found');
+  if(searchQuestion) searchQuestion.unlockId=null;
+  c.investigationActions=[...(c.investigationActions||[]),{
+    id:'wedding_search_route_v2',kind:'تفتيش',label:'فتّش مسار الحركة ومتعلقات إبراهيم',
+    description:'نفّذ التفتيش بعد إثبات مسار الحركة ووجود إبراهيم قرب الكرسي ودافع الدين.',
+    requires:['route_reconstruction','debt_note','ibrahim_seen_near'],resultEvidenceIds:['gold_bag_found'],
+    successText:'تم العثور على الشنطة في صندوق الخدمة والدهب داخل بطانة سترة إبراهيم.'
+  }];
   c.conclusiveEvidenceIds = ['ibrahim_seen_near','route_reconstruction','gold_bag_found'];
   c.conclusiveRequired = 3;
 })();

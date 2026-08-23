@@ -324,6 +324,15 @@ const CASE_OPENING_NIGHT = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_OPENING_NIGHT;
+  c.evidence.push({id:'tarek_cup_forensics',tag:'فحص جنائي',crit:true,title:'بصمات طارق وبقايا المادة',img:null,short:'أثر طارق ظهر على غطاء الكوباية من الداخل',full:'الفحص وجد بصمات طارق على غطاء كوباية سامر من الداخل، وبقايا المادة على منديل داخل حقيبته، بما يربطه مباشرة بتجهيز الجرعة.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'opening_cup_forensics',kind:'تحليل جنائي',label:'افحص الكوباية ومتعلقات طارق',requires:['poisoned_water_cup','cup_access_window'],resultEvidenceIds:['tarek_cup_forensics'],successText:'الفحص ربط طارق مباشرة بالمادة الموجودة في الكوباية.'}];
+  c.conclusiveEvidenceIds=['tarek_o_contract','poisoned_water_cup','tarek_cup_forensics']; c.conclusiveRequired=3;
+  c.endings.good.paragraphs[1]='الدافع المالي ظهر في العقد، والتحليل أثبت المادة داخل كوباية سامر، ثم ربطت بصمات طارق وبقايا المادة في حقيبته بينه وبين تجهيز الجرعة. الأدلة المادية حسمت المسؤولية.';
+})();
+
 (() => {
   const s = CASE_OPENING_NIGHT.suspects.find(x => x.id === 'manager_tarek_o');
   if (s && !s.questions.some(x => x.q === 'دخلت الكواليس قبل بداية العرض؟')) {
@@ -350,6 +359,6 @@ const CASE_OPENING_NIGHT = {
       q.a = '(بيسكت) "دخلت الكواليس فعلًا عشان أكلمه عن العقد قبل العرض، لكن ماحطتش حاجة في الكوباية. وجودي هناك ودافعي المالي يخلوني مشتبه، مش مذنب تلقائيًا."';
     }
   }
-  c.conclusiveEvidenceIds = ['tarek_o_contract','cup_access_window','poisoned_water_cup'];
+  c.conclusiveEvidenceIds = ['tarek_o_contract','poisoned_water_cup','tarek_cup_forensics'];
   c.conclusiveRequired = 3;
 })();

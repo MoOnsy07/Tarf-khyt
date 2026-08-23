@@ -303,6 +303,15 @@ const CASE_RECORDED_VOICE = {
 
 })();
 
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_RECORDED_VOICE;
+  c.evidence.push({id:'donia_found_hany_site',tag:'تتبع ومداهمة',crit:true,title:'العثور على دنيا',img:null,short:'كاميرا الطريق قادت لموقع تابع لهاني',full:'كاميرا الممر سجلت خروج هاني مع دنيا، وتتبع عربيته قاد لموقع تابع لشركته. عُثر على دنيا بالداخل وأكدت إنه منعها من المغادرة.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'track_hany_vehicle',kind:'كاميرات وتتبع',label:'راجع كاميرات الخروج وتتبع عربية هاني',requires:['voice_match_hany','hany_exposure'],resultEvidenceIds:['donia_found_hany_site'],successText:'تم الوصول لدنيا وإنقاذها من موقع تابع لهاني.'}];
+  c.conclusiveEvidenceIds=['hany_exposure','voice_match_hany','donia_found_hany_site']; c.conclusiveRequired=3;
+  c.endings.good.paragraphs[1]='التطابق الصوتي ربط هاني بالتهديدات، وكاميرا الخروج سجلته مع دنيا، وتتبع عربيته قاد للموقع الذي كانت محتجزة فيه. العثور عليها وشهادتها أكدا واقعة المنع بالقوة.';
+})();
+
 (() => {
   const s = CASE_RECORDED_VOICE.suspects.find(x => x.id === 'corrupt_official_hany');
   if (s && !s.questions.some(x => x.q === 'عمرك بعت لدنيا رسالة صوتية عشان تخليها توقف الحلقة؟')) {
@@ -323,6 +332,6 @@ const CASE_RECORDED_VOICE = {
       q.a = '(بيتوتر) "حاولت أخوفها بالرسائل عشان تسكت عن الملف، وده غلط. لكن اختفاؤها بعد البرنامج مش دليل إني أنا اللي أخدتها."';
     }
   }
-  c.conclusiveEvidenceIds = ['hany_exposure','voice_match_hany','threatening_voice_messages'];
+  c.conclusiveEvidenceIds = ['hany_exposure','voice_match_hany','donia_found_hany_site'];
   c.conclusiveRequired = 3;
 })();

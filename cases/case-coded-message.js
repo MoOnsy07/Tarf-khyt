@@ -301,3 +301,11 @@ const CASE_CODED_MESSAGE = {
     successText:'سعاد حدّدت تفصيلة مهمة عن محيط الفيلا وتم توثيقها.'
   });
 })();
+
+/* ENDING CONSISTENCY PATCH */
+(() => {
+  const c=CASE_CODED_MESSAGE;
+  c.evidence.push({id:'noor_found_old_villa',tag:'نتيجة فك الشفرة والمداهمة',crit:true,title:'العثور على نور في الفيلا',img:null,short:'الشفرة قادت لمخزن الفيلا القديمة',full:'فك الرسالة حدد مخزن الفيلا القديمة. المداهمة عثرت على نور حيّة، وأكدت إن يارا احتجزتها ولقنتها تعليمات الرسالة.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'raid_coded_villa',kind:'تتبع ومداهمة',label:'استخدم حل الشفرة وداهم الفيلا',requires:['ransom_note','yara_c_seen_villa'],resultEvidenceIds:['noor_found_old_villa'],successText:'تم العثور على نور وإنقاذها داخل مخزن الفيلا.'}];
+  c.conclusiveEvidenceIds=['yara_c_seen_villa','atef_c_questioned','noor_found_old_villa']; c.conclusiveRequired=3;
+})();
