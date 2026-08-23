@@ -1,0 +1,32 @@
+name: Supabase Leaderboard Smoke
+
+on:
+  push:
+    paths:
+      - '.github/workflows/supabase-leaderboard-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test leaderboard RPCs
+        env:
+          SUPABASE_URL: https://meynspmfkkedhqhffsqk.supabase.co
+          SUPABASE_KEY: sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9
+        run: |
+          set -euo pipefail
+          BASE="$SUPABASE_URL/rest/v1/rpc"
+          rpc() {
+            local name="$1"
+            local body="$2"
+            echo "--- $name ---"
+            curl --fail-with-body -sS -X POST "$BASE/$name" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$body"
+            echo
+          }
+          rpc get_global_leaderboard_by_cases '{"p_limit":5}'
+          rpc get_global_leaderboard_by_points '{"p_limit":5}'
+          rpc get_leaderboard_cases '{}'
