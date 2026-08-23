@@ -67,3 +67,14 @@ const READY_CASE_IDS = new Set([
   // charity-funds, grandma-ring
   // رجّعهم للسِت دي لما تكتمل صورهم فعليًا (شوف قايمة البرومتات الناقصة) ===
 ]);
+
+// Cloud progress — ملف مستقل بيتحمّل في اللعبة وprofile.html من غير تعديل المحرك.
+// async=false يحافظ على ترتيب التنفيذ لو الصفحة فيها أكتر من loader ديناميكي.
+(function loadTarafCloudSync(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-sync]')) return;
+  const s = document.createElement('script');
+  s.src = 'cloud-sync.js?v=20260823-1';
+  s.async = false;
+  s.dataset.tarafCloudSync = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
