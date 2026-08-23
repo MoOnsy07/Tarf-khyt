@@ -9,8 +9,9 @@
     const googleBtn = document.getElementById('pf-cloud-google');
     const status = document.getElementById('pf-cloud-status');
     if(googleBtn && status){
-      status.textContent = 'اربط تقدمك بحساب Google — بدون رسائل بريد.';
-      status.className = 'pf-cloud-status';
+      const msg = 'اربط تقدمك بحساب Google — بدون رسائل بريد.';
+      if(status.textContent !== msg) status.textContent = msg;
+      if(status.className !== 'pf-cloud-status') status.className = 'pf-cloud-status';
     }
 
     if(window.TarafCloud && !window.TarafCloud.__emailDisabled){
