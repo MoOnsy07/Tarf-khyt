@@ -11,11 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Unpack discovery images
+      - name: Decode and unpack discovery images
         run: |
-          unzip -o .tmp/discovery20.zip -d .
+          base64 --decode .tmp/discovery20.zip > /tmp/discovery20-real.zip
+          unzip -t /tmp/discovery20-real.zip
+          unzip -o /tmp/discovery20-real.zip -d .
           rm -f .tmp/discovery20.zip
-          rm -f .tmp/run-unpack.txt
           rm -f .github/workflows/unpack-discovery-images.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
