@@ -104,3 +104,13 @@ const READY_CASE_IDS = new Set([
   s.dataset.tarafSuspectProfiles = '1';
   (document.head || document.documentElement).appendChild(s);
 })();
+
+// سياسة دعوة تيليجرام — بعد أول قضية، وبعدها كل 3 قضايا مكتملة.
+(function loadTarafTelegramInvitePolicy(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-telegram-policy]')) return;
+  const s = document.createElement('script');
+  s.src = 'telegram-invite-policy.js?v=20260824-1';
+  s.async = false;
+  s.dataset.tarafTelegramPolicy = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
