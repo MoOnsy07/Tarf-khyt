@@ -8,6 +8,7 @@
   const cfg = {
     vodafoneCash: (typeof DONATION_VODAFONE_CASH !== 'undefined' ? DONATION_VODAFONE_CASH : '').trim(),
     instaPay: (typeof DONATION_INSTAPAY !== 'undefined' ? DONATION_INSTAPAY : '').trim(),
+    instaPayLink: (typeof DONATION_INSTAPAY_LINK !== 'undefined' ? DONATION_INSTAPAY_LINK : '').trim(),
     title: (typeof DONATION_TITLE !== 'undefined' ? DONATION_TITLE : 'ادعم طرف الخيط ❤️'),
   };
 
@@ -43,10 +44,12 @@
     .taraf-support-amount{border:1px solid #303542;background:#171a22;color:#ece5d8;border-radius:12px;padding:9px 6px;font-family:inherit;cursor:pointer}
     .taraf-support-amount.is-selected{border-color:#e0a458;color:#f1c786;background:#201b14}
     .taraf-support-method{border:1px solid #2a2f3a;border-radius:16px;padding:14px;margin-top:10px;background:#151820}
-    .taraf-support-method strong{display:block;margin-bottom:5px;color:#fff}
+    .taraf-support-method strong{display:block;margin-bottom:7px;color:#fff}
     .taraf-support-value{display:flex;gap:8px;align-items:center;direction:ltr}
     .taraf-support-value code{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#0d0f14;border-radius:10px;padding:9px 10px;color:#f1c786;font-family:monospace;font-size:13px}
     .taraf-support-copy{border:0;background:#e0a458;color:#111;border-radius:10px;padding:9px 11px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer}
+    .taraf-support-pay{display:block;margin-top:9px;text-align:center;text-decoration:none;background:#e0a458;color:#111;border-radius:11px;padding:10px 12px;font-weight:900}
+    .taraf-support-pay:hover{filter:brightness(1.05)}
     .taraf-support-note{font-size:12px!important;color:#8f938f!important;margin-top:14px!important;margin-bottom:0!important}
     .taraf-support-empty{border:1px dashed #3a3f4b;border-radius:14px;padding:14px;color:#9fa4ac;text-align:center;font-size:13px}
     @media(max-width:560px){.taraf-support-fab{left:12px;bottom:12px;padding:10px 13px;font-size:13px}.taraf-support-card{padding:20px 16px}.taraf-support-amounts{grid-template-columns:repeat(2,1fr)}}
@@ -84,6 +87,7 @@
           <code>${escapeHtml(cfg.instaPay)}</code>
           <button class="taraf-support-copy" type="button" data-copy="${escapeHtml(cfg.instaPay)}" data-method="instapay">نسخ</button>
         </div>
+        ${cfg.instaPayLink ? `<a class="taraf-support-pay" href="${escapeHtml(cfg.instaPayLink)}" target="_blank" rel="noopener noreferrer" data-instapay-link>فتح InstaPay وإرسال الدعم</a>` : ''}
       </div>`);
   }
 
@@ -98,8 +102,8 @@
         <button class="taraf-support-amount" type="button" data-amount="100">100 جنيه</button>
         <button class="taraf-support-amount" type="button" data-amount="other">مبلغ آخر</button>
       </div>
-      ${methods.length ? methods.join('') : '<div class="taraf-support-empty">وسائل الدعم لم تُضف بعد. أضف بيانات Vodafone Cash أو InstaPay في config.js لتفعيلها.</div>'}
-      <p class="taraf-support-note">الدعم اختياري بالكامل ولا يفتح مزايا داخل اللعبة ولا يؤثر على ترتيب اللاعبين.</p>
+      ${methods.length ? methods.join('') : '<div class="taraf-support-empty">وسائل الدعم لم تُضف بعد.</div>'}
+      <p class="taraf-support-note">الدعم اختياري بالكامل، وليس شراءً داخل اللعبة، ولا يفتح مزايا أو يؤثر على ترتيب اللاعبين.</p>
     </div>`;
 
   document.body.appendChild(fab);
@@ -153,4 +157,11 @@
       }
     });
   });
+
+  const instaLink = backdrop.querySelector('[data-instapay-link]');
+  if (instaLink) {
+    instaLink.addEventListener('click', () => {
+      track('donation_instapay_open');
+    });
+  }
 })();
