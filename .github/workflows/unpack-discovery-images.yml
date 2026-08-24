@@ -3,13 +3,16 @@ name: unpack discovery images
 on:
   issues:
     types: [opened]
+  push:
+    paths:
+      - '.tmp/run-unpack.txt'
 
 permissions:
   contents: write
 
 jobs:
   unpack:
-    if: github.event.issue.title == '[internal] unpack discovery images'
+    if: github.event_name == 'push' || github.event.issue.title == '[internal] unpack discovery images'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,6 +20,7 @@ jobs:
         run: |
           unzip -o .tmp/discovery20.zip -d .
           rm -f .tmp/discovery20.zip
+          rm -f .tmp/run-unpack.txt
           rm -f .github/workflows/unpack-discovery-images.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
