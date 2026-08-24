@@ -8,15 +8,9 @@ const WHATSAPP_NUMBER = '201145785696';
 
 /* ============================================================
    دعم طرف الخيط
-   مهم: ما تفترضش إن رقم واتساب هو نفسه Vodafone Cash.
-   حط بيانات التحويل الفعلية فقط هنا.
    ============================================================ */
 
-// مثال: '01001234567'
-const DONATION_VODAFONE_CASH = '';
-
-// حط InstaPay IPA أو رقم/بيانات التحويل اللي تحب تعرضها للاعب
-// مثال: 'name@instapay'
-const DONATION_INSTAPAY = '';
-
+const DONATION_VODAFONE_CASH = '01021657659';
+const DONATION_INSTAPAY = 'medoonsy@instapay';
+const DONATION_INSTAPAY_LINK = 'https://ipn.eg/S/medoonsy/instapay/2DrTZL';
 const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
