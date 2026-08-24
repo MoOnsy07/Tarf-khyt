@@ -129,7 +129,7 @@ const READY_CASE_IDS = new Set([
 (function loadTarafDiscoveryDeductionPolicy(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-discovery-deduction]')) return;
   const s = document.createElement('script');
-  s.src = 'discovery-deduction-policy.js?v=20260824-2';
+  s.src = 'discovery-deduction-policy.js?v=20260824-3';
   s.async = false;
   s.dataset.tarafDiscoveryDeduction = '1';
   (document.head || document.documentElement).appendChild(s);
