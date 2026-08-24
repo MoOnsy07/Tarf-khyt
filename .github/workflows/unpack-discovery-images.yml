@@ -1,18 +1,15 @@
 name: unpack discovery images
 
 on:
-  issues:
-    types: [opened]
-  push:
-    paths:
-      - '.tmp/run-unpack.txt'
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
 
 jobs:
   unpack:
-    if: github.event_name == 'push' || github.event.issue.title == '[internal] unpack discovery images'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
