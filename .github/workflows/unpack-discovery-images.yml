@@ -1,0 +1,27 @@
+name: unpack discovery images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.tmp/discovery20.zip'
+      - '.github/workflows/unpack-discovery-images.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack discovery images
+        run: |
+          unzip -o .tmp/discovery20.zip -d .
+          rm -f .tmp/discovery20.zip
+          rm -f .github/workflows/unpack-discovery-images.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add realistic discovery images"
+          git push
