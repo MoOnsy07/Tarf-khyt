@@ -11,15 +11,89 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decode and unpack discovery images
+      - name: Recover and unpack discovery images
+        shell: bash
         run: |
-          base64 --decode .tmp/discovery20.zip > /tmp/discovery20-real.zip
-          unzip -t /tmp/discovery20-real.zip
-          unzip -o /tmp/discovery20-real.zip -d .
+          set -euo pipefail
+          echo "Archive bytes: $(stat -c%s .tmp/discovery20.zip)"
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct, zlib, binascii, sys
+
+          src = Path('.tmp/discovery20.zip')
+          data = src.read_bytes()
+          pos = 0
+          files = []
+          image_count = 0
+          local_sig = 0x04034B50
+
+          while pos + 30 <= len(data):
+              sig = struct.unpack_from('<I', data, pos)[0]
+              if sig != local_sig:
+                  break
+
+              (sig, ver, flags, method, mtime, mdate, crc32_expected,
+               comp_size, uncomp_size, name_len, extra_len) = struct.unpack_from('<IHHHHHIIIHH', data, pos)
+
+              if flags & 0x08:
+                  raise SystemExit(f'Unsupported ZIP data-descriptor entry at byte {pos}')
+
+              name_start = pos + 30
+              name_end = name_start + name_len
+              extra_end = name_end + extra_len
+              if extra_end > len(data):
+                  raise SystemExit(f'Truncated ZIP header at byte {pos}')
+
+              name_bytes = data[name_start:name_end]
+              encoding = 'utf-8' if (flags & 0x800) else 'cp437'
+              name = name_bytes.decode(encoding, errors='strict')
+
+              data_end = extra_end + comp_size
+              if data_end > len(data):
+                  raise SystemExit(f'Truncated file payload: {name}')
+
+              comp = data[extra_end:data_end]
+              if name.endswith('/'):
+                  Path(name).mkdir(parents=True, exist_ok=True)
+              else:
+                  if method == 0:
+                      raw = comp
+                  elif method == 8:
+                      raw = zlib.decompress(comp, -15)
+                  else:
+                      raise SystemExit(f'Unsupported compression method {method}: {name}')
+
+                  if len(raw) != uncomp_size:
+                      raise SystemExit(f'Uncompressed size mismatch: {name}')
+                  crc = binascii.crc32(raw) & 0xffffffff
+                  if crc != crc32_expected:
+                      raise SystemExit(f'CRC mismatch: {name}')
+
+                  out = Path(name)
+                  if out.is_absolute() or '..' in out.parts:
+                      raise SystemExit(f'Unsafe path in archive: {name}')
+                  out.parent.mkdir(parents=True, exist_ok=True)
+                  out.write_bytes(raw)
+                  files.append(name)
+                  if name.lower().startswith('images/') and name.lower().endswith(('.jpg','.jpeg','.png','.webp')):
+                      image_count += 1
+
+              pos = data_end
+
+          print(f'Recovered files: {len(files)}')
+          print(f'Recovered discovery images: {image_count}')
+          for name in files:
+              print(name)
+
+          if image_count != 20:
+              raise SystemExit(f'Expected exactly 20 images, recovered {image_count}. Nothing will be committed.')
+          PY
+
           rm -f .tmp/discovery20.zip
           rm -f .github/workflows/unpack-discovery-images.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
+          test "$(git status --porcelain | grep -E '^.. images/' | wc -l)" -ge 20
           git commit -m "Add realistic discovery images"
           git push
