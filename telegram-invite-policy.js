@@ -15,8 +15,8 @@
 
   function completedCount(){
     try{
-      if(typeof window.getCompletedIds === 'function'){
-        const ids = window.getCompletedIds();
+      if(typeof getCompletedIds === 'function'){
+        const ids = getCompletedIds();
         return Array.isArray(ids) ? ids.length : 0;
       }
     }catch(e){}
@@ -25,7 +25,7 @@
 
   function shouldShowByCaseCount(){
     try{
-      if(!window.CASE || !window.game || window.game.screen !== 'ending') return false;
+      if(typeof CASE === 'undefined' || typeof game === 'undefined' || !CASE || !game || game.screen !== 'ending') return false;
       if(localStorage.getItem(OPENED_KEY) === '1') return false;
 
       const count = completedCount();
