@@ -1,6 +1,5 @@
 /* ============================================================
-   طرف الخيط — نافذة دعم المشروع
-   تعتمد على DONATION_* الموجودة في config.js
+   طرف الخيط — نافذة الدعم + لوحة شرف الداعمين
    ============================================================ */
 (function () {
   'use strict';
@@ -12,156 +11,110 @@
     title: (typeof DONATION_TITLE !== 'undefined' ? DONATION_TITLE : 'ادعم طرف الخيط ❤️'),
   };
 
-  const track = (eventName, params = {}) => {
-    try {
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', eventName, {
-          event_category: 'donation',
-          ...params,
-        });
-      }
-    } catch (_) {}
+  const track = (eventName, params={}) => {
+    try { if(typeof window.gtag === 'function') window.gtag('event', eventName, {event_category:'donation', ...params}); } catch(_){}
   };
-
-  const escapeHtml = (value) => String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  const esc = (v) => String(v ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
   const styles = document.createElement('style');
   styles.textContent = `
-    .taraf-support-fab{position:fixed;left:18px;bottom:18px;z-index:9997;border:1px solid rgba(224,164,88,.45);background:linear-gradient(135deg,#171a22,#0d0f15);color:#f4dfbd;border-radius:999px;padding:11px 15px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer;box-shadow:0 12px 34px rgba(0,0,0,.35);display:flex;align-items:center;gap:7px;transition:.2s ease}
-    .taraf-support-fab:hover{transform:translateY(-2px);border-color:#e0a458}
-    .taraf-support-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(3,4,7,.78);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}
-    .taraf-support-backdrop.is-open{display:flex}
-    .taraf-support-card{width:min(430px,100%);background:#11141b;border:1px solid rgba(224,164,88,.26);border-radius:22px;padding:22px;color:#ece5d8;font-family:Cairo,Tahoma,sans-serif;box-shadow:0 24px 70px rgba(0,0,0,.55);position:relative}
-    .taraf-support-close{position:absolute;left:14px;top:12px;width:34px;height:34px;border:0;border-radius:50%;background:#1d212b;color:#fff;font-size:22px;cursor:pointer}
-    .taraf-support-card h3{margin:0 0 8px;font-size:22px;color:#f1c786}
-    .taraf-support-card p{margin:0 0 16px;color:#c9c4ba;line-height:1.8;font-size:14px}
-    .taraf-support-amounts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-    .taraf-support-amount{border:1px solid #303542;background:#171a22;color:#ece5d8;border-radius:12px;padding:9px 6px;font-family:inherit;cursor:pointer}
-    .taraf-support-amount.is-selected{border-color:#e0a458;color:#f1c786;background:#201b14}
-    .taraf-support-method{border:1px solid #2a2f3a;border-radius:16px;padding:14px;margin-top:10px;background:#151820}
-    .taraf-support-method strong{display:block;margin-bottom:7px;color:#fff}
-    .taraf-support-value{display:flex;gap:8px;align-items:center;direction:ltr}
-    .taraf-support-value code{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#0d0f14;border-radius:10px;padding:9px 10px;color:#f1c786;font-family:monospace;font-size:13px}
-    .taraf-support-copy{border:0;background:#e0a458;color:#111;border-radius:10px;padding:9px 11px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer}
-    .taraf-support-pay{display:block;margin-top:9px;text-align:center;text-decoration:none;background:#e0a458;color:#111;border-radius:11px;padding:10px 12px;font-weight:900}
-    .taraf-support-pay:hover{filter:brightness(1.05)}
-    .taraf-support-note{font-size:12px!important;color:#8f938f!important;margin-top:14px!important;margin-bottom:0!important}
-    .taraf-support-empty{border:1px dashed #3a3f4b;border-radius:14px;padding:14px;color:#9fa4ac;text-align:center;font-size:13px}
-    @media(max-width:560px){.taraf-support-fab{left:12px;bottom:12px;padding:10px 13px;font-size:13px}.taraf-support-card{padding:20px 16px}.taraf-support-amounts{grid-template-columns:repeat(2,1fr)}}
+  .taraf-support-fab{position:fixed;left:18px;bottom:18px;z-index:9997;border:1px solid rgba(224,164,88,.45);background:linear-gradient(135deg,#171a22,#0d0f15);color:#f4dfbd;border-radius:999px;padding:11px 15px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer;box-shadow:0 12px 34px rgba(0,0,0,.35);display:flex;align-items:center;gap:7px}
+  .taraf-support-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(3,4,7,.8);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}.taraf-support-backdrop.is-open{display:flex}
+  .taraf-support-card{width:min(480px,100%);max-height:90vh;overflow:auto;background:#11141b;border:1px solid rgba(224,164,88,.28);border-radius:22px;padding:22px;color:#ece5d8;font-family:Cairo,Tahoma,sans-serif;box-shadow:0 24px 70px rgba(0,0,0,.58);position:relative}
+  .taraf-support-close{position:absolute;left:14px;top:12px;width:34px;height:34px;border:0;border-radius:50%;background:#1d212b;color:#fff;font-size:22px;cursor:pointer}.taraf-support-card h3{margin:0 0 8px;font-size:22px;color:#f1c786}.taraf-support-card p{color:#c9c4ba;line-height:1.8;font-size:14px}
+  .taraf-support-method{border:1px solid #2a2f3a;border-radius:16px;padding:14px;margin-top:10px;background:#151820}.taraf-support-method strong{display:block;margin-bottom:7px}.taraf-support-value{display:flex;gap:8px;align-items:center;direction:ltr}.taraf-support-value code{flex:1;background:#0d0f14;border-radius:10px;padding:9px 10px;color:#f1c786;font-family:monospace;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .taraf-support-copy,.taraf-support-pay,.taraf-support-action{border:0;background:#e0a458;color:#111;border-radius:10px;padding:9px 11px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer;text-decoration:none;text-align:center}.taraf-support-pay{display:block;margin-top:9px}.taraf-support-action{width:100%;margin-top:12px}.taraf-support-action.ghost{background:#1b1f28;color:#f1c786;border:1px solid #3a3f4b}
+  .taraf-support-divider{height:1px;background:#292d36;margin:18px 0}.taraf-support-note{font-size:12px!important;color:#8f938f!important;margin-bottom:0!important}
+  .taraf-support-form{display:none}.taraf-support-form.is-open{display:block}.taraf-support-field{display:block;margin:10px 0}.taraf-support-field span{display:block;font-size:12px;color:#aeb2b9;margin-bottom:5px}.taraf-support-field input,.taraf-support-field select{width:100%;box-sizing:border-box;background:#0d1016;color:#fff;border:1px solid #303642;border-radius:10px;padding:10px;font-family:Cairo,Tahoma,sans-serif}.taraf-support-check{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#bbb;margin-top:10px}
+  .taraf-support-status{display:none;margin-top:10px;padding:10px;border-radius:10px;font-size:13px}.taraf-support-status.ok{display:block;background:#11251a;color:#9ce2b1;border:1px solid #245735}.taraf-support-status.err{display:block;background:#2a1515;color:#f0a8a8;border:1px solid #6b2c2c}
+  .taraf-wall{display:none}.taraf-wall.is-open{display:block}.taraf-wall-list{display:grid;gap:8px;margin-top:12px}.taraf-wall-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:10px 12px}.taraf-wall-name{font-weight:800}.taraf-wall-meta{font-size:11px;color:#8f949c}.taraf-wall-empty{text-align:center;color:#8f949c;padding:18px 8px}
+  @media(max-width:560px){.taraf-support-fab{left:12px;bottom:12px;font-size:13px}.taraf-support-card{padding:20px 16px}}
   `;
   document.head.appendChild(styles);
 
   const fab = document.createElement('button');
-  fab.className = 'taraf-support-fab';
-  fab.type = 'button';
-  fab.setAttribute('aria-label', 'دعم طرف الخيط');
-  fab.innerHTML = '❤️ <span>ادعم اللعبة</span>';
+  fab.className='taraf-support-fab'; fab.type='button'; fab.innerHTML='❤️ <span>ادعم اللعبة</span>';
 
   const backdrop = document.createElement('div');
-  backdrop.className = 'taraf-support-backdrop';
-  backdrop.setAttribute('role', 'dialog');
-  backdrop.setAttribute('aria-modal', 'true');
-  backdrop.setAttribute('aria-label', 'دعم طرف الخيط');
+  backdrop.className='taraf-support-backdrop'; backdrop.setAttribute('role','dialog'); backdrop.setAttribute('aria-modal','true');
 
-  const methods = [];
-  if (cfg.vodafoneCash) {
-    methods.push(`
-      <div class="taraf-support-method">
-        <strong>📱 Vodafone Cash</strong>
-        <div class="taraf-support-value">
-          <code>${escapeHtml(cfg.vodafoneCash)}</code>
-          <button class="taraf-support-copy" type="button" data-copy="${escapeHtml(cfg.vodafoneCash)}" data-method="vodafone_cash">نسخ</button>
-        </div>
-      </div>`);
-  }
-  if (cfg.instaPay) {
-    methods.push(`
-      <div class="taraf-support-method">
-        <strong>⚡ InstaPay</strong>
-        <div class="taraf-support-value">
-          <code>${escapeHtml(cfg.instaPay)}</code>
-          <button class="taraf-support-copy" type="button" data-copy="${escapeHtml(cfg.instaPay)}" data-method="instapay">نسخ</button>
-        </div>
-        ${cfg.instaPayLink ? `<a class="taraf-support-pay" href="${escapeHtml(cfg.instaPayLink)}" target="_blank" rel="noopener noreferrer" data-instapay-link>فتح InstaPay وإرسال الدعم</a>` : ''}
-      </div>`);
-  }
+  const methods=[];
+  if(cfg.vodafoneCash) methods.push(`<div class="taraf-support-method"><strong>📱 Vodafone Cash</strong><div class="taraf-support-value"><code>${esc(cfg.vodafoneCash)}</code><button class="taraf-support-copy" type="button" data-copy="${esc(cfg.vodafoneCash)}" data-method="vodafone_cash">نسخ</button></div></div>`);
+  if(cfg.instaPay) methods.push(`<div class="taraf-support-method"><strong>⚡ InstaPay</strong><div class="taraf-support-value"><code>${esc(cfg.instaPay)}</code><button class="taraf-support-copy" type="button" data-copy="${esc(cfg.instaPay)}" data-method="instapay">نسخ</button></div>${cfg.instaPayLink?`<a class="taraf-support-pay" href="${esc(cfg.instaPayLink)}" target="_blank" rel="noopener noreferrer" data-instapay-link>فتح InstaPay وإرسال الدعم</a>`:''}</div>`);
 
-  backdrop.innerHTML = `
-    <div class="taraf-support-card">
-      <button class="taraf-support-close" type="button" aria-label="إغلاق">×</button>
-      <h3>${escapeHtml(cfg.title)}</h3>
-      <p>لو اللعبة عجبتك وحابب تدعم صانع طرف الخيط واستمرار تطوير المشروع، تقدر تدعم بأي مبلغ يناسبك.</p>
-      <div class="taraf-support-amounts" aria-label="مبالغ مقترحة">
-        <button class="taraf-support-amount" type="button" data-amount="20">20 جنيه</button>
-        <button class="taraf-support-amount" type="button" data-amount="50">50 جنيه</button>
-        <button class="taraf-support-amount" type="button" data-amount="100">100 جنيه</button>
-        <button class="taraf-support-amount" type="button" data-amount="other">مبلغ آخر</button>
-      </div>
-      ${methods.length ? methods.join('') : '<div class="taraf-support-empty">وسائل الدعم لم تُضف بعد.</div>'}
+  backdrop.innerHTML=`<div class="taraf-support-card">
+    <button class="taraf-support-close" type="button">×</button>
+    <div class="taraf-main-view">
+      <h3>${esc(cfg.title)}</h3>
+      <p>لو اللعبة عجبتك وحابب تدعم استمرار طرف الخيط، تقدر تدعم بأي مبلغ يناسبك.</p>
+      ${methods.join('')}
+      <div class="taraf-support-divider"></div>
+      <button class="taraf-support-action" type="button" data-open-register>🏆 سجل دعمك في لوحة الشرف</button>
+      <button class="taraf-support-action ghost" type="button" data-open-wall>🎖️ عرض لوحة شرف الداعمين</button>
       <p class="taraf-support-note">الدعم اختياري بالكامل، وليس شراءً داخل اللعبة، ولا يفتح مزايا أو يؤثر على ترتيب اللاعبين.</p>
-    </div>`;
+    </div>
 
-  document.body.appendChild(fab);
-  document.body.appendChild(backdrop);
+    <div class="taraf-support-form" data-register-view>
+      <h3>🏆 سجل دعمك</h3>
+      <p>بعد ما تحوّل، ابعت بيانات بسيطة. اسمك مش هيظهر في لوحة الشرف إلا بعد المراجعة.</p>
+      <label class="taraf-support-field"><span>الاسم الظاهر في لوحة الشرف</span><input type="text" maxlength="40" data-support-name placeholder="مثال: أحمد م."></label>
+      <label class="taraf-support-field"><span>طريقة الدعم</span><select data-support-method><option value="instapay">InstaPay</option><option value="vodafone_cash">Vodafone Cash</option></select></label>
+      <label class="taraf-support-field"><span>قيمة الدعم — اختياري</span><input type="number" min="1" step="1" data-support-amount placeholder="مثال: 50"></label>
+      <label class="taraf-support-field"><span>رقم مرجعي / ملاحظة للتحقق — اختياري</span><input type="text" maxlength="120" data-support-ref placeholder="آخر أرقام العملية أو ملاحظة"></label>
+      <label class="taraf-support-check"><input type="checkbox" checked data-support-consent><span>أوافق على ظهور اسمي فقط في لوحة شرف الداعمين بعد المراجعة. لن يظهر مبلغ الدعم.</span></label>
+      <button class="taraf-support-action" type="button" data-submit-support>إرسال للمراجعة</button>
+      <button class="taraf-support-action ghost" type="button" data-back-main>رجوع</button>
+      <div class="taraf-support-status" data-support-status></div>
+    </div>
 
-  const open = () => {
-    backdrop.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-    track('donation_modal_open');
-  };
-  const close = () => {
-    backdrop.classList.remove('is-open');
-    document.body.style.overflow = '';
-  };
+    <div class="taraf-wall" data-wall-view>
+      <h3>🎖️ لوحة شرف داعمي طرف الخيط</h3>
+      <p>شكرًا لكل شخص ساعد المشروع يكمل ❤️</p>
+      <div class="taraf-wall-list" data-wall-list><div class="taraf-wall-empty">جاري تحميل الداعمين...</div></div>
+      <button class="taraf-support-action ghost" type="button" data-back-wall>رجوع</button>
+    </div>
+  </div>`;
 
-  fab.addEventListener('click', open);
-  backdrop.querySelector('.taraf-support-close').addEventListener('click', close);
-  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && backdrop.classList.contains('is-open')) close(); });
+  document.body.append(fab,backdrop);
+  const main=backdrop.querySelector('.taraf-main-view'), form=backdrop.querySelector('[data-register-view]'), wall=backdrop.querySelector('[data-wall-view]');
+  const show=(which)=>{ main.style.display=which==='main'?'block':'none'; form.classList.toggle('is-open',which==='form'); wall.classList.toggle('is-open',which==='wall'); };
+  const open=()=>{backdrop.classList.add('is-open');document.body.style.overflow='hidden';show('main');track('donation_modal_open');};
+  const close=()=>{backdrop.classList.remove('is-open');document.body.style.overflow='';};
+  fab.addEventListener('click',open); backdrop.querySelector('.taraf-support-close').addEventListener('click',close); backdrop.addEventListener('click',e=>{if(e.target===backdrop)close();});
 
-  backdrop.querySelectorAll('.taraf-support-amount').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      backdrop.querySelectorAll('.taraf-support-amount').forEach((x) => x.classList.remove('is-selected'));
-      btn.classList.add('is-selected');
-      track('donation_amount_select', { donation_amount: btn.dataset.amount });
-    });
-  });
+  backdrop.querySelectorAll('.taraf-support-copy').forEach(btn=>btn.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(btn.dataset.copy||'');btn.textContent='تم ✓';setTimeout(()=>btn.textContent='نسخ',1200);track('donation_payment_copy',{payment_method:btn.dataset.method});}catch(_){}
+  }));
+  const insta=backdrop.querySelector('[data-instapay-link]'); if(insta) insta.addEventListener('click',()=>track('donation_instapay_open'));
 
-  backdrop.querySelectorAll('.taraf-support-copy').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const value = btn.dataset.copy || '';
-      let copied = false;
-      try {
-        await navigator.clipboard.writeText(value);
-        copied = true;
-      } catch (_) {
-        const input = document.createElement('textarea');
-        input.value = value;
-        input.style.position = 'fixed';
-        input.style.opacity = '0';
-        document.body.appendChild(input);
-        input.select();
-        try { copied = document.execCommand('copy'); } catch (_) {}
-        input.remove();
-      }
-      if (copied) {
-        const old = btn.textContent;
-        btn.textContent = 'تم ✓';
-        setTimeout(() => { btn.textContent = old; }, 1500);
-        track('donation_payment_copy', { payment_method: btn.dataset.method || 'unknown' });
-      }
-    });
-  });
+  backdrop.querySelector('[data-open-register]').addEventListener('click',()=>{show('form');track('supporter_register_open');});
+  backdrop.querySelector('[data-back-main]').addEventListener('click',()=>show('main'));
+  backdrop.querySelector('[data-back-wall]').addEventListener('click',()=>show('main'));
 
-  const instaLink = backdrop.querySelector('[data-instapay-link]');
-  if (instaLink) {
-    instaLink.addEventListener('click', () => {
-      track('donation_instapay_open');
-    });
+  async function loadWall(){
+    const list=backdrop.querySelector('[data-wall-list]'); list.innerHTML='<div class="taraf-wall-empty">جاري تحميل الداعمين...</div>';
+    if(typeof fetchSupportersWall!=='function'){list.innerHTML='<div class="taraf-wall-empty">لوحة الشرف لسه محتاجة تفعيل قاعدة البيانات.</div>';return;}
+    const rows=await fetchSupportersWall(100);
+    if(!rows.length){list.innerHTML='<div class="taraf-wall-empty">أول اسم ممكن يكون اسمك ❤️</div>';return;}
+    list.innerHTML=rows.map(r=>`<div class="taraf-wall-item"><div><div class="taraf-wall-name">${esc(r.supporter_name)}</div><div class="taraf-wall-meta">${r.payment_method==='instapay'?'InstaPay':'Vodafone Cash'}</div></div><span>🏅</span></div>`).join('');
   }
+  backdrop.querySelector('[data-open-wall]').addEventListener('click',async()=>{show('wall');track('supporters_wall_open');await loadWall();});
+
+  backdrop.querySelector('[data-submit-support]').addEventListener('click',async(e)=>{
+    const btn=e.currentTarget, status=backdrop.querySelector('[data-support-status]');
+    const name=backdrop.querySelector('[data-support-name]').value.trim();
+    const paymentMethod=backdrop.querySelector('[data-support-method]').value;
+    const amount=backdrop.querySelector('[data-support-amount]').value;
+    const referenceNote=backdrop.querySelector('[data-support-ref]').value.trim();
+    const consentPublic=backdrop.querySelector('[data-support-consent]').checked;
+    status.className='taraf-support-status';
+    if(name.length<2){status.textContent='اكتب اسم من حرفين على الأقل.';status.classList.add('err');return;}
+    if(typeof submitSupporter!=='function'){status.textContent='تسجيل لوحة الشرف لسه محتاج تفعيل قاعدة البيانات.';status.classList.add('err');return;}
+    btn.disabled=true;btn.textContent='جاري الإرسال...';
+    const ok=await submitSupporter({supporterName:name,paymentMethod,referenceNote,amount,consentPublic});
+    btn.disabled=false;btn.textContent='إرسال للمراجعة';
+    if(ok){status.textContent='تم تسجيل دعمك ❤️ بعد المراجعة اسمك هيظهر في لوحة الشرف.';status.classList.add('ok');track('supporter_register_submit',{payment_method:paymentMethod});}
+    else{status.textContent='حصلت مشكلة في التسجيل. تأكد إن إعداد لوحة الشرف اتفعل في Supabase.';status.classList.add('err');}
+  });
 })();
