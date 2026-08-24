@@ -124,3 +124,13 @@ const READY_CASE_IDS = new Set([
   s.dataset.tarafProfileScrollStability = '1';
   (document.head || document.documentElement).appendChild(s);
 })();
+
+// منع ألغاز الاكتشاف المولّدة من كشف الكود الجاهز للاعب.
+(function loadTarafDiscoveryDeductionPolicy(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-discovery-deduction]')) return;
+  const s = document.createElement('script');
+  s.src = 'discovery-deduction-policy.js?v=20260824-2';
+  s.async = false;
+  s.dataset.tarafDiscoveryDeduction = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
