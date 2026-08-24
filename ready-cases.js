@@ -114,3 +114,13 @@ const READY_CASE_IDS = new Set([
   s.dataset.tarafTelegramPolicy = '1';
   (document.head || document.documentElement).appendChild(s);
 })();
+
+// تثبيت سكرول صفحة البروفايل أثناء تحديث كارت الحفظ السحابي.
+(function loadTarafProfileScrollStability(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-profile-scroll-stability]')) return;
+  const s = document.createElement('script');
+  s.src = 'profile-scroll-stability.js?v=20260824-1';
+  s.async = false;
+  s.dataset.tarafProfileScrollStability = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
