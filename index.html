@@ -7,9 +7,43 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
   gtag('js', new Date());
-
   gtag('config', 'G-D6RY4B2N4E');
+
+  // GA4 runtime health-check — مرة واحدة لكل تحميل صفحة.
+  // الهدف تشخيص هل gtag متاح وهل الحدث بيتحط في dataLayer فعلاً.
+  (function(){
+    var sent = false;
+    function sendHealthCheck(){
+      if(sent) return;
+      sent = true;
+      var available = typeof window.gtag === 'function';
+      try{
+        window.__TARAF_GA_HEALTH__ = {
+          measurementId: 'G-D6RY4B2N4E',
+          gtagAvailable: available,
+          dataLayerLength: Array.isArray(window.dataLayer) ? window.dataLayer.length : 0,
+          page: location.pathname,
+          sentAt: Date.now()
+        };
+      }catch(e){}
+      if(!available) return;
+      try{
+        gtag('event', 'taraf_game_loaded', {
+          event_category: 'diagnostic',
+          page_path: location.pathname,
+          transport_type: 'beacon'
+        });
+      }catch(e){}
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', sendHealthCheck, {once:true});
+    }else{
+      sendHealthCheck();
+    }
+  })();
 </script>
 
 <meta charset="UTF-8">
