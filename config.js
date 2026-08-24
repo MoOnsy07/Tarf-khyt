@@ -10,7 +10,7 @@ const WHATSAPP_NUMBER = '201145785696';
    دعم طرف الخيط
    ============================================================ */
 
-const DONATION_VODAFONE_CASH = '01021657659';
+const DONATION_VODAFONE_CASH = '01021657669';
 const DONATION_INSTAPAY = 'medoonsy@instapay';
 const DONATION_INSTAPAY_LINK = 'https://ipn.eg/S/medoonsy/instapay/2DrTZL';
 const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
