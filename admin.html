@@ -8,30 +8,47 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20260825-admin4">
+<link rel="stylesheet" href="style.css?v=20260825-admin5">
 <style>
 .ad-wrap{max-width:980px;margin:0 auto;padding:34px 16px 70px}.ad-back{display:inline-flex;color:var(--ink-dim);text-decoration:none;font-size:13px;margin-bottom:22px}.ad-back:hover{color:var(--amber)}
-.ad-head{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:14px}.ad-head h1{margin:0 0 5px;font-size:28px}.ad-head p{margin:0;color:var(--ink-dim);font-size:13px}.ad-refresh-btn{margin:0 0 14px}
+.ad-head{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:14px}.ad-head h1{margin:0 0 5px;font-size:28px}.ad-head p{margin:0;color:var(--ink-dim);font-size:13px}.ad-head-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ad-refresh-btn{margin:0 0 14px}
 .ad-section{background:linear-gradient(135deg,rgba(224,164,88,.08),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:8px;padding:15px;margin-bottom:22px}.ad-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.ad-section-title{font-weight:900;font-size:17px}.ad-section-sub{color:var(--ink-dim);font-size:11.5px;margin-top:3px}
 .ad-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ad-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:14px;text-align:center}.ad-stat .num{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:900;color:var(--amber)}.ad-stat .lbl{font-size:10.5px;color:var(--ink-dim);margin-top:4px;line-height:1.5}.ad-foot{display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-dim);font-size:10.5px;margin-top:10px}
 .ad-table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}table.ad-table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}table.ad-table th{text-align:right;padding:12px 14px;color:var(--amber);border-bottom:1px solid var(--line);white-space:nowrap}table.ad-table td{padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}.ad-case-title{font-weight:700}.ad-case-no{color:var(--ink-dim);font-size:10.5px;font-family:'JetBrains Mono',monospace}.ad-num{text-align:center;font-family:'JetBrains Mono',monospace}.ad-loading,.ad-error,.ad-empty{text-align:center;padding:30px 12px;color:var(--ink-dim)}.ad-error{color:#e08a7c}
 .ad-push-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ad-field{display:flex;flex-direction:column;gap:6px}.ad-field.full{grid-column:1/-1}.ad-field label{font-size:11px;color:var(--ink-dim);font-weight:700}.ad-input,.ad-textarea{width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:'Cairo',sans-serif;padding:11px 12px;outline:none}.ad-input:focus,.ad-textarea:focus{border-color:var(--amber-dim)}.ad-textarea{min-height:92px;resize:vertical}.ad-push-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.ad-push-status{font-size:11.5px;color:var(--ink-dim)}.ad-push-status.ok{color:#8fd6a4}.ad-push-status.err{color:#e08a7c}.ad-mini-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.ad-mini{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--ink-dim)}.ad-mini b{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:15px;margin-left:4px}
+.ad-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;position:relative;z-index:5}.ad-gate-card{width:min(430px,100%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.35)}.ad-lock{font-size:42px;margin-bottom:8px}.ad-gate-card h1{font-size:25px;margin:0 0 8px}.ad-gate-card p{color:var(--ink-dim);font-size:13px;line-height:1.8;margin:0 0 18px}.ad-gate-status{font-size:11.5px;color:var(--ink-dim);margin-top:12px;min-height:20px}.ad-gate-status.err{color:#e08a7c}.ad-user-pill{font-size:10.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;padding:7px 10px}.ad-logout{font-size:11px;padding:8px 11px}
+[hidden]{display:none!important}
 @media(max-width:700px){.ad-summary{grid-template-columns:1fr 1fr}.ad-head h1{font-size:23px}.ad-push-form{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="grain"></div><div class="scan"></div>
-<div class="ad-wrap">
+
+<div class="ad-gate" id="admin-gate">
+  <div class="ad-gate-card">
+    <div class="ad-lock">🔐</div>
+    <h1>لوحة <span class="accent">محمية</span></h1>
+    <p id="gate-copy">جاري التحقق من صلاحية حسابك…</p>
+    <button type="button" class="btn mono" id="admin-login" hidden>G&nbsp; دخول Google للأدمن</button>
+    <button type="button" class="btn ghost mono" id="admin-switch" hidden>تسجيل الخروج وتجربة حساب آخر</button>
+    <div class="ad-gate-status mono" id="gate-status"></div>
+  </div>
+</div>
+
+<div class="ad-wrap" id="admin-app" hidden>
 <a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
-<div class="ad-head"><h1>لوحة <span class="accent">المتابعة</span></h1><p>إحصائيات القضايا ونسخة Android والإشعارات في مكان واحد.</p></div>
+<div class="ad-head">
+  <div class="ad-head-row">
+    <div><h1>لوحة <span class="accent">المتابعة</span></h1><p>إحصائيات القضايا ونسخة Android والإشعارات في مكان واحد.</p></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="ad-user-pill mono">🔒 ADMIN</span><button type="button" class="btn ghost mono ad-logout" id="admin-logout">خروج</button></div>
+  </div>
+</div>
 <button class="btn ghost mono ad-refresh-btn" id="ad-refresh">↻ تحديث الأرقام</button>
 
 <section class="ad-section" id="android-box"><div class="ad-loading mono">بيجيب أرقام Android...</div></section>
 
 <section class="ad-section" id="push-box">
-  <div class="ad-section-head">
-    <div><div class="ad-section-title">🔔 إرسال إشعار</div><div class="ad-section-sub">للأجهزة اللي ثبّتت تطبيق Android وسمحت بالإشعارات.</div></div>
-  </div>
+  <div class="ad-section-head"><div><div class="ad-section-title">🔔 إرسال إشعار</div><div class="ad-section-sub">للأجهزة اللي ثبّتت تطبيق Android وسمحت بالإشعارات.</div></div></div>
   <div class="ad-mini-stats" id="push-stats"><div class="ad-mini">أجهزة مسجلة: <b>0</b></div></div>
   <div class="ad-push-form">
     <div class="ad-field"><label for="push-title">عنوان الإشعار</label><input id="push-title" class="ad-input" maxlength="80" placeholder="قضية جديدة وصلت 🔎"></div>
@@ -43,6 +60,7 @@
 
 <div id="ad-root"><div class="ad-loading mono">بيجيب أرقام القضايا...</div></div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const ADMIN_SUPABASE_URL='https://meynspmfkkedhqhffsqk.supabase.co';
@@ -53,6 +71,33 @@ const CASE_META={
 function esc(v){const d=document.createElement('div');d.textContent=v==null?'':String(v);return d.innerHTML}
 function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}catch(e){return '—'}}
 
+async function loginAdmin(){
+  const status=document.getElementById('gate-status');
+  status.textContent='بنفتح Google…';status.className='ad-gate-status mono';
+  const {error}=await adminSb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/admin.html'}});
+  if(error){status.textContent='تعذر فتح Google: '+error.message;status.classList.add('err')}
+}
+async function logoutAdmin(){await adminSb.auth.signOut();window.location.replace('admin.html')}
+
+async function initAdmin(){
+  const gate=document.getElementById('admin-gate'),app=document.getElementById('admin-app');
+  const copy=document.getElementById('gate-copy'),status=document.getElementById('gate-status');
+  const login=document.getElementById('admin-login'),sw=document.getElementById('admin-switch');
+  gate.hidden=false;app.hidden=true;login.hidden=true;sw.hidden=true;status.textContent='';status.className='ad-gate-status mono';
+  try{
+    if(new URLSearchParams(location.search).has('code')) await new Promise(r=>setTimeout(r,250));
+    const {data:{session},error:sessionError}=await adminSb.auth.getSession();
+    if(sessionError) throw sessionError;
+    if(!session){copy.textContent='سجّل بحساب Google المصرح له للوصول للوحة المتابعة.';login.hidden=false;return}
+    copy.textContent='جاري التحقق من صلاحية الحساب…';
+    const {data,error}=await adminSb.rpc('is_admin');
+    if(error) throw error;
+    if(data!==true){copy.textContent='الحساب الحالي مسجل في طرف الخيط لكنه غير مصرح له بدخول لوحة الأدمن.';status.textContent='⛔ ACCESS DENIED';status.classList.add('err');sw.hidden=false;return}
+    gate.hidden=true;app.hidden=false;
+    refresh();
+  }catch(e){console.error(e);copy.textContent='تعذر التحقق من صلاحية الأدمن.';status.textContent=String(e&&e.message||e);status.classList.add('err');sw.hidden=false}
+}
+
 async function loadAndroid(){
   const box=document.getElementById('android-box');box.innerHTML='<div class="ad-loading mono">بيجيب أرقام Android...</div>';
   try{
@@ -60,7 +105,7 @@ async function loadAndroid(){
     const r=Array.isArray(data)?data[0]:data;if(!r)throw new Error('No Android stats');
     const clicks=Number(r.total_download_clicks)||0,unique=Number(r.unique_downloaders)||0,installs=Number(r.installs)||0,conv=unique?Math.round(installs/unique*100):0;
     box.innerHTML=`<div class="ad-section-head"><div><div class="ad-section-title">📱 Android APK</div><div class="ad-section-sub">العداد محفوظ في Supabase ومش بيتصفر مع إصدار APK جديد.</div></div><div class="mono" style="color:var(--ink-dim);font-size:11px">تحميل → فتح ${conv}%</div></div><div class="ad-summary"><div class="ad-stat"><div class="num">${clicks}</div><div class="lbl">ضغطات تحميل APK</div></div><div class="ad-stat"><div class="num">${unique}</div><div class="lbl">أجهزة ضغطت تحميل</div></div><div class="ad-stat"><div class="num">${installs}</div><div class="lbl">أول فتح فعلي للتطبيق</div></div><div class="ad-stat"><div class="num">${Number(r.installs_7d)||0}</div><div class="lbl">تثبيتات آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_7d)||0}</div><div class="lbl">نشطين آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_30d)||0}</div><div class="lbl">نشطين آخر 30 يوم</div></div><div class="ad-stat"><div class="num">${Number(r.total_app_opens)||0}</div><div class="lbl">إجمالي فتحات التطبيق</div></div><div class="ad-stat"><div class="num">${conv}%</div><div class="lbl">نسبة التحويل</div></div></div><div class="ad-foot"><span>آخر تحميل: ${esc(fmt(r.last_download_at))}</span><span>آخر فتح تطبيق: ${esc(fmt(r.last_app_open_at))}</span></div>`;
-  }catch(e){console.error(e);box.innerHTML='<div class="ad-error mono">تعذر تحميل أرقام Android: '+esc(e.message||e)+'</div>'}
+  }catch(e){console.error(e);box.innerHTML='<div class="ad-error mono">تعذر تحميل أرقام Android.</div>'}
 }
 
 async function loadPushStats(){
@@ -79,33 +124,16 @@ async function sendPush(){
   const url=document.getElementById('push-url').value.trim()||'https://taraf5eet.online/';
   status.className='ad-push-status';
   if(!title||!body){status.textContent='اكتب العنوان والنص الأول.';status.classList.add('err');return}
-  btn.disabled=true;status.textContent='جاري التحقق والإرسال...';
+  btn.disabled=true;status.textContent='جاري التحقق والإرسال…';
   try{
     const {data:{session}}=await adminSb.auth.getSession();
     if(!session||!session.access_token) throw new Error('LOGIN_REQUIRED');
-    const res=await fetch(ADMIN_SUPABASE_URL+'/functions/v1/send-push',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':ADMIN_SUPABASE_KEY,'Authorization':'Bearer '+session.access_token},
-      body:JSON.stringify({title,body,url})
-    });
+    const res=await fetch(ADMIN_SUPABASE_URL+'/functions/v1/send-push',{method:'POST',headers:{'Content-Type':'application/json','apikey':ADMIN_SUPABASE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({title,body,url})});
     const out=await res.json().catch(()=>({}));
-    if(!res.ok){
-      const msg=String(out.error||'SEND_FAILED');
-      if(msg==='Push admin is not configured') throw new Error('ADMIN_NOT_CONFIGURED');
-      if(msg==='Firebase is not configured'||msg==='Invalid Firebase service account JSON'||msg==='Incomplete Firebase service account') throw new Error('FIREBASE_NOT_CONFIGURED');
-      if(msg==='Forbidden') throw new Error('FORBIDDEN');
-      throw new Error(out.detail||msg);
-    }
-    status.textContent='✅ الإشعار اتبعت لكل الأجهزة المشتركة.';status.classList.add('ok');
-  }catch(e){
-    const code=String(e&&e.message||e);
-    if(code==='LOGIN_REQUIRED') status.textContent='لازم تكون مسجل دخول بحساب Google الإداري من ملف المحقق الأول.';
-    else if(code==='ADMIN_NOT_CONFIGURED') status.textContent='ناقص تحديد حساب الأدمن في إعدادات Supabase Edge Functions.';
-    else if(code==='FIREBASE_NOT_CONFIGURED') status.textContent='ناقص إضافة Firebase Service Account في Supabase.';
-    else if(code==='FORBIDDEN') status.textContent='الحساب الحالي مش مصرح له بإرسال إشعارات.';
-    else status.textContent='تعذر الإرسال: '+code;
-    status.classList.add('err');
-  }finally{btn.disabled=false}
+    if(!res.ok){const msg=String(out.error||'SEND_FAILED');if(msg==='Firebase is not configured'||msg==='Invalid Firebase service account JSON'||msg==='Incomplete Firebase service account')throw new Error('FIREBASE_NOT_CONFIGURED');if(msg==='Forbidden')throw new Error('FORBIDDEN');throw new Error(out.detail||msg)}
+    status.textContent='✅ الإشعار اتبعت لكل الأجهزة المشتركة.';status.classList.add('ok');loadPushStats();
+  }catch(e){const code=String(e&&e.message||e);if(code==='LOGIN_REQUIRED')status.textContent='انتهت جلسة الأدمن. اعمل Refresh وسجل دخول.';else if(code==='FIREBASE_NOT_CONFIGURED')status.textContent='ناقص ربط Firebase Service Account في Supabase.';else if(code==='FORBIDDEN')status.textContent='الحساب الحالي مش مصرح له بإرسال إشعارات.';else status.textContent='تعذر الإرسال: '+code;status.classList.add('err')}
+  finally{btn.disabled=false}
 }
 
 async function loadCases(){
@@ -120,9 +148,13 @@ async function loadCases(){
 }
 
 function refresh(){loadAndroid();loadPushStats();loadCases()}
+document.getElementById('admin-login').addEventListener('click',loginAdmin);
+document.getElementById('admin-switch').addEventListener('click',logoutAdmin);
+document.getElementById('admin-logout').addEventListener('click',logoutAdmin);
 document.getElementById('ad-refresh').addEventListener('click',refresh);
 document.getElementById('push-send').addEventListener('click',sendPush);
-refresh();
+adminSb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')window.location.replace('admin.html')});
+initAdmin();
 </script>
 </body>
 </html>
