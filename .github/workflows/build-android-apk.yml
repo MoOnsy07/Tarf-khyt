@@ -1,0 +1,97 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+
+      - name: Validate signing secrets
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "Missing ANDROID_KEYSTORE_BASE64 or ANDROID_KEYSTORE_PASSWORD repository secrets."
+            exit 1
+          fi
+
+      - name: Restore release signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 --decode > "$GITHUB_WORKSPACE/android-app/release.keystore"
+          chmod 600 "$GITHUB_WORKSPACE/android-app/release.keystore"
+
+      - name: Verify signing certificate
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          EXPECTED="25:4F:B6:37:E9:6B:1A:E4:A4:11:DB:87:16:05:D1:A4:E0:41:CC:5E:E0:B3:AF:27:5D:3C:EA:60:11:DD:13:5E"
+          ACTUAL=$(keytool -list -v \
+            -keystore "$GITHUB_WORKSPACE/android-app/release.keystore" \
+            -alias taraf5eet \
+            -storepass "$KEYSTORE_PASSWORD" | awk -F': ' '/SHA256:/{print $2; exit}')
+          echo "Certificate SHA-256: $ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
+
+      - name: Build signed release APK
+        working-directory: android-app
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android-app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
+          ANDROID_VERSION_NAME: 1.0.${{ github.run_number }}
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Verify APK signature
+        run: |
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs android-app/app/build/outputs/apk/release/app-release.apk
+          cp android-app/app/build/outputs/apk/release/app-release.apk android-app/taraf-khyt.apk
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: taraf-khyt-android
+          path: android-app/taraf-khyt.apk
+          retention-days: 30
+
+      - name: Publish stable APK release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: android-latest
+          name: "طرف الخيط — Android APK"
+          body: |
+            النسخة المباشرة لتطبيق طرف الخيط على Android.
+            يتم تحميل محتوى اللعبة من taraf5eet.online، لذلك تحديثات القضايا والموقع تظهر داخل التطبيق بدون الحاجة لإعادة تثبيت APK في كل تحديث محتوى.
+          files: android-app/taraf-khyt.apk
+          overwrite_files: true
+          make_latest: true
+          fail_on_unmatched_files: true
