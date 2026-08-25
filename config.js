@@ -26,6 +26,18 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   }catch(e){}
 })();
 
+// زر تحميل Android. يفضل مخفي لحد ما Workflow ينجح ويحوّل APK_READY إلى true.
+(function(){
+  try{
+    if(document.querySelector('script[data-taraf-android-download]')) return;
+    const s=document.createElement('script');
+    s.src='android-download.js?v=20260825-1';
+    s.defer=true;
+    s.setAttribute('data-taraf-android-download','1');
+    document.head.appendChild(s);
+  }catch(e){}
+})();
+
 // Popup موحد بعد نهاية القضية: تيليجرام + طرق الدعم في نفس النافذة.
 // بنحمّله بعد اكتمال الصفحة عشان engine.js يكون عرّف دالة نهاية القضية الأول،
 // وبعدها الإضافة تستبدل دعوة تيليجرام القديمة بالنسخة الموحدة بأمان.
