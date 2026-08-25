@@ -194,6 +194,10 @@
 
   function accessModal(caseData){
     if(document.getElementById('exclusiveAccessOverlay')) return;
+    if(typeof isCaseReady === 'function' && !isCaseReady(caseData)){
+      if(typeof showToast === 'function') showToast('القضية لسه تحت التجهيز وهتتفتح بعد اكتمال الصور.', 'amber');
+      return;
+    }
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
     overlay.id = 'exclusiveAccessOverlay';
@@ -221,7 +225,7 @@
     const card = e.target && e.target.closest ? e.target.closest(`.lib-card[data-case="${EXCLUSIVE_ID}"]`) : null;
     if(!card || hasExclusiveAccess()) return;
     const c = (typeof CASES_REGISTRY !== 'undefined' && CASES_REGISTRY.find) ? CASES_REGISTRY.find(x => x && x.id === EXCLUSIVE_ID) : null;
-    if(!c) return;
+    if(!c || (typeof isCaseReady === 'function' && !isCaseReady(c))) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     accessModal(c);
   }, true);
@@ -259,5 +263,5 @@
   }
 
   window.TarafExclusiveCases = { hasExclusiveAccess, unlockExclusive, openAccessModal:accessModal };
-  window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = { version:'2026-08-25-v3', wrongAccusationSkipsTheory:true, phasedDeductions:true, exclusiveSharedCode:true, dynamicReturnFromDeath:true };
+  window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = { version:'2026-08-25-v4', wrongAccusationSkipsTheory:true, phasedDeductions:true, exclusiveSharedCode:true, dynamicReturnFromDeath:true, blocksEntryUntilReady:true };
 })();
