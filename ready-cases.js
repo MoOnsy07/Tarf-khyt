@@ -79,17 +79,17 @@ const READY_CASE_IDS = new Set([
 (function loadTarafCloudSync(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-sync]')) return;
   const s = document.createElement('script');
-  s.src = 'cloud-sync.js?v=20260823-1';
+  s.src = 'cloud-sync.js?v=20260825-1';
   s.async = false;
   s.dataset.tarafCloudSync = '1';
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// مؤقتًا: تسجيل الدخول السحابي عبر Google فقط، بدون Magic Link بالإيميل.
+// تسجيل الدخول السحابي عبر Google + Facebook، مع إبقاء Magic Link مخفيًا مؤقتًا.
 (function loadTarafCloudGoogleOnly(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-google-only]')) return;
   const s = document.createElement('script');
-  s.src = 'cloud-google-only.js?v=20260823-1';
+  s.src = 'cloud-google-only.js?v=20260825-1';
   s.async = false;
   s.dataset.tarafCloudGoogleOnly = '1';
   (document.head || document.documentElement).appendChild(s);
