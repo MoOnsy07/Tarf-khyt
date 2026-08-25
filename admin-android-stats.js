@@ -3,7 +3,9 @@
    ============================================================ */
 (function(){
   'use strict';
+  if(window.__tarafAdminAndroidStatsLoaded) return;
   if(!/\/admin\.html$/i.test(location.pathname)) return;
+  window.__tarafAdminAndroidStatsLoaded=true;
 
   function esc(v){
     const d=document.createElement('div');
@@ -80,6 +82,7 @@
         </div>
         <div class="ad-android-foot"><span>آخر تحميل: ${esc(fmtDate(r.last_download_at))}</span><span>آخر فتح للتطبيق: ${esc(fmtDate(r.last_app_open_at))}</span></div>`;
     }catch(e){
+      console.error('Android admin stats error', e);
       box.innerHTML='<div class="ad-error mono">تعذر تحميل أرقام Android حاليًا.</div>';
     }
   }
@@ -96,8 +99,12 @@
           loadAndroidStats();
           const refresh=document.getElementById('ad-refresh');
           if(refresh) refresh.addEventListener('click',()=>setTimeout(loadAndroidStats,0));
-        }else if(tries>=50){clearInterval(timer);}
-      }catch(e){ if(tries>=50) clearInterval(timer); }
+        }else if(tries>=80){
+          clearInterval(timer);
+          const box=ensureBox();
+          if(box) box.innerHTML='<div class="ad-error mono">Supabase لسه ما اتحمّلش. اعمل تحديث للصفحة.</div>';
+        }
+      }catch(e){ if(tries>=80) clearInterval(timer); }
     },100);
   }
 
