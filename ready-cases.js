@@ -154,7 +154,7 @@ const READY_CASE_IDS = new Set([
 (function loadTarafProfileScrollStability(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-profile-scroll-stability]')) return;
   const s = document.createElement('script');
-  s.src = 'profile-scroll-stability.js?v=20260825-2';
+  s.src = 'profile-scroll-stability.js?v=20260825-3';
   s.async = false;
   s.dataset.tarafProfileScrollStability = '1';
   (document.head || document.documentElement).appendChild(s);
