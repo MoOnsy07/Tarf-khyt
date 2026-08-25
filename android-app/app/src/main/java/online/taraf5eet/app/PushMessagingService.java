@@ -132,7 +132,7 @@ public class PushMessagingService extends FirebaseMessagingService {
                 payload.put("p_token", token.trim());
                 payload.put("p_install_id", installId);
                 payload.put("p_platform", "android");
-                payload.put("p_app_version", BuildConfig.VERSION_NAME);
+                payload.put("p_app_version", getAppVersion(appContext));
 
                 byte[] bytes = payload.toString().getBytes(StandardCharsets.UTF_8);
                 connection.setFixedLengthStreamingMode(bytes.length);
@@ -145,6 +145,17 @@ public class PushMessagingService extends FirebaseMessagingService {
                 if (connection != null) connection.disconnect();
             }
         }, "taraf-push-register").start();
+    }
+
+    private static String getAppVersion(Context context) {
+        try {
+            String versionName = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0)
+                    .versionName;
+            return versionName == null ? "" : versionName;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static String getInstallId(Context context) {
