@@ -71,7 +71,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
     try{
       if(document.querySelector('script[data-ending-community-popup]')) return;
       const s=document.createElement('script');
-      s.src='ending-community-popup.js?v=20260825-2';
+      s.src='ending-community-popup.js?v=20260825-3';
       s.setAttribute('data-ending-community-popup','1');
       document.body.appendChild(s);
     }catch(e){}
