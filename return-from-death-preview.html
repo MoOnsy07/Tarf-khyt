@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>العودة من الموت — معاينة المحرك الحقيقي</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.preview-branch-banner{position:relative;z-index:30;background:#1f1710;color:#f6d39a;border-bottom:1px solid #6b5030;padding:9px 14px;text-align:center;font:700 12px Cairo,Tahoma,sans-serif}.preview-branch-banner b{color:#fff0cc}.preview-branch-banner code{direction:ltr;display:inline-block}
+</style>
+</head>
+<body>
+<div class="preview-branch-banner">🧪 <b>نسخة اختبار خاصة</b> — نفس محرك طرف الخيط الحقيقي · الفرع: <code>preview-return-from-death</code> · لا تستخدم للنشر</div>
+<div class="grain"></div><div class="scan"></div><div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="cases/case-return-from-death.js"></script>
+<script src="cases/case-return-from-death-preview-patch.js"></script>
+<script>const CASES_REGISTRY=[CASE_RETURN_FROM_DEATH];</script>
+<script src="ready-cases.js"></script>
+<script src="case-locations.js"></script>
+<script src="investigation-overhaul.js?v=20260823-1"></script>
+<script src="leaderboard.js"></script>
+<script src="engine.js"></script>
+<script src="discovery-locks.js?v=20260824-2"></script>
+<script src="theory-builder-safety-fix.js?v=20260825-preview-1"></script>
+<script>
+(function(){
+  try{
+    const url=new URL(location.href);
+    if(url.searchParams.get('case')!=='return-from-death'){
+      url.searchParams.set('case','return-from-death');
+      history.replaceState(history.state,'',url.toString());
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
