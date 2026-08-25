@@ -12,6 +12,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
+
         <activity
             android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
             android:exported="true"
@@ -34,10 +38,7 @@
                 android:resource="@color/taraf_bg" />
             <meta-data
                 android:name="android.support.customtabs.trusted.FALLBACK_STRATEGY"
-                android:value="customtabs" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.DISPLAY_MODE"
-                android:value="standalone" />
+                android:value="webview" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,6 +52,11 @@
                 <data android:scheme="https" android:host="taraf5eet.online" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false" />
 
     </application>
 </manifest>
