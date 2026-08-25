@@ -25,3 +25,21 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
     document.head.appendChild(s);
   }catch(e){}
 })();
+
+// Popup موحد بعد نهاية القضية: تيليجرام + طرق الدعم في نفس النافذة.
+// بنحمّله بعد اكتمال الصفحة عشان engine.js يكون عرّف دالة نهاية القضية الأول،
+// وبعدها الإضافة تستبدل دعوة تيليجرام القديمة بالنسخة الموحدة بأمان.
+(function(){
+  function loadEndingCommunityPopup(){
+    try{
+      if(document.querySelector('script[data-ending-community-popup]')) return;
+      const s=document.createElement('script');
+      s.src='ending-community-popup.js?v=20260825-1';
+      s.setAttribute('data-ending-community-popup','1');
+      document.body.appendChild(s);
+    }catch(e){}
+  }
+
+  if(document.readyState === 'complete') loadEndingCommunityPopup();
+  else window.addEventListener('load', loadEndingCommunityPopup, {once:true});
+})();
