@@ -16,6 +16,21 @@
     }
   }
 
+  function methodLabel(method){
+    if(method==='instapay') return 'InstaPay';
+    if(method==='paypal') return 'PayPal 🌍';
+    return 'Vodafone Cash';
+  }
+
+  async function refreshWall(){
+    if(typeof fetchSupportersWall!=='function') return;
+    const list=document.querySelector('[data-wall-list]');
+    if(!list) return;
+    const rows=await fetchSupportersWall(100);
+    if(!rows.length){list.innerHTML='<div class="taraf-wall-empty">أول اسم ممكن يكون اسمك ❤️</div>';return;}
+    list.innerHTML=rows.map(r=>`<div class="taraf-wall-item"><div><div class="taraf-wall-name">${esc(r.supporter_name)}</div><div class="taraf-wall-meta">${methodLabel(r.payment_method)}</div></div><span>🏅</span></div>`).join('');
+  }
+
   function mount(){
     const card=document.querySelector('.taraf-support-card .taraf-main-view');
     if(!card || card.querySelector('[data-paypal-support]')) return false;
@@ -33,6 +48,12 @@
     const methodSelect=document.querySelector('[data-support-method]');
     if(methodSelect && !methodSelect.querySelector('option[value="paypal"]')){
       const opt=document.createElement('option');opt.value='paypal';opt.textContent='PayPal';methodSelect.appendChild(opt);
+    }
+
+    const wallBtn=document.querySelector('[data-open-wall]');
+    if(wallBtn && !wallBtn.dataset.paypalWallHook){
+      wallBtn.dataset.paypalWallHook='1';
+      wallBtn.addEventListener('click',()=>setTimeout(refreshWall,50));
     }
     return true;
   }
