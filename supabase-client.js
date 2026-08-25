@@ -117,3 +117,19 @@ async function fetchSupportersWall(limit=100){
     return data || [];
   }catch(err){ console.error('fetchSupportersWall failed', err); return []; }
 }
+
+/* ============================================================
+   لوحة الأدمن — تحميل إحصائيات Android مباشرة.
+   موجود هنا كـ fallback مستقل عن config.js عشان كاش المتصفح.
+   ============================================================ */
+(function loadAndroidAdminStats(){
+  try{
+    if(!/\/admin\.html$/i.test(location.pathname)) return;
+    if(document.querySelector('script[data-admin-android-stats-direct]')) return;
+    const s=document.createElement('script');
+    s.src='admin-android-stats.js?v=20260825-2';
+    s.defer=true;
+    s.setAttribute('data-admin-android-stats-direct','1');
+    document.head.appendChild(s);
+  }catch(e){ console.error('Android admin stats loader failed', e); }
+})();
