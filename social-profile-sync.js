@@ -1,5 +1,6 @@
 /* ============================================================
    طرف الخيط — Social Profile Sync
+   - لا ينشئ Supabase Auth client إضافي.
    - يحفظ رابط صورة الحساب فقط، وليس ملف الصورة نفسه.
    - يربط نتائج الليدربورد بالحساب بعد تسجيل الدخول.
    - يحدّث قائمة أصدقاء Facebook الذين يستخدمون نفس التطبيق.
@@ -10,21 +11,9 @@
   const SUPABASE_URL = 'https://meynspmfkkedhqhffsqk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
   const VISITOR_ID_KEY = 'ca_visitor_id';
-  let client = null;
   let running = false;
-
-  function getClient(){
-    try{
-      if(typeof sb !== 'undefined' && sb && sb.auth) return sb;
-    }catch(e){}
-    if(!window.supabase || typeof window.supabase.createClient !== 'function') return null;
-    if(!client){
-      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
-      });
-    }
-    return client;
-  }
+  let lastSession = null;
+  let avatarObserver = null;
 
   function localVisitorId(){
     try{ return localStorage.getItem(VISITOR_ID_KEY) || ''; }
@@ -55,9 +44,42 @@
     return String(meta.full_name || meta.name || '').slice(0,160);
   }
 
+  async function getSession(){
+    if(window.TarafCloud && typeof window.TarafCloud.getSession === 'function'){
+      return await window.TarafCloud.getSession();
+    }
+    try{
+      if(typeof sb !== 'undefined' && sb && sb.auth){
+        const {data} = await sb.auth.getSession();
+        return data && data.session || null;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function rest(path, session, body, prefer){
+    if(!session || !session.access_token) throw new Error('No authenticated session');
+    const headers = {
+      apikey: SUPABASE_KEY,
+      Authorization: 'Bearer ' + session.access_token,
+      'Content-Type': 'application/json',
+    };
+    if(prefer) headers.Prefer = prefer;
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method:'POST',
+      headers,
+      body: JSON.stringify(body == null ? {} : body),
+    });
+    if(!res.ok){
+      let msg = 'Supabase request failed';
+      try{ const json = await res.json(); msg = json.message || json.error || msg; }catch(e){}
+      throw new Error(msg);
+    }
+    return res;
+  }
+
   async function syncProfile(session){
-    const c = getClient();
-    if(!c || !session || !session.user) return;
+    if(!session || !session.user) return;
     const user = session.user;
     const fb = identityInfo(user, 'facebook');
     const google = identityInfo(user, 'google');
@@ -74,29 +96,31 @@
       updated_at: new Date().toISOString(),
     };
 
-    const {error} = await c.from('game_profiles').upsert(payload, {onConflict:'user_id'});
-    if(error) console.warn('social profile sync:', error.message || error);
+    try{
+      await rest('game_profiles?on_conflict=user_id', session, [payload], 'resolution=merge-duplicates,return=minimal');
+    }catch(err){
+      console.warn('social profile sync:', err && err.message || err);
+    }
 
     const visitorId = localVisitorId();
-    if(visitorId) await c.rpc('claim_visitor_scores', {p_visitor_id:visitorId});
+    if(visitorId){
+      try{ await rest('rpc/claim_visitor_scores', session, {p_visitor_id:visitorId}); }
+      catch(err){ console.warn('score claim skipped:', err && err.message || err); }
+    }
   }
 
   async function syncFacebookFriends(session){
-    const c = getClient();
-    if(!c || !session || !session.user) return;
+    if(!session || !session.user) return;
     const fb = identityInfo(session.user, 'facebook');
-    if(!fb) return;
-
-    const token = session.provider_token;
-    if(!token) return; // هنحدّثها تلقائيًا عند أي Facebook OAuth جديد متاح فيه provider token.
+    if(!fb || !session.provider_token) return;
 
     try{
-      const url = 'https://graph.facebook.com/me/friends?fields=id&limit=5000&access_token=' + encodeURIComponent(token);
+      const url = 'https://graph.facebook.com/me/friends?fields=id&limit=5000&access_token=' + encodeURIComponent(session.provider_token);
       const res = await fetch(url, {credentials:'omit'});
       if(!res.ok) throw new Error('Facebook friends request failed');
       const json = await res.json();
       const ids = Array.isArray(json.data) ? json.data.map(x=>String(x && x.id || '')).filter(Boolean) : [];
-      await c.rpc('replace_facebook_friend_cache', {p_friend_ids:ids});
+      await rest('rpc/replace_facebook_friend_cache', session, {p_friend_ids:ids});
     }catch(err){
       console.warn('facebook friends sync skipped:', err && err.message || err);
     }
@@ -110,49 +134,64 @@
     document.head.appendChild(style);
   }
 
-  async function paintProfileAvatar(){
+  function paintProfileAvatar(session){
     if(!/\/profile\.html$/i.test(location.pathname)) return;
-    const c = getClient();
     const el = document.querySelector('.pf-avatar');
-    if(!c || !el) return;
-    const {data} = await c.auth.getSession();
-    const session = data && data.session;
-    if(!session || !session.user) return;
+    if(!el || !session || !session.user) return;
     const url = bestAvatar(session.user);
     if(!url) return;
+
+    // مهم: لا نعيد innerHTML لو الصورة موجودة بالفعل، لتجنب MutationObserver loop.
+    const existing = el.querySelector('img');
+    if(el.dataset.socialAvatarUrl === url && existing && existing.getAttribute('src') === url) return;
+
     installAvatarStyle();
     el.classList.add('has-social-avatar');
-    el.innerHTML = '<img src="' + String(url).replace(/"/g,'&quot;') + '" alt="صورة المحقق" referrerpolicy="no-referrer">';
+    el.dataset.socialAvatarUrl = url;
+    if(existing){
+      if(existing.getAttribute('src') !== url) existing.setAttribute('src', url);
+      return;
+    }
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'صورة المحقق';
+    img.referrerPolicy = 'no-referrer';
+    el.replaceChildren(img);
   }
 
-  async function run(){
+  async function run(sessionOverride){
     if(running) return;
     running = true;
     try{
-      const c = getClient();
-      if(!c) return;
-      const {data} = await c.auth.getSession();
-      const session = data && data.session;
+      const session = sessionOverride || await getSession();
+      lastSession = session || null;
       if(session && session.user){
         await syncProfile(session);
         await syncFacebookFriends(session);
-        await paintProfileAvatar();
+        paintProfileAvatar(session);
       }
     }finally{ running = false; }
   }
 
+  function installAvatarObserver(){
+    if(avatarObserver || !/\/profile\.html$/i.test(location.pathname)) return;
+    const root = document.getElementById('pf-root');
+    if(!root) return;
+    avatarObserver = new MutationObserver(()=>{
+      if(lastSession && lastSession.user) paintProfileAvatar(lastSession);
+    });
+    avatarObserver.observe(root, {childList:true,subtree:true});
+  }
+
   function boot(){
+    installAvatarStyle();
+    installAvatarObserver();
     run();
-    const c = getClient();
-    if(c){
-      c.auth.onAuthStateChange((event, session)=>{
-        if(session && session.user) setTimeout(run, 0);
-      });
-    }
-    if(/\/profile\.html$/i.test(location.pathname)){
-      new MutationObserver(()=>paintProfileAvatar()).observe(document.getElementById('pf-root') || document.body, {childList:true,subtree:true});
-    }
-    window.addEventListener('taraf:cloud-sync-complete', run);
+    window.addEventListener('taraf:cloud-sync-complete', e=>{
+      const session = e && e.detail && e.detail.session;
+      run(session || null);
+    });
+    window.addEventListener('taraf:auth-changed', ()=>run());
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
