@@ -1,0 +1,49 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'online.taraf5eet.app'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'online.taraf5eet.app'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv('ANDROID_KEYSTORE_PATH')
+            def keystorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            if (keystorePath && keystorePassword) {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias 'taraf5eet'
+                keyPassword keystorePassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            if (System.getenv('ANDROID_KEYSTORE_PATH') && System.getenv('ANDROID_KEYSTORE_PASSWORD')) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3'
+}
