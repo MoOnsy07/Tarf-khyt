@@ -64,41 +64,73 @@ const READY_CASE_IDS = new Set([
   'grandma-ring',
 ]);
 
-(function loadTarafCloudSync(){
-  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-sync]')) return;
-  const s = document.createElement('script');
-  s.src = 'cloud-sync.js?v=20260825-1';
-  s.async = false;
-  s.dataset.tarafCloudSync = '1';
-  (document.head || document.documentElement).appendChild(s);
-})();
+/* ============================================================
+   Auth bootstrap
+   profile.html لم يكن يحمل Supabase مباشرة مثل index.html.
+   هنا نضمن Client مشترك واحد قبل تحميل أي سكربت Auth/صور،
+   بدل أن يحاول كل سكربت تهيئة الجلسة في نفس اللحظة.
+   ============================================================ */
+(function loadTarafAuthStack(){
+  if(typeof document === 'undefined' || window.__tarafAuthStackLoading) return;
+  window.__tarafAuthStackLoading = true;
 
-(function loadTarafCloudGoogleOnly(){
-  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-google-only]')) return;
-  const s = document.createElement('script');
-  s.src = 'cloud-google-only.js?v=20260825-3';
-  s.async = false;
-  s.dataset.tarafCloudGoogleOnly = '1';
-  (document.head || document.documentElement).appendChild(s);
-})();
+  function hasSupabaseLibrary(){
+    return !!(window.supabase && typeof window.supabase.createClient === 'function');
+  }
 
-(function loadTarafSocialProfileSync(){
-  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-social-profile-sync]')) return;
-  const s = document.createElement('script');
-  s.src = 'social-profile-sync.js?v=20260825-2';
-  s.async = false;
-  s.dataset.tarafSocialProfileSync = '1';
-  (document.head || document.documentElement).appendChild(s);
-})();
+  function hasSharedClient(){
+    try{ return typeof sb !== 'undefined' && !!(sb && sb.auth); }
+    catch(e){ return false; }
+  }
 
-// إدارة الصورة الشخصية المخصصة وخصوصية ظهورها في الليدر بورد.
-(function loadTarafAvatarControls(){
-  if(typeof document === 'undefined' || !/\/profile\.html$/i.test(window.location.pathname) || document.querySelector('script[data-taraf-avatar-controls]')) return;
-  const s = document.createElement('script');
-  s.src = 'avatar-controls.js?v=20260825-1';
-  s.async = false;
-  s.dataset.tarafAvatarControls = '1';
-  (document.head || document.documentElement).appendChild(s);
+  function loadScript(src, attr, timeoutMs){
+    return new Promise((resolve,reject)=>{
+      if(attr){
+        const existing=document.querySelector('script['+attr+']');
+        if(existing){
+          if(existing.dataset.tarafLoaded==='1') return resolve();
+          existing.addEventListener('load',resolve,{once:true});
+          existing.addEventListener('error',()=>reject(new Error('تعذر تحميل '+src)),{once:true});
+          return;
+        }
+      }
+      const s=document.createElement('script');
+      s.src=src;
+      s.async=false;
+      if(attr) s.setAttribute(attr,'1');
+      const timer=setTimeout(()=>reject(new Error('انتهت مهلة تحميل '+src)),timeoutMs||12000);
+      s.onload=()=>{clearTimeout(timer);s.dataset.tarafLoaded='1';resolve();};
+      s.onerror=()=>{clearTimeout(timer);reject(new Error('تعذر تحميل '+src));};
+      (document.head||document.documentElement).appendChild(s);
+    });
+  }
+
+  async function boot(){
+    try{
+      if(!hasSupabaseLibrary()){
+        await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2','data-taraf-supabase-core',12000);
+      }
+      if(!hasSharedClient()){
+        await loadScript('supabase-client.js?v=20260825-1','data-taraf-supabase-client',8000);
+      }
+
+      await loadScript('cloud-sync.js?v=20260825-2','data-taraf-cloud-sync',8000);
+      await loadScript('cloud-google-only.js?v=20260825-4','data-taraf-cloud-google-only',8000);
+      await loadScript('social-profile-sync.js?v=20260825-3','data-taraf-social-profile-sync',8000);
+
+      if(/\/profile\.html$/i.test(window.location.pathname)){
+        await loadScript('avatar-controls.js?v=20260825-2','data-taraf-avatar-controls',8000);
+      }
+    }catch(err){
+      console.warn('Taraf auth stack:',err && err.message || err);
+      const card=document.getElementById('pf-cloud-card');
+      if(card && /بنراجع حالة الربط/.test(card.textContent||'')){
+        card.innerHTML='<div class="pf-cloud-head"><span class="pf-cloud-icon">⚠️</span><div><div class="pf-cloud-title">تعذر تحميل ربط الحساب</div><div class="pf-cloud-sub">اللعب والتقدم المحلي شغالين عادي. حدّث الصفحة وجرب تاني.</div></div></div>';
+      }
+    }
+  }
+
+  boot();
 })();
 
 (function loadTarafSuspectProfiles(){
@@ -122,7 +154,7 @@ const READY_CASE_IDS = new Set([
 (function loadTarafProfileScrollStability(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-profile-scroll-stability]')) return;
   const s = document.createElement('script');
-  s.src = 'profile-scroll-stability.js?v=20260824-1';
+  s.src = 'profile-scroll-stability.js?v=20260825-2';
   s.async = false;
   s.dataset.tarafProfileScrollStability = '1';
   (document.head || document.documentElement).appendChild(s);
