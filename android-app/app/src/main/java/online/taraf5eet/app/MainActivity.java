@@ -1,11 +1,14 @@
 package online.taraf5eet.app;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
@@ -16,8 +19,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4107;
+    private static final int NOTIFICATION_PERMISSION_REQUEST = 4108;
     private static final String START_URL = "https://taraf5eet.online/?android_app=1";
 
     private WebView webView;
@@ -82,7 +89,53 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState);
         } else {
-            webView.loadUrl(START_URL);
+            String pushUrl = getPushUrl(getIntent());
+            webView.loadUrl(pushUrl != null ? pushUrl : START_URL);
+        }
+
+        initPushNotifications();
+    }
+
+    private void initPushNotifications() {
+        try {
+            FirebaseApp app = FirebaseApp.initializeApp(this);
+            if (app == null && FirebaseApp.getApps(this).isEmpty()) return;
+
+            PushMessagingService.ensureChannel(this);
+
+            if (Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST);
+            }
+
+            FirebaseMessaging.getInstance().subscribeToTopic("all");
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    PushMessagingService.registerToken(getApplicationContext(), task.getResult());
+                }
+            });
+        } catch (Throwable ignored) {
+            // Firebase is intentionally optional until google-services.json is added.
+        }
+    }
+
+    private String getPushUrl(Intent intent) {
+        if (intent == null) return null;
+        String value = intent.getStringExtra("url");
+        if (value == null || value.trim().isEmpty()) return null;
+        try {
+            Uri uri = Uri.parse(value.trim());
+            String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+            if (!"https".equals(scheme) || !("taraf5eet.online".equals(host) || "www.taraf5eet.online".equals(host))) {
+                return null;
+            }
+            if (uri.getQueryParameter("android_app") == null) {
+                uri = uri.buildUpon().appendQueryParameter("android_app", "1").build();
+            }
+            return uri.toString();
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -104,6 +157,14 @@ public class MainActivity extends Activity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String pushUrl = getPushUrl(intent);
+        if (pushUrl != null && webView != null) webView.loadUrl(pushUrl);
     }
 
     @Override
