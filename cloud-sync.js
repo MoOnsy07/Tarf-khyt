@@ -254,20 +254,17 @@
     if(!data){
       const {error:insertError} = await c.from(PROFILE_TABLE).upsert({
         user_id: acc.id,
-        player_name: localName || cleanName(acc.fullName) || null,
+        player_name: localName || null,
         updated_at: new Date().toISOString(),
       }, {onConflict:'user_id'});
       if(insertError) console.error('cloud profile create error', insertError);
-      if(!localName && acc.fullName) setLocalPlayerName(acc.fullName);
       return;
     }
 
     if(data.player_name){
       setLocalPlayerName(data.player_name);
-    }else if(localName || acc.fullName){
-      const nextName = localName || cleanName(acc.fullName);
-      await c.from(PROFILE_TABLE).update({player_name:nextName, updated_at:new Date().toISOString()}).eq('user_id', acc.id);
-      setLocalPlayerName(nextName);
+    }else if(localName){
+      await c.from(PROFILE_TABLE).update({player_name:localName, updated_at:new Date().toISOString()}).eq('user_id', acc.id);
     }
   }
 
@@ -414,52 +411,59 @@
     style.id = 'taraf-cloud-style';
     style.textContent = `
       .pf-cloud-card{background:linear-gradient(135deg,rgba(224,164,88,.08),rgba(255,255,255,.02));border:1px solid var(--line,#34302a);border-radius:6px;padding:18px;margin:0 0 18px;}
-      .pf-cloud-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}.pf-cloud-icon{font-size:24px;line-height:1;}.pf-cloud-title{font-weight:800;color:var(--ink,#eee);font-size:15px;}.pf-cloud-sub{color:var(--ink-dim,#aaa);font-size:12.5px;line-height:1.7;}
-      .pf-cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}.pf-cloud-email-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}.pf-cloud-email{flex:1;min-width:190px;background:var(--void,#161616);border:1px solid var(--line,#34302a);color:var(--ink,#eee);border-radius:4px;padding:10px 12px;font-family:inherit;}
-      .pf-cloud-status{font-size:11.5px;color:var(--ink-dim,#aaa);margin-top:9px;line-height:1.6;}.pf-cloud-status.ok{color:var(--signal,#63c9a8);}.pf-cloud-status.err{color:var(--danger,#d66);}.pf-cloud-account{display:flex;gap:12px;align-items:center;}.pf-cloud-account-main{flex:1;min-width:0}.pf-cloud-email-label{font-size:11px;color:var(--ink-dim,#aaa);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .pf-cloud-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--amber-dim,#8a6a3e);background:var(--void,#161616);flex:0 0 auto}.pf-cloud-facebook{background:#1877f2!important;color:white!important;border-color:#1877f2!important}.pf-cloud-facebook:hover{filter:brightness(1.08)}
+      .pf-cloud-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+      .pf-cloud-icon{font-size:24px;line-height:1;}.pf-cloud-title{font-weight:800;color:var(--ink,#eee);font-size:15px;}.pf-cloud-sub{color:var(--ink-dim,#aaa);font-size:12.5px;line-height:1.7;}
+      .pf-cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}.pf-cloud-email-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}.pf-cloud-email{min-width:200px;flex:1;background:var(--void,#0b0b0b);border:1px solid var(--line,#34302a);color:var(--ink,#eee);border-radius:4px;padding:10px 11px;font-family:inherit;direction:ltr;text-align:left;}
+      .pf-cloud-status{margin-top:9px;font-size:12px;color:var(--ink-dim,#aaa);min-height:18px;}.pf-cloud-ok{color:#8fd6a4}.pf-cloud-error{color:#e08a7c}.pf-cloud-account{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim,#aaa);direction:ltr;text-align:right;word-break:break-all;}
+      .pf-cloud-account-line{display:flex;align-items:center;gap:10px;margin-top:10px}.pf-cloud-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:50%;object-fit:cover;border:2px solid var(--amber-dim,#8a6a3e);background:var(--void,#0b0b0b)}
+      .pf-cloud-facebook{background:#1877f2!important;color:#fff!important;border-color:#1877f2!important}.pf-cloud-facebook:hover{filter:brightness(1.08)}
+      .cloud-lib-link{position:relative}.cloud-lib-dot{width:7px;height:7px;border-radius:50%;background:#8fd6a4;display:inline-block;margin-inline-start:2px;box-shadow:0 0 8px rgba(143,214,164,.7)}
+      @media(max-width:560px){.pf-cloud-actions>*{flex:1}.pf-cloud-email-row{flex-direction:column}.pf-cloud-email{width:100%;min-width:0}}
     `;
     document.head.appendChild(style);
   }
 
-  async function injectProfileCard(force){
-    injectStyles();
-    const host = document.querySelector('.pf-wrap, #profile-root, main, #app');
-    if(!host) return;
-    let card = document.getElementById('taraf-cloud-card');
-    if(card && !force) return;
-    if(!card){
-      card = document.createElement('section');
-      card.id = 'taraf-cloud-card';
-      card.className = 'pf-cloud-card';
-      host.insertBefore(card, host.firstChild);
-    }
+  function cloudCardSkeleton(){
+    return `<div class="pf-cloud-card" id="pf-cloud-card">
+      <div class="pf-cloud-head"><span class="pf-cloud-icon">☁️</span><div><div class="pf-cloud-title">حفظ ملف المحقق</div><div class="pf-cloud-sub">بنراجع حالة الربط...</div></div></div>
+    </div>`;
+  }
 
-    const account = await getAccount();
-    if(account){
-      const avatar = account.avatarUrl ? `<img class="pf-cloud-avatar" src="${escapeHTML(account.avatarUrl)}" alt="صورة الحساب" referrerpolicy="no-referrer">` : '<div class="pf-cloud-avatar"></div>';
+  async function refreshCloudCard(){
+    const card = document.getElementById('pf-cloud-card');
+    if(!card) return;
+    const acc = await getAccount();
+    if(!document.getElementById('pf-cloud-card')) return;
+
+    if(acc){
+      const last = Number(localStorage.getItem(SYNC_STAMP_KEY) || 0);
+      const lastText = last ? new Date(last).toLocaleString('ar-EG', {dateStyle:'short', timeStyle:'short'}) : 'لسه';
+      const avatar = acc.avatarUrl
+        ? `<img class="pf-cloud-avatar" src="${escapeHTML(acc.avatarUrl)}" alt="صورة الحساب" referrerpolicy="no-referrer">`
+        : '<span class="pf-cloud-avatar" aria-hidden="true"></span>';
       card.innerHTML = `
-        <div class="pf-cloud-account">
-          ${avatar}
-          <div class="pf-cloud-account-main">
-            <div class="pf-cloud-title">التقدم محفوظ على حسابك</div>
-            <div class="pf-cloud-email-label">${escapeHTML(account.email || account.fullName || 'حساب مربوط')}</div>
-          </div>
-          <button type="button" class="btn ghost mono" id="pf-cloud-sync">مزامنة</button>
-          <button type="button" class="btn ghost mono" id="pf-cloud-signout">خروج</button>
-        </div>
-        <div class="pf-cloud-status ok" id="pf-cloud-status">أي تقدم جديد هيتحفظ تلقائيًا.</div>`;
+        <div class="pf-cloud-head"><span class="pf-cloud-icon">✅</span><div><div class="pf-cloud-title">تقدمك مربوط بالسحابة</div><div class="pf-cloud-sub">تقدر تدخل بنفس الحساب من أي جهاز وترجع قضاياك.</div></div></div>
+        <div class="pf-cloud-account-line">${avatar}<div class="pf-cloud-account">${escapeHTML(acc.email || acc.fullName || acc.id)}</div></div>
+        <div class="pf-cloud-status pf-cloud-ok" id="pf-cloud-status">آخر مزامنة: ${escapeHTML(lastText)}</div>
+        <div class="pf-cloud-actions">
+          <button type="button" class="btn mono" id="pf-cloud-sync">↻ مزامنة الآن</button>
+          <button type="button" class="btn ghost mono" id="pf-cloud-signout">تسجيل خروج</button>
+        </div>`;
 
-      const status = document.getElementById('pf-cloud-status');
       document.getElementById('pf-cloud-sync').addEventListener('click', async e=>{
-        const btn = e.currentTarget; btn.disabled = true;
-        if(status) status.textContent = 'بنزامن التقدم...';
+        const btn = e.currentTarget;
+        const status = document.getElementById('pf-cloud-status');
+        btn.disabled = true;
+        if(status) status.textContent = 'جاري المزامنة...';
         try{
           const r = await syncAll({manual:true});
-          if(status){ status.className='pf-cloud-status ok'; status.textContent = `تمت المزامنة — رفع ${r.uploaded||0} / تنزيل ${r.downloaded||0}`; }
-        }catch(err){ if(status){ status.className='pf-cloud-status err'; status.textContent='تعذر مزامنة التقدم.'; } }
-        btn.disabled = false;
+          if(status) status.textContent = `تمت المزامنة ✓ — رفع ${r.uploaded||0} / تنزيل ${r.downloaded||0}`;
+          setTimeout(()=>injectProfileCard(true), 700);
+        }catch(err){
+          if(status){ status.textContent = 'تعذر إتمام المزامنة. جرّب تاني.'; status.className='pf-cloud-status pf-cloud-error'; }
+        }finally{ btn.disabled = false; }
       });
+
       document.getElementById('pf-cloud-signout').addEventListener('click', async e=>{
         e.currentTarget.disabled = true;
         try{ await signOut(); }catch(err){ e.currentTarget.disabled = false; }
@@ -487,7 +491,7 @@
       try{ await signInWithGoogle(); }
       catch(err){
         btn.disabled = false;
-        if(status){ status.className='pf-cloud-status err'; status.textContent = err && err.message ? err.message : 'تعذر فتح Google.'; }
+        if(status){ status.textContent = 'Google محتاج يتفعّل من إعدادات Supabase Auth أولًا.'; status.className='pf-cloud-status pf-cloud-error'; }
       }
     });
 
@@ -498,56 +502,99 @@
       try{ await signInWithFacebook(); }
       catch(err){
         btn.disabled = false;
-        if(status){ status.className='pf-cloud-status err'; status.textContent = err && err.message ? err.message : 'تعذر فتح Facebook.'; }
+        if(status){ status.textContent = String(err && err.message || 'تعذر فتح Facebook.'); status.className='pf-cloud-status pf-cloud-error'; }
       }
     });
 
-    const emailBtn = document.getElementById('pf-cloud-email-btn');
-    if(emailBtn) emailBtn.addEventListener('click', async e=>{
-      const email = document.getElementById('pf-cloud-email').value;
-      const btn = e.currentTarget; btn.disabled = true;
-      if(status) status.textContent='بنبعت رابط الدخول...';
+    document.getElementById('pf-cloud-email-btn').addEventListener('click', async e=>{
+      const btn = e.currentTarget;
+      const input = document.getElementById('pf-cloud-email');
+      btn.disabled = true;
+      if(status){ status.className='pf-cloud-status'; status.textContent='بنبعت الرابط...'; }
       try{
-        await sendMagicLink(email);
-        if(status){ status.className='pf-cloud-status ok'; status.textContent='اترسل رابط الدخول على الإيميل.'; }
+        await sendMagicLink(input.value);
+        if(status){ status.textContent='اتبعث ✓ افتح الإيميل واضغط رابط الدخول، وهترجع هنا وتلاقي تقدمك.'; status.className='pf-cloud-status pf-cloud-ok'; }
       }catch(err){
-        if(status){ status.className='pf-cloud-status err'; status.textContent = err && err.message ? err.message : 'تعذر إرسال الرابط.'; }
-      }
-      btn.disabled=false;
+        if(status){ status.textContent = String(err && err.message || 'تعذر إرسال الرابط.'); status.className='pf-cloud-status pf-cloud-error'; }
+      }finally{ btn.disabled = false; }
     });
   }
 
-  function observeProfile(){
+  function injectProfileCard(force){
+    if(!/\/profile\.html$/i.test(window.location.pathname)) return false;
+    injectStyles();
+    const identity = document.querySelector('#pf-root .pf-identity');
+    if(!identity) return false;
+    let card = document.getElementById('pf-cloud-card');
+    if(card && !force) return true;
+    if(card) card.remove();
+    identity.insertAdjacentHTML('afterend', cloudCardSkeleton());
+    refreshCloudCard().catch(()=>{});
+    return true;
+  }
+
+  function watchProfile(){
+    if(!/\/profile\.html$/i.test(window.location.pathname)) return;
+    injectProfileCard();
     if(profileObserver) return;
-    profileObserver = new MutationObserver(()=>injectProfileCard(false));
-    profileObserver.observe(document.documentElement,{childList:true,subtree:true});
+    profileObserver = new MutationObserver(()=>injectProfileCard());
+    const root = document.getElementById('pf-root');
+    if(root) profileObserver.observe(root, {childList:true, subtree:false});
+
+    document.addEventListener('click', e=>{
+      if(!e.target || e.target.id !== 'pf-name-save') return;
+      setTimeout(()=>{
+        const name = getLocalPlayerName();
+        if(name) updatePlayerName(name).catch(()=>{});
+      }, 50);
+    });
   }
 
-  function observeLibrary(){
-    if(libraryObserver) return;
-    libraryObserver = new MutationObserver(()=>{});
-    libraryObserver.observe(document.documentElement,{childList:true,subtree:true});
+  async function injectLibraryCTA(){
+    injectStyles();
+    const profileLink = document.querySelector('.lib-profile-link');
+    if(!profileLink) return false;
+    if(document.querySelector('.cloud-lib-link')) return true;
+    const acc = await getAccount();
+    const a = document.createElement('a');
+    a.href = 'profile.html#cloud';
+    a.className = 'btn ghost mono cloud-lib-link';
+    a.style.cssText = 'white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px;';
+    a.innerHTML = acc ? `☁️ محفوظ <span class="cloud-lib-dot"></span>` : '☁️ احفظ تقدمك';
+    profileLink.insertAdjacentElement('afterend', a);
+    return true;
   }
 
-  async function init(){
+  function watchLibrary(){
+    injectLibraryCTA().catch(()=>{});
+    if(libraryObserver || !document.body) return;
+    libraryObserver = new MutationObserver(()=>injectLibraryCTA().catch(()=>{}));
+    const appRoot = document.getElementById('app');
+    if(appRoot) libraryObserver.observe(appRoot, {childList:true, subtree:true});
+  }
+
+  async function initAuth(){
     try{
-      startEngineHookWatcher();
-      observeProfile();
-      observeLibrary();
       const c = await getClient();
       if(!authSubscription){
-        const sub = c.auth.onAuthStateChange(async(event, session)=>{
-          dispatch('taraf:auth-changed',{event,signedIn:!!(session&&session.user)});
-          if(session && session.user){
-            setTimeout(()=>syncAll().catch(()=>{}),0);
+        const listener = c.auth.onAuthStateChange((event, session)=>{
+          if(event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED'){
+            if(session && session.user){
+              setTimeout(()=>syncAll().catch(()=>{}), 0);
+            }
           }
-          setTimeout(()=>injectProfileCard(true),0);
+          if(event === 'SIGNED_OUT') dispatch('taraf:auth-changed', {signedIn:false});
+          setTimeout(()=>{
+            injectProfileCard(true);
+            const old = document.querySelector('.cloud-lib-link');
+            if(old) old.remove();
+            injectLibraryCTA().catch(()=>{});
+          }, 50);
         });
-        authSubscription = sub && sub.data && sub.data.subscription || sub;
+        authSubscription = listener && listener.data ? listener.data.subscription : listener;
       }
       const session = await getSession();
-      if(session) await syncAll();
-      await injectProfileCard(true);
+      if(session && session.user) await syncAll();
     }catch(err){
       console.warn('TarafCloud init skipped:', err && err.message || err);
     }
@@ -568,6 +615,20 @@
     deleteCaseFromCloud,
   };
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
-  else init();
+  function boot(){
+    injectStyles();
+    startEngineHookWatcher();
+    watchProfile();
+    watchLibrary();
+    initAuth();
+    window.addEventListener('taraf:cloud-sync-complete', ()=>{
+      injectProfileCard(true);
+      const old = document.querySelector('.cloud-lib-link');
+      if(old) old.remove();
+      injectLibraryCTA().catch(()=>{});
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
+  else boot();
 })();
