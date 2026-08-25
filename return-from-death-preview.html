@@ -16,6 +16,17 @@
 <body>
 <div class="preview-branch-banner">🧪 <b>نسخة اختبار خاصة</b> — نفس محرك طرف الخيط الحقيقي · الفرع: <code>preview-return-from-death</code> · لا تستخدم للنشر</div>
 <div class="grain"></div><div class="scan"></div><div id="app"></div>
+<script>
+(function(){
+  try{
+    const url=new URL(location.href);
+    if(url.searchParams.get('case')!=='return-from-death'){
+      url.searchParams.set('case','return-from-death');
+      history.replaceState({view:'library'},'',url.toString());
+    }
+  }catch(e){}
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="supabase-client.js"></script>
@@ -28,17 +39,6 @@
 <script src="leaderboard.js"></script>
 <script src="engine.js"></script>
 <script src="discovery-locks.js?v=20260824-2"></script>
-<script src="theory-builder-safety-fix.js?v=20260825-preview-1"></script>
-<script>
-(function(){
-  try{
-    const url=new URL(location.href);
-    if(url.searchParams.get('case')!=='return-from-death'){
-      url.searchParams.set('case','return-from-death');
-      history.replaceState(history.state,'',url.toString());
-    }
-  }catch(e){}
-})();
-</script>
+<script src="theory-builder-safety-fix.js?v=20260825-preview-2"></script>
 </body>
 </html>
