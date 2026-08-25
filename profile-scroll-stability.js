@@ -9,17 +9,11 @@
 
   function installStyle(){
     if(document.getElementById('taraf-profile-scroll-stability-style')) return;
-    const style = document.createElement('style');
-    style.id = 'taraf-profile-scroll-stability-style';
-    style.textContent = `
-      #pf-cloud-card{
-        box-sizing:border-box;
-        min-height:238px;
-        overflow-anchor:none;
-      }
-      @media(max-width:560px){
-        #pf-cloud-card{min-height:270px;}
-      }
+    const style=document.createElement('style');
+    style.id='taraf-profile-scroll-stability-style';
+    style.textContent=`
+      #pf-cloud-card{box-sizing:border-box;min-height:238px;overflow-anchor:none}
+      @media(max-width:560px){#pf-cloud-card{min-height:270px}}
     `;
     document.head.appendChild(style);
   }
@@ -33,10 +27,10 @@
     (document.head||document.documentElement).appendChild(s);
   }
 
-  function loadFacebookLaunchMode(){
+  function loadFacebookPublicGuard(){
     if(document.querySelector('script[data-taraf-facebook-launch-mode]')) return;
     const s=document.createElement('script');
-    s.src='facebook-launch-mode.js?v=20260825-1';
+    s.src='facebook-launch-mode.js?v=20260825-2';
     s.async=false;
     s.dataset.tarafFacebookLaunchMode='1';
     (document.head||document.documentElement).appendChild(s);
@@ -45,14 +39,11 @@
   function boot(){
     installStyle();
     loadSessionGuard();
-    loadFacebookLaunchMode();
-    const root = document.getElementById('pf-root');
-    if(root){
-      const observer = new MutationObserver(installStyle);
-      observer.observe(root,{childList:true,subtree:false});
-    }
+    loadFacebookPublicGuard();
+    const root=document.getElementById('pf-root');
+    if(root){const observer=new MutationObserver(installStyle);observer.observe(root,{childList:true,subtree:false})}
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
 })();
