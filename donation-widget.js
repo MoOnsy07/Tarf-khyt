@@ -118,3 +118,74 @@
     else{status.textContent='حصلت مشكلة في التسجيل. تأكد إن إعداد لوحة الشرف اتفعل في Supabase.';status.classList.add('err');}
   });
 })();
+
+/* ============================================================
+   بانر القضايا الحصرية لأعضاء قناة تليجرام
+   يظهر في المكتبة فقط، مباشرة بعد Hero طرف الخيط.
+   ============================================================ */
+(function(){
+  'use strict';
+  if(window.__TARAF_EXCLUSIVE_CASES_BANNER__) return;
+  window.__TARAF_EXCLUSIVE_CASES_BANNER__ = true;
+
+  const BANNER_ID = 'taraf-exclusive-cases-banner';
+  const IMAGE_SRC = 'images/site/exclusive-cases-banner.webp';
+  const TELEGRAM_URL = 'https://t.me/taraf5eet';
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .taraf-exclusive-banner{width:min(1120px,calc(100% - 32px));margin:0 auto 24px;border:1px solid rgba(213,43,43,.30);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#11141a,#0b0d12);box-shadow:0 18px 54px rgba(0,0,0,.32);position:relative}
+    .taraf-exclusive-banner-media{display:block;width:100%;height:auto;aspect-ratio:1672/941;object-fit:contain;background:#080a0e}
+    .taraf-exclusive-banner-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px 15px;border-top:1px solid rgba(255,255,255,.07)}
+    .taraf-exclusive-banner-copy{min-width:0;color:#c9cdd5;font-family:Cairo,Tahoma,sans-serif;font-size:13px;line-height:1.65}
+    .taraf-exclusive-banner-copy strong{display:block;color:#f3efe6;font-size:15px;margin-bottom:1px}
+    .taraf-exclusive-banner-btn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border-radius:12px;padding:11px 17px;background:linear-gradient(135deg,#df3434,#a90f18);color:#fff!important;border:1px solid rgba(255,255,255,.13);font-family:Cairo,Tahoma,sans-serif;font-size:13px;font-weight:900;box-shadow:0 8px 24px rgba(183,18,28,.24);transition:transform .18s ease,filter .18s ease}
+    .taraf-exclusive-banner-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    @media(max-width:700px){
+      .taraf-exclusive-banner{width:calc(100% - 20px);margin-bottom:18px;border-radius:15px}
+      .taraf-exclusive-banner-actions{display:block;padding:11px}
+      .taraf-exclusive-banner-copy{text-align:center;font-size:12px;margin-bottom:10px}
+      .taraf-exclusive-banner-copy strong{font-size:14px}
+      .taraf-exclusive-banner-btn{width:100%;box-sizing:border-box;padding:11px 12px}
+    }
+  `;
+  document.head.appendChild(style);
+
+  let impressionSent = false;
+  function buildBanner(){
+    const wrap = document.createElement('section');
+    wrap.id = BANNER_ID;
+    wrap.className = 'taraf-exclusive-banner';
+    wrap.setAttribute('aria-label','قضايا حصرية لأعضاء قناة طرف الخيط');
+    wrap.innerHTML = `
+      <img class="taraf-exclusive-banner-media" src="${IMAGE_SRC}" alt="قريبًا — قضايا حصرية لمشتركي قناة طرف الخيط فقط" loading="eager">
+      <div class="taraf-exclusive-banner-actions">
+        <div class="taraf-exclusive-banner-copy">
+          <strong>القضايا الحصرية جاية قريب 🔐</strong>
+          انضم للقناة من دلوقتي عشان توصلك أكواد فتح القضايا وقت نزولها.
+        </div>
+        <a class="taraf-exclusive-banner-btn" href="${TELEGRAM_URL}" target="_blank" rel="noopener" data-telegram-cta="exclusive_cases_banner">📣 انضم للقناة وخد كود القضايا</a>
+      </div>`;
+    return wrap;
+  }
+
+  function syncBanner(){
+    const hero = document.querySelector('#app .lib-hero');
+    const existing = document.getElementById(BANNER_ID);
+    if(!hero){ if(existing) existing.remove(); return; }
+    if(existing) return;
+    const banner = buildBanner();
+    hero.insertAdjacentElement('afterend', banner);
+    if(!impressionSent){
+      impressionSent = true;
+      try{ if(typeof window.gtag === 'function') window.gtag('event','telegram_cta_impression',{cta_location:'exclusive_cases_banner'}); }catch(_){}
+    }
+  }
+
+  syncBanner();
+  const appNode = document.getElementById('app');
+  if(appNode){
+    const observer = new MutationObserver(()=>syncBanner());
+    observer.observe(appNode,{childList:true,subtree:false});
+  }
+})();
