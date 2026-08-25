@@ -91,6 +91,16 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
+// إدارة الصورة الشخصية المخصصة وخصوصية ظهورها في الليدر بورد.
+(function loadTarafAvatarControls(){
+  if(typeof document === 'undefined' || !/\/profile\.html$/i.test(window.location.pathname) || document.querySelector('script[data-taraf-avatar-controls]')) return;
+  const s = document.createElement('script');
+  s.src = 'avatar-controls.js?v=20260825-1';
+  s.async = false;
+  s.dataset.tarafAvatarControls = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
+
 (function loadTarafSuspectProfiles(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-suspect-profiles]')) return;
   const s = document.createElement('script');
