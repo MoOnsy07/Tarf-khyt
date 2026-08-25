@@ -116,7 +116,7 @@ const READY_CASE_IDS = new Set([
 
       await loadScript('cloud-sync.js?v=20260825-2','data-taraf-cloud-sync',8000);
       await loadScript('cloud-google-only.js?v=20260825-4','data-taraf-cloud-google-only',8000);
-      await loadScript('social-profile-sync.js?v=20260825-3','data-taraf-social-profile-sync',8000);
+      await loadScript('social-profile-sync.js?v=20260825-4','data-taraf-social-profile-sync',8000);
 
       if(/\/profile\.html$/i.test(window.location.pathname)){
         await loadScript('avatar-controls.js?v=20260825-3','data-taraf-avatar-controls',8000);
