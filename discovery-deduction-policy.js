@@ -2,7 +2,7 @@
    طرف الخيط — سياسة الاستنتاج للألغاز الواقعية المولّدة
    - الأولوية لمحتوى الدليل نفسه: تاريخ / وقت / كود / لوحة / رقم / مبلغ.
    - النظام يحدد للاعب نوع المعلومة ومصدرها، لكنه لا يعرض القيمة الجاهزة.
-   - لو القضية لا تحتوي قيمًا مناسبة كفاية، يرجع فقط وقتها لـ fallback آمن.
+   - لو القضية لا تحتوي قيمًا مناسبة كفاية، لا يتم فرض لغز مصطنع على اللاعب.
    - الألغاز الخاصة المكتوبة يدويًا لا تتأثر.
    ============================================================ */
 (function(){
@@ -10,7 +10,7 @@
 
   if(typeof CASES_REGISTRY === 'undefined' || !Array.isArray(CASES_REGISTRY)) return;
 
-  const VERSION = '2026-08-24-content-v3';
+  const VERSION = '2026-08-25-content-v4';
 
   function normalizeDigits(value){
     const ar = '٠١٢٣٤٥٦٧٨٩';
@@ -37,10 +37,6 @@
       ev && ev.full,
       ev && ev.tag
     ].filter(Boolean).join(' '));
-  }
-
-  function evidenceById(caseData, id){
-    return (caseData.evidence || []).find(e=>e && e.id === id) || null;
   }
 
   function reachableEvidenceIds(caseData){
@@ -80,41 +76,34 @@
     const seen = new Set();
     let m;
 
-    // أكواد صريحة زي NX-204 / B-12 / D14 / 4B / خ-12
     const codeRe = /(?:^|[\s«“"'(:])([A-Za-z\u0621-\u064a]{1,3}\s*[-–]?\s*\d{1,4}|\d{1,4}\s*[-–]?\s*[A-Za-z\u0621-\u064a]{1,3})(?=$|[\s»”"'،,.):])/g;
     while((m = codeRe.exec(text))){
       pushCandidate(out, seen, m[1], 'كود/مرجع', 'الكود أو المرجع المكتوب داخل الدليل', 100);
     }
 
-    // لوحات عربية شائعة: س م د 4821
     const plateRe = /([\u0621-\u064a](?:\s+[\u0621-\u064a]){1,2}\s*[-–]?\s*\d{3,4})/g;
     while((m = plateRe.exec(text))){
       pushCandidate(out, seen, m[1], 'رقم لوحة', 'رقم اللوحة الظاهر أو المذكور في الدليل', 98);
     }
 
-    // تواريخ رقمية
     const dateRe = /\b(\d{1,2}[\/\-.]\d{1,2}(?:[\/\-.]\d{2,4})?)\b/g;
     while((m = dateRe.exec(text))){
       pushCandidate(out, seen, m[1], 'تاريخ', 'التاريخ المذكور داخل الدليل', 95);
     }
 
-    // أوقات
     const timeRe = /\b(\d{1,2}:\d{2})\b/g;
     while((m = timeRe.exec(text))){
       pushCandidate(out, seen, m[1], 'توقيت', 'التوقيت المذكور داخل الدليل', 94);
     }
 
-    // مبالغ لما السياق واضح
     const moneyRe = /(\d{2,7})\s*(?:جنيه|جنيها|جنيهًا|EGP|دولار|ريال)/gi;
     while((m = moneyRe.exec(text))){
       pushCandidate(out, seen, m[1], 'مبلغ', 'المبلغ المذكور في الدليل بدون رمز العملة', 90);
     }
 
-    // أرقام مرتبطة بسياق مفيد؛ نستبعد 1 رقم منفرد لتقليل الضوضاء.
     const numberRe = /\b(\d{2,6})\b/g;
     while((m = numberRe.exec(text))){
       const raw = m[1];
-      // سنين شائعة تظل مفيدة لو السياق نفسه تاريخ/سنة.
       const around = text.slice(Math.max(0, m.index - 30), Math.min(text.length, m.index + raw.length + 30));
       let hint = 'الرقم المرتبط بالتفصيلة الأساسية داخل الدليل';
       let priority = 60;
@@ -140,7 +129,6 @@
 
     units.sort((a,b)=>b.rank-a.rank || (Number(a.ev.order)||999)-(Number(b.ev.order)||999));
 
-    // نحاول ننوّع الأدلة الأول، وبعدها نسمح بقيمتين من نفس الدليل لو محتاجين.
     const picked = [];
     const usedEvidence = new Set();
     for(const unit of units){
@@ -157,35 +145,22 @@
     return picked;
   }
 
-  function fallbackPatch(caseData, first, second){
-    const sources1 = first.sourceIds || first.requires || [];
-    const a = evidenceById(caseData, sources1[0]);
-    const b = evidenceById(caseData, sources1[1]);
-    const sources2 = second.sourceIds || second.requires || [];
-    const c = evidenceById(caseData, sources2[0]);
-    if(!a || !b || !c) return false;
+  function disableGeneratedLocks(caseData, first, second){
+    const ids = new Set([first && first.id, second && second.id].filter(Boolean));
+    caseData.discoveryLocks = (caseData.discoveryLocks || []).filter(lock=>!lock || !ids.has(lock.id));
 
-    const count = s=>String(String(s||'').trim().split(/\s+/).filter(Boolean).length).padStart(2,'0');
-    const firstAnswer = count(a.title) + count(b.title);
-    const prefix = String(first.resultPrefix || '').trim();
-    const suffix = count(c.title);
-
-    caseData.realisticDiscoveryClues = caseData.realisticDiscoveryClues || {};
-    caseData.realisticDiscoveryClues[a.id] = ['مفيش رقم مباشر صالح للتحقق في الدليل؛ استخدم عدد كلمات عنوانه كخطة احتياطية فقط.'];
-    caseData.realisticDiscoveryClues[b.id] = ['استخدم عدد كلمات عنوان الدليل كجزء ثانٍ من رمز المطابقة الاحتياطي.'];
-    caseData.realisticDiscoveryClues[c.id] = ['للتحقق النهائي الاحتياطي، استخدم عدد كلمات عنوان الدليل بعد مفتاح المتابعة.'];
-
-    first.inputMode='numeric';
-    first.maxLength=4;
-    first.acceptedAnswers=[firstAnswer];
-    first.introText=`القضية دي مفيهاش قيم رقمية/مرجعية كفاية في الأدلة المتاحة. كحل احتياطي: احسب عدد كلمات «${a.title}» ثم «${b.title}» واكتب كل عدد في خانتين.`;
-    first.wrongMsg='✗ الرمز مش صحيح. عدّ كلمات عنوان كل دليل واكتب كل عدد في خانتين.';
-
-    if(prefix){
-      second.acceptedAnswers=[`${prefix}${suffix}`,`${prefix}-${suffix}`,`${prefix} ${suffix}`];
-      second.introText=`استخدم مفتاح المتابعة من الخطوة الأولى، وبعده عدد كلمات عنوان «${c.title}» في خانتين.`;
-      second.wrongMsg='✗ المرجع مش صحيح. راجع المفتاح وعدد كلمات عنوان الدليل.';
+    if(caseData.realisticDiscoveryClues){
+      Object.keys(caseData.realisticDiscoveryClues).forEach(id=>{
+        const clues = caseData.realisticDiscoveryClues[id];
+        if(!Array.isArray(clues)) return;
+        caseData.realisticDiscoveryClues[id] = clues.filter(text=>
+          !/عدد كلمات|خطة احتياطية|رمز المطابقة الاحتياطي|التحقق النهائي الاحتياطي/.test(String(text || ''))
+        );
+        if(!caseData.realisticDiscoveryClues[id].length) delete caseData.realisticDiscoveryClues[id];
+      });
     }
+
+    caseData.__generatedDiscoverySkipped = true;
     return true;
   }
 
@@ -197,13 +172,13 @@
     const secondId = `real_${caseData.id}_archive`;
     const first = caseData.discoveryLocks.find(x=>x && x.id === firstId);
     const second = caseData.discoveryLocks.find(x=>x && x.id === secondId);
-    if(!first || !second) return false; // لغز خاص مكتوب يدويًا: لا نلمسه.
+    if(!first || !second) return false;
 
     const units = chooseContentUnits(caseData, 3);
     const prefix = String(first.resultPrefix || '').trim();
 
     if(units.length < 2){
-      fallbackPatch(caseData, first, second);
+      disableGeneratedLocks(caseData, first, second);
       caseData.__deductionPolicyVersion = VERSION;
       return true;
     }
@@ -232,57 +207,20 @@
     first.maxLength = Math.max(8, Math.min(30, firstAnswer.length + 6));
     first.placeholder = 'القيمتين بالترتيب...';
     first.acceptedAnswers = [firstAnswer, `${u1.candidate.value}-${u2.candidate.value}`, `${u1.candidate.value} ${u2.candidate.value}`];
-    first.introText = `راجع «${u1.ev.title}» و«${u2.ev.title}». من الأول استخرج ${u1.candidate.hint}، ومن الثاني استخرج ${u2.candidate.hint}. اكتب القيمتين وراء بعض بالترتيب لإجراء المطابقة. النظام مش هيعرض الأرقام أو الأكواد نفسها.`;
-    first.lockedText = `لسه محتاج تجمع «${u1.ev.title}» و«${u2.ev.title}» قبل المطابقة.`;
-    first.wrongMsg = '✗ المطابقة مش صحيحة. افتح الدليلين واقرأ محتواهم؛ المطلوب قيم موجودة فعلًا جوه الأدلة، مش رقم ظاهر في رسالة النظام.';
-    first.successText = prefix
-      ? `المطابقة نجحت. ظهر مفتاح متابعة «${prefix}». استخدمه مع الدليل التالي.`
-      : 'المطابقة نجحت وظهر مفتاح متابعة للخطوة التالية.';
-    first.resultText = prefix
-      ? `تم ربط القيمتين من الدليلين وخرج مفتاح متابعة «${prefix}». المفتاح وحده لا يحسم القضية.`
-      : 'تم ربط القيمتين بنجاح. النتيجة مجرد خيط متابعة وليست اتهامًا.';
+    first.introText = `استخرج ${u1.candidate.hint} من «${u1.ev.title}»، ثم ${u2.candidate.hint} من «${u2.ev.title}». اكتب القيمتين بالترتيب للمطابقة.`;
+    first.wrongMsg = '✗ القيم مش مطابقة. راجع محتوى الدليلين واستخرج القيم المكتوبة فعلًا.';
 
-    const secondValue = u3.candidate.answer;
     second.requires = [u3.ev.id];
     second.sourceIds = [u3.ev.id];
-    second.requiresDiscoveries = [firstId];
-    second.inputMode = 'text';
-    second.maxLength = Math.max(12, Math.min(30, (prefix + secondValue).length + 6));
-    second.placeholder = 'مرجع التحقق...';
     if(prefix){
-      second.acceptedAnswers = [
-        `${prefix}${secondValue}`,
-        `${prefix}-${u3.candidate.value}`,
-        `${prefix} ${u3.candidate.value}`
-      ];
-      second.introText = `بعد نجاح المطابقة الأولى، استخدم مفتاح المتابعة اللي ظهر لك ثم استخرج بنفسك ${u3.candidate.hint} من «${u3.ev.title}». كوّن المرجع واكتبه؛ القيمة مش هتظهر جاهزة في شاشة التحقق.`;
-    }else{
-      second.acceptedAnswers = [secondValue, u3.candidate.value];
-      second.introText = `راجع «${u3.ev.title}» واستخرج بنفسك ${u3.candidate.hint} لفتح سجل التحقق.`;
+      second.acceptedAnswers = [`${prefix}${u3.candidate.answer}`, `${prefix}-${u3.candidate.value}`, `${prefix} ${u3.candidate.value}`];
+      second.introText = `استخدم بادئة المتابعة «${prefix}»، وبعدها ${u3.candidate.hint} من «${u3.ev.title}».`;
+      second.wrongMsg = '✗ المرجع مش صحيح. راجع بادئة المتابعة والقيمة الحقيقية الموجودة في الدليل.';
     }
-    second.lockedText = `لسه محتاج تخلص المطابقة الأولى وتجمع «${u3.ev.title}».`;
-    second.wrongMsg = '✗ المرجع مش صحيح. ارجع لمحتوى الدليل نفسه واستخرج القيمة المطلوبة، ثم اربطها بمفتاح المتابعة.';
-    second.successText = 'تم فتح سجل التحقق بعد استخدام المعلومة المستخرجة من الدليل.';
-    second.resultText = 'تم التحقق من الخيط اعتمادًا على محتوى الأدلة نفسها. النتيجة تقوي التحقيق من غير ما تكشف الجاني وحدها.';
 
     caseData.__deductionPolicyVersion = VERSION;
     return true;
   }
 
-  function applyPolicy(){
-    let generatedFound = 0;
-    CASES_REGISTRY.forEach(caseData=>{
-      if(patchGeneratedCase(caseData)) generatedFound++;
-    });
-    return generatedFound;
-  }
-
-  // ممكن الملف يتحمل قبل discovery-locks.js؛ نستنى بناء الاكتشافات ثم نطبّق السياسة.
-  if(applyPolicy() === 0){
-    let tries = 0;
-    const timer = setInterval(()=>{
-      tries++;
-      if(applyPolicy() > 0 || tries >= 200) clearInterval(timer);
-    }, 50);
-  }
+  CASES_REGISTRY.forEach(patchGeneratedCase);
 })();
