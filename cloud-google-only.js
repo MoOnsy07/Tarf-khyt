@@ -9,7 +9,13 @@
     const googleBtn = document.getElementById('pf-cloud-google');
     const facebookBtn = document.getElementById('pf-cloud-facebook');
     const status = document.getElementById('pf-cloud-status');
-    if((googleBtn || facebookBtn) && status && !status.classList.contains('ok') && !status.classList.contains('err')){
+    const hasStateMessage = status && (
+      status.classList.contains('pf-cloud-ok') ||
+      status.classList.contains('pf-cloud-error') ||
+      status.classList.contains('ok') ||
+      status.classList.contains('err')
+    );
+    if((googleBtn || facebookBtn) && status && !hasStateMessage){
       const msg = 'اربط تقدمك بحساب Google أو Facebook — بدون رسائل بريد.';
       if(status.textContent !== msg) status.textContent = msg;
       if(status.className !== 'pf-cloud-status') status.className = 'pf-cloud-status';
