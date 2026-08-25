@@ -18,13 +18,11 @@ const READY_CASE_IDS = new Set([
   'role-of-lifetime',
   'room-307',
   'shifting-painting',
-  // === إضافات هذه الجلسة — أصولها البصرية اكتملت بالكامل ===
   'fake-audio',
   'false-rumor',
   'forged-canvas',
   'ghost-author',
   'exam-leak',
-  // === إضافات جلسة استكمال مطابقة الصور (من صورة 0156 لحد 0350) ===
   'dawn-call',
   'finish-line',
   'flat-12b',
@@ -37,7 +35,6 @@ const READY_CASE_IDS = new Set([
   'red-thread',
   'vault-key',
   'warehouse-fire',
-  // === إضافات جلسة تصحيح الـ82 صورة (اكتشاف وإصلاح الـ"إزاحة" بين الملفات) ===
   'closed-file',
   'forged-will',
   'missing-twin',
@@ -45,23 +42,16 @@ const READY_CASE_IDS = new Set([
   'coded-message',
   'behind-scenes',
   'vanished-wife',
-  // === القضايا التانية اللي كانت ناقصة صورة واحدة بس، واكتملت
-  // بفضل نفس دفعة الـ82 صورة (لقينا الصور الناقصة بتاعتها في نفس الأرشيف) ===
   'last-laugh',
   'nile-cruise',
   'old-photo',
   'one-comment',
   'secret-clinic',
-  // === اكتملت بعد رفع 4 صور إضافية (كان ناقص واحدة بس لكل قضية) ===
   'secret-recipe',
   'opening-night',
   'suspicious-transfer',
-  // === آخر قضية! second-face اكتملت بصورة face-witness.jpg ===
   'second-face',
-  // === buffalo-case رجعت جاهزة (22 أغسطس) — كان في غلط مني في فحصها،
-  // صورها فعليًا تحت images/buffalo/ (مش images/buffalo-case/) وكلها موجودة ===
   'buffalo-case',
-  // === اكتملت أصول آخر 10 قضايا في 23 أغسطس 2026 ===
   '93rd-minute',
   'bribery',
   'broken-faucet',
@@ -74,8 +64,6 @@ const READY_CASE_IDS = new Set([
   'grandma-ring',
 ]);
 
-// Cloud progress — ملف مستقل بيتحمّل في اللعبة وprofile.html من غير تعديل المحرك.
-// async=false يحافظ على ترتيب التنفيذ لو الصفحة فيها أكتر من loader ديناميكي.
 (function loadTarafCloudSync(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-sync]')) return;
   const s = document.createElement('script');
@@ -85,7 +73,6 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// تسجيل الدخول السحابي عبر Google + Facebook، مع إبقاء Magic Link مخفيًا مؤقتًا.
 (function loadTarafCloudGoogleOnly(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-google-only]')) return;
   const s = document.createElement('script');
@@ -95,7 +82,15 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// ملفات تعريف الشخصيات — طبقة نهائية ثابتة للسن/المهنة/العنوان والسجل الإداري المحايد.
+(function loadTarafSocialProfileSync(){
+  if(typeof document === 'undefined' || document.querySelector('script[data-taraf-social-profile-sync]')) return;
+  const s = document.createElement('script');
+  s.src = 'social-profile-sync.js?v=20260825-1';
+  s.async = false;
+  s.dataset.tarafSocialProfileSync = '1';
+  (document.head || document.documentElement).appendChild(s);
+})();
+
 (function loadTarafSuspectProfiles(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-suspect-profiles]')) return;
   const s = document.createElement('script');
@@ -105,7 +100,6 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// سياسة دعوة تيليجرام — بعد أول قضية، وبعدها كل 3 قضايا مكتملة.
 (function loadTarafTelegramInvitePolicy(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-telegram-policy]')) return;
   const s = document.createElement('script');
@@ -115,7 +109,6 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// تثبيت سكرول صفحة البروفايل أثناء تحديث كارت الحفظ السحابي.
 (function loadTarafProfileScrollStability(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-profile-scroll-stability]')) return;
   const s = document.createElement('script');
@@ -125,7 +118,6 @@ const READY_CASE_IDS = new Set([
   (document.head || document.documentElement).appendChild(s);
 })();
 
-// منع ألغاز الاكتشاف المولّدة من كشف الكود الجاهز للاعب.
 (function loadTarafDiscoveryDeductionPolicy(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-discovery-deduction]')) return;
   const s = document.createElement('script');
