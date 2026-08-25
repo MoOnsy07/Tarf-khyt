@@ -1,4 +1,4 @@
-/* طرف الخيط — تعطيل تسجيل الدخول بالإيميل مؤقتًا والإبقاء على Google فقط */
+/* طرف الخيط — تعطيل تسجيل الدخول بالإيميل مؤقتًا والإبقاء على Google + Facebook */
 (function(){
   'use strict';
 
@@ -7,16 +7,17 @@
     if(emailRow) emailRow.remove();
 
     const googleBtn = document.getElementById('pf-cloud-google');
+    const facebookBtn = document.getElementById('pf-cloud-facebook');
     const status = document.getElementById('pf-cloud-status');
-    if(googleBtn && status){
-      const msg = 'اربط تقدمك بحساب Google — بدون رسائل بريد.';
+    if((googleBtn || facebookBtn) && status && !status.classList.contains('ok') && !status.classList.contains('err')){
+      const msg = 'اربط تقدمك بحساب Google أو Facebook — بدون رسائل بريد.';
       if(status.textContent !== msg) status.textContent = msg;
       if(status.className !== 'pf-cloud-status') status.className = 'pf-cloud-status';
     }
 
     if(window.TarafCloud && !window.TarafCloud.__emailDisabled){
       window.TarafCloud.sendMagicLink = async function(){
-        throw new Error('تسجيل الدخول بالإيميل متوقف مؤقتًا. استخدم Google.');
+        throw new Error('تسجيل الدخول بالإيميل متوقف مؤقتًا. استخدم Google أو Facebook.');
       };
       window.TarafCloud.__emailDisabled = true;
     }
