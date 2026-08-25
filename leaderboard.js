@@ -199,3 +199,14 @@ window.addEventListener('load', () => {
     if(document.getElementById('telegramInviteOverlay')) try{localStorage.setItem(KEY,String(count));}catch(e){}
   };
 });
+
+// Facebook public launch: تبويب الأصدقاء محفوظ للمرحلة التالية بعد اعتماد Meta.
+document.addEventListener('DOMContentLoaded',()=>{
+  const friendsBtn=document.querySelector('.scope-btn[data-scope="friends"]');
+  if(!friendsBtn) return;
+  friendsBtn.disabled=true;
+  friendsBtn.textContent='👥 أصدقائي — قريبًا';
+  friendsBtn.title='هتتفتح بعد اعتماد صلاحية الأصدقاء من Meta';
+  friendsBtn.style.opacity='.55';
+  friendsBtn.style.cursor='not-allowed';
+});
