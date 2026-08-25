@@ -1609,6 +1609,10 @@ function typeText(el, text, speed, onDone){
 function renderTabs(){
   const tabsEl = document.getElementById('tabs');
   const fieldworkAvailable = investigationActionsForCase().length > 0;
+  const fieldworkRequiredEvidence = Array.isArray(CASE.fieldworkUnlockEvidenceIds)
+    ? CASE.fieldworkUnlockEvidenceIds
+    : [];
+  const fieldworkUnlocked = fieldworkRequiredEvidence.every(id=>game.collected.has(id));
   const audioAvailable = CASE.audioPuzzle && CASE.audioPuzzle.enabled;
   const audioUnlockId = evidenceThatUnlocksAudio();
   // لو القضية ماحددتش دليل بعينه يفتح التحليل الصوتي، التبويب يبقى متاح من البداية.
@@ -1668,7 +1672,7 @@ function renderTabs(){
   const defs = [
     {id:'briefing', label:'ملف القضية'},
   ];
-  if(fieldworkAvailable) defs.push({id:'fieldwork', label:'فحص وتحريات'});
+  if(fieldworkAvailable) defs.push({id:'fieldwork', label:'فحص وتحريات', locked: !fieldworkUnlocked});
   const mustVisitSceneFirst = currentPlayMode()==='realistic' && isForensicCase() && !game.investigationActionsDone.has('__real_scene_visit');
   defs.push(
     {id:'evidence', label:'لوحة الأدلة'},
@@ -3320,6 +3324,13 @@ function finishGenericPuzzle(type, cfg, solvedFlag, reason){
   setTimeout(()=>render(), 900);
 }
 
+function normalizeCodeDigits(value){
+  return String(value == null ? '' : value)
+    .replace(/[٠-٩]/g, digit=>String(digit.charCodeAt(0)-1632))
+    .replace(/[۰-۹]/g, digit=>String(digit.charCodeAt(0)-1776))
+    .replace(/[^0-9]/g, '');
+}
+
 function codeLockHTML(){
   const cfg = CASE.codeLockPuzzle;
   const label = cfg.tabLabel || 'فك القفل';
@@ -3329,13 +3340,15 @@ function codeLockHTML(){
     <p class="dim">${cfg.introText||''}</p>
     ${cfg.hint ? `<p class="dim mono">تلميح الملف: ${cfg.hint}</p>` : ''}
     <label style="display:block; margin:16px 0 6px;">الكود</label>
-    <input id="codeLockInput" inputmode="numeric" autocomplete="off" maxlength="${String(cfg.code||'').length || 8}" value="${game.codeLockInput||''}" style="width:100%;max-width:320px;padding:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;" />
+    <input id="codeLockInput" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" autocomplete="off" maxlength="${String(cfg.code||'').length || 8}" value="${normalizeCodeDigits(game.codeLockInput||'')}" style="width:100%;max-width:320px;padding:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;" />
     <div><button class="btn" id="submitCodeLock" style="margin-top:12px;">تأكيد الكود</button></div>
     <div class="wave-feedback" id="codeLockFeedback"></div>`;
 }
 function submitCodeLock(){
   const cfg=CASE.codeLockPuzzle, input=document.getElementById('codeLockInput');
-  const val=(input?.value||'').trim(); game.codeLockInput=val; persistProgress();
+  const val=normalizeCodeDigits(input?.value||'').slice(0, String(cfg.code||'').length || 8);
+  if(input) input.value=val;
+  game.codeLockInput=val; persistProgress();
   const fb=document.getElementById('codeLockFeedback');
   if(val===String(cfg.code||'')){
     if(fb){fb.textContent='✓ '+(cfg.resultText||'الكود صح.');fb.className='wave-feedback ok';}
@@ -4015,7 +4028,12 @@ function attachPanelEvents(){
 
   const codeInput = document.getElementById('codeLockInput');
   if(codeInput){
-    codeInput.addEventListener('input', ()=>{ game.codeLockInput=codeInput.value; });
+    codeInput.addEventListener('input', ()=>{
+      const maxLength = String(CASE.codeLockPuzzle?.code||'').length || 8;
+      const digitsOnly = normalizeCodeDigits(codeInput.value).slice(0, maxLength);
+      if(codeInput.value !== digitsOnly) codeInput.value = digitsOnly;
+      game.codeLockInput=digitsOnly;
+    });
     codeInput.addEventListener('keydown', e=>{ if(e.key==='Enter') submitCodeLock(); });
   }
   const submitCode = document.getElementById('submitCodeLock');

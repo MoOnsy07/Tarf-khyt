@@ -131,7 +131,7 @@ const CASE_WEDDING_GOLD = {
 
     { id:'reda_witness', tag:'من استجواب رضا', crit:true, title:'رضا لاحظ حد قريب من المنصة', img:null,
       short:'حد كان بيتحرك ناحية المنصة أثناء الضلمة',
-      full:'رضا شاف شخصًا يعدي من الممر الجانبي ناحية المنصة وقت الضلمة، وماقدرش يحدد وشه. اتجاه الحركة بيتوافق مع الظل اللي ظهر في فيديو منّة.',
+      full:'رضا شاف شخصًا يعدي من الممر الجانبي ناحية المنصة وقت الضلمة، وماقدرش يحدد وشه أو هدومه بسبب انقطاع النور.',
       unlocked:false, order:5 },
 
     { id:'route_reconstruction', tag:'من ترتيب خط الأحداث', crit:true, title:'إعادة بناء طريق الحركة وقت الضلمة', img:null,
@@ -307,21 +307,17 @@ const CASE_WEDDING_GOLD = {
     { parts:['video_clip','reda_witness'], resultId:'route_reconstruction' }
   ];
   const i = c.suspects.find(s => s.id === 'ibrahim');
-  if (i && !i.questions.some(q => q.unlockId === 'gold_bag_found')) {
-    i.questions.push({
-      q:'بعد ما اتحدد مسار الحركة، وافقت نفتش متعلقاتك والمكان القريب من ترابيزتك؟',
-      requires:['route_reconstruction','debt_note','ibrahim_seen_near'],
-      unlockId:'gold_bag_found',
-      a:'(بيتوتر) "فتشوا لو عايزين... أنا ماخدتش حاجة."'
-    });
-  }
+  // العثور على الشنطة نتيجة تفتيش، مش نتيجة سؤال استجواب.
+  if (i) i.questions = i.questions.filter(q => q.unlockId !== 'gold_bag_found');
   c.evidenceCombinations=(c.evidenceCombinations||[]).filter(x=>x.resultId!=='gold_bag_found');
-  const searchQuestion=i && i.questions.find(q=>q.unlockId==='gold_bag_found');
-  if(searchQuestion) searchQuestion.unlockId=null;
-  c.investigationActions=[...(c.investigationActions||[]),{
-    id:'wedding_search_route_v2',kind:'تفتيش',label:'فتّش مسار الحركة ومتعلقات إبراهيم',
-    description:'نفّذ التفتيش بعد إثبات مسار الحركة ووجود إبراهيم قرب الكرسي ودافع الدين.',
-    requires:['route_reconstruction','debt_note','ibrahim_seen_near'],resultEvidenceIds:['gold_bag_found'],
+  c.fieldworkUnlockEvidenceIds=[
+    'power_log','video_clip','debt_note','ibrahim_seen_near','reda_witness','route_reconstruction'
+  ];
+  c.investigationActions=[...(c.investigationActions||[]).filter(a=>a.id!=='wedding_search_route_v2' && a.id!=='wedding_search_route_v3'),{
+    id:'wedding_search_route_v3',kind:'تفتيش',label:'فتّش الممر الجانبي وصناديق الخدمة',
+    description:'بعد اكتمال الأدلة الستة، فتّش الممر الجانبي وصناديق الخدمة القريبة من ترابيزة إبراهيم، ثم افحص متعلقاته في وجود الحاج فتحي.',
+    requires:['power_log','video_clip','debt_note','ibrahim_seen_near','reda_witness','route_reconstruction'],
+    resultEvidenceIds:['gold_bag_found'],
     successText:'تم العثور على الشنطة في صندوق الخدمة والدهب داخل بطانة سترة إبراهيم.'
   }];
   c.conclusiveEvidenceIds = ['ibrahim_seen_near','route_reconstruction','gold_bag_found'];
