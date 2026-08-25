@@ -10,7 +10,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2026-08-23-profiles-v2';
+  const VERSION = '2026-08-25-profiles-v3';
 
   function hash(text){
     let h = 2166136261 >>> 0;
@@ -83,6 +83,13 @@
     'ghost-author': { nourhan:31, hassan:29, mona_editor:45, tarek:37, sameh_writer:39 },
   };
 
+  // مهن مكتوبة يدويًا للشخصيات اللي وصفها الدرامي لا يحتوي على اسم المهنة.
+  // ده يمنع سقوطها في قائمة الوظائف العامة وظهور مهنة غير منطقية داخل سياق القضية.
+  const OCCUPATION_OVERRIDES = {
+    'buffalo-case': { nabawiya:'ربة منزل', rizq:'مزارع وصاحب أرض زراعية' },
+    'buffalo': { nabawiya:'ربة منزل', rizq:'مزارع وصاحب أرض زراعية' },
+  };
+
   function roleText(s){
     return String((s && s.role) || '').trim();
   }
@@ -107,7 +114,10 @@
     return between(28,47);
   }
 
-  function occupationFor(s, seed){
+  function occupationFor(c, s, seed){
+    const override = OCCUPATION_OVERRIDES[c.id] && OCCUPATION_OVERRIDES[c.id][s.id];
+    if (override) return override;
+
     const r = roleText(s).toLowerCase();
     if (/إمام|شيخ/.test(r)) return 'إمام وخطيب';
     if (/بياعة|بائع/.test(r)) return 'تجارة تجزئة';
@@ -201,7 +211,7 @@
 
         s.age = age;
         s.address = addressFor(c, s, seed);
-        s.occupation = occupationFor(s, seed);
+        s.occupation = occupationFor(c, s, seed);
         s.backgroundCheck = {
           age,
           occupation: s.occupation,
