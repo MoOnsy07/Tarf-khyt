@@ -1,8 +1,8 @@
 /* ============================================================
    طرف الخيط — سياسة الاستنتاج للألغاز الواقعية المولّدة
-   - الأولوية لمحتوى الدليل نفسه: تاريخ / وقت / كود / لوحة / رقم / مبلغ.
-   - النظام يحدد للاعب نوع المعلومة ومصدرها، لكنه لا يعرض القيمة الجاهزة.
-   - لو القضية لا تحتوي قيمًا مناسبة كفاية، لا يتم فرض لغز مصطنع على اللاعب.
+   - الأولوية لقيم حقيقية داخل الأدلة: تاريخ / وقت / كود / لوحة / رقم / مبلغ.
+   - لو مفيش قيم رقمية كفاية، يفضل الاستنتاج الكتابي موجود اعتمادًا على علاقة مشتبه بدليل.
+   - تم إلغاء عدّ الكلمات نهائيًا.
    - الألغاز الخاصة المكتوبة يدويًا لا تتأثر.
    ============================================================ */
 (function(){
@@ -10,7 +10,7 @@
 
   if(typeof CASES_REGISTRY === 'undefined' || !Array.isArray(CASES_REGISTRY)) return;
 
-  const VERSION = '2026-08-25-content-v4';
+  const VERSION = '2026-08-25-content-v5';
 
   function normalizeDigits(value){
     const ar = '٠١٢٣٤٥٦٧٨٩';
@@ -26,6 +26,7 @@
       .replace(/[ًٌٍَُِّْـ]/g,'')
       .replace(/[أإآ]/g,'ا')
       .replace(/ى/g,'ي')
+      .replace(/ة/g,'ه')
       .replace(/[^a-zA-Z0-9\u0621-\u064a]/g,'')
       .toUpperCase();
   }
@@ -145,22 +146,77 @@
     return picked;
   }
 
-  function disableGeneratedLocks(caseData, first, second){
-    const ids = new Set([first && first.id, second && second.id].filter(Boolean));
-    caseData.discoveryLocks = (caseData.discoveryLocks || []).filter(lock=>!lock || !ids.has(lock.id));
+  function cleanOldWordCountClues(caseData){
+    if(!caseData.realisticDiscoveryClues) return;
+    Object.keys(caseData.realisticDiscoveryClues).forEach(id=>{
+      const clues = caseData.realisticDiscoveryClues[id];
+      if(!Array.isArray(clues)) return;
+      caseData.realisticDiscoveryClues[id] = clues.filter(text=>
+        !/عدد كلمات|خطة احتياطية|رمز المطابقة الاحتياطي|التحقق النهائي الاحتياطي/.test(String(text || ''))
+      );
+      if(!caseData.realisticDiscoveryClues[id].length) delete caseData.realisticDiscoveryClues[id];
+    });
+  }
 
-    if(caseData.realisticDiscoveryClues){
-      Object.keys(caseData.realisticDiscoveryClues).forEach(id=>{
-        const clues = caseData.realisticDiscoveryClues[id];
-        if(!Array.isArray(clues)) return;
-        caseData.realisticDiscoveryClues[id] = clues.filter(text=>
-          !/عدد كلمات|خطة احتياطية|رمز المطابقة الاحتياطي|التحقق النهائي الاحتياطي/.test(String(text || ''))
-        );
-        if(!caseData.realisticDiscoveryClues[id].length) delete caseData.realisticDiscoveryClues[id];
+  function semanticLinks(caseData){
+    const reachable = reachableEvidenceIds(caseData);
+    const evidence = (caseData.evidence || []).filter(e=>e && e.id && (e.unlocked || reachable.has(e.id)));
+    const suspects = (caseData.suspects || []).filter(s=>s && s.name);
+    const links = [];
+
+    evidence.forEach(ev=>{
+      const text = cleanAnswer(evidenceText(ev));
+      suspects.forEach(s=>{
+        const name = cleanAnswer(s.name);
+        if(name && text.includes(name)){
+          let score = ev.crit ? 100 : 60;
+          if((caseData.conclusiveEvidenceIds || []).includes(ev.id)) score += 40;
+          if(/تطابق|شوهد|شاهد|يربط|اثبت|أكد|اعترف|مطابق|قرب|حقيبة|بصم|تحليل/.test(evidenceText(ev))) score += 20;
+          links.push({ev, suspect:s, score});
+        }
       });
-    }
+    });
 
-    caseData.__generatedDiscoverySkipped = true;
+    links.sort((a,b)=>b.score-a.score || (Number(a.ev.order)||999)-(Number(b.ev.order)||999));
+    const picked = [];
+    for(const link of links){
+      if(picked.some(x=>x.ev.id===link.ev.id)) continue;
+      picked.push(link);
+      if(picked.length===2) break;
+    }
+    return picked;
+  }
+
+  function applySemanticFallback(caseData, first, second){
+    cleanOldWordCountClues(caseData);
+    const links = semanticLinks(caseData);
+    if(!links.length) return false;
+
+    const one = links[0];
+    const two = links[1] || links[0];
+
+    first.requires = [one.ev.id];
+    first.sourceIds = [one.ev.id];
+    first.inputMode = 'text';
+    first.maxLength = 40;
+    first.placeholder = 'اكتب اسم الشخص...';
+    first.acceptedAnswers = [one.suspect.name, cleanAnswer(one.suspect.name)];
+    first.introText = `راجع «${one.ev.title}». من الشخص اللي الدليل ده بيربطه مباشرة بالخيط محل الفحص؟ اكتب الاسم بنفسك.`;
+    first.wrongMsg = '✗ الاستنتاج مش مطابق للدليل. راجع الشخص المذكور أو المرتبط مباشرة بالتفصيلة.';
+    first.successText = '✓ الاستنتاج متسق مع الدليل. كمل ربطه بباقي الخيوط قبل الاتهام.';
+    first.resultText = `الاستنتاج الكتابي ربط «${one.ev.title}» بالشخص المرتبط به مباشرة، لكن الدليل وحده لا يكفي للحسم.`;
+
+    second.requires = [two.ev.id];
+    second.sourceIds = [two.ev.id];
+    second.requiresDiscoveries = [first.id];
+    second.inputMode = 'text';
+    second.maxLength = 40;
+    second.placeholder = 'اكتب اسم الشخص...';
+    second.acceptedAnswers = [two.suspect.name, cleanAnswer(two.suspect.name)];
+    second.introText = `بعد الاستنتاج الأول، راجع «${two.ev.title}». مين الشخص اللي الخيط ده بيدعمه أو بيربطه بالواقعة؟ اكتب الاسم.`;
+    second.wrongMsg = '✗ الإجابة مش متوافقة مع الخيط. ارجع لنص الدليل وحدد الشخص المرتبط به.';
+    second.successText = '✓ تم تثبيت الاستنتاج الثاني في ملف التحقيق.';
+    second.resultText = `الخيط الثاني اتربط كتابيًا بالشخص المرتبط به. استخدم النتيجة مع باقي الأدلة، مش كإدانة منفردة.`;
     return true;
   }
 
@@ -174,11 +230,13 @@
     const second = caseData.discoveryLocks.find(x=>x && x.id === secondId);
     if(!first || !second) return false;
 
+    cleanOldWordCountClues(caseData);
+
     const units = chooseContentUnits(caseData, 3);
     const prefix = String(first.resultPrefix || '').trim();
 
     if(units.length < 2){
-      disableGeneratedLocks(caseData, first, second);
+      applySemanticFallback(caseData, first, second);
       caseData.__deductionPolicyVersion = VERSION;
       return true;
     }
