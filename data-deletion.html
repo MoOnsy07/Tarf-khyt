@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حذف بيانات المستخدم | طرف الخيط</title>
+<meta name="description" content="حذف حساب وبيانات لعبة طرف الخيط.">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:#0a0c12;color:#eee;font-family:Tajawal,Arial,sans-serif}.wrap{max-width:760px;margin:0 auto;padding:36px 18px 70px}.card{background:#11151d;border:1px solid #34302a;border-radius:8px;padding:24px;line-height:1.9}.card h1{color:#e0a458;margin-top:0}.card p,.card li{color:#d3d5da}.muted{color:#9da3ad;font-size:13px}.danger{border:1px solid rgba(224,90,80,.5);background:rgba(224,90,80,.06);padding:16px;border-radius:7px;margin-top:20px}.danger strong{color:#f08f84}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.controls input{flex:1;min-width:220px;background:#0a0c12;border:1px solid #34302a;color:#fff;padding:11px;border-radius:5px;font-family:inherit}.btn-danger{background:#9c342e;color:#fff;border:1px solid #c85a50;padding:10px 16px;border-radius:5px;font-family:inherit;font-weight:800;cursor:pointer}.btn-danger:disabled{opacity:.45;cursor:not-allowed}.link-btn{display:inline-block;text-decoration:none;color:#e0a458;border:1px solid #6f5635;padding:9px 14px;border-radius:5px}.status{margin-top:12px;min-height:22px}.ok{color:#8fd6a4}.err{color:#f08f84}.nav{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}.nav a{color:#e0a458;text-decoration:none}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="nav"><a href="index.html">الرئيسية</a><a href="privacy.html">سياسة الخصوصية</a><a href="terms.html">شروط الاستخدام</a></nav>
+  <section class="card">
+    <h1>حذف بيانات المستخدم</h1>
+    <p>تقدر من هنا تحذف حسابك وبياناتك السحابية من <strong>طرف الخيط</strong>. لازم تكون مسجّل دخول بالحساب المطلوب حذفه.</p>
+    <p>الحذف يشمل:</p>
+    <ul>
+      <li>ملف المحقق وبيانات الحساب المرتبطة باللعبة.</li>
+      <li>التقدم السحابي والقضايا المرتبطة بالحساب.</li>
+      <li>نتائج الحساب المرتبطة بلوحة المتصدرين.</li>
+      <li>بيانات قائمة أصدقاء Facebook المخزنة للعبة.</li>
+      <li>الصورة الشخصية التي رفعتها بنفسك على طرف الخيط، إن وجدت.</li>
+      <li>حساب المصادقة الخاص بطرف الخيط.</li>
+    </ul>
+    <p class="muted">هذه العملية لا تحذف حسابك الأصلي من Google أو Facebook ولا تغير بياناتك عندهم.</p>
+
+    <div id="account-state" class="status">بنراجع حالة تسجيل الدخول...</div>
+    <div id="signin-help" hidden>
+      <p>أنت غير مسجّل دخول حاليًا. ادخل من ملف المحقق الأول، وبعدها ارجع للصفحة دي.</p>
+      <a class="link-btn" href="profile.html">الذهاب لملف المحقق</a>
+    </div>
+
+    <div id="delete-box" class="danger" hidden>
+      <strong>تحذير: العملية نهائية.</strong>
+      <p>للتأكيد اكتب كلمة <b>حذف</b> ثم اضغط الزر.</p>
+      <div class="controls">
+        <input id="confirm-text" type="text" autocomplete="off" placeholder="اكتب: حذف">
+        <button id="delete-btn" class="btn-danger" type="button" disabled>حذف حسابي وبياناتي نهائيًا</button>
+      </div>
+      <div id="delete-status" class="status"></div>
+    </div>
+
+    <hr style="border:0;border-top:1px solid #34302a;margin:28px 0">
+    <div dir="ltr" style="text-align:left">
+      <h2 style="color:#e0a458">User Data Deletion</h2>
+      <p>Sign in to the Taraf El Kheit account you want to delete, type the Arabic confirmation word shown above, then confirm deletion. The process removes the game account and associated cloud data. It does not delete your Google or Facebook account.</p>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js?v=20260825-1"></script>
+<script>
+(function(){
+  'use strict';
+  const state=document.getElementById('account-state');
+  const signin=document.getElementById('signin-help');
+  const box=document.getElementById('delete-box');
+  const input=document.getElementById('confirm-text');
+  const btn=document.getElementById('delete-btn');
+  const status=document.getElementById('delete-status');
+  let session=null;
+
+  function clearLocalGameData(){
+    try{
+      const keys=[];
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i)||'';
+        if(k.startsWith('ca_') || k.startsWith('tarafkhyt_') || k==='sb-meynspmfkkedhqhffsqk-auth-token') keys.push(k);
+      }
+      keys.forEach(k=>localStorage.removeItem(k));
+    }catch(e){}
+  }
+
+  async function boot(){
+    try{
+      const r=await sb.auth.getSession();
+      session=r && r.data && r.data.session || null;
+    }catch(e){ session=null; }
+
+    if(!session || !session.user){
+      state.textContent='غير مسجّل دخول.';
+      state.className='status err';
+      signin.hidden=false;
+      return;
+    }
+
+    state.textContent='الحساب المحدد: '+(session.user.email || session.user.id);
+    state.className='status ok';
+    box.hidden=false;
+  }
+
+  input.addEventListener('input',()=>{ btn.disabled=input.value.trim()!=='حذف'; });
+
+  btn.addEventListener('click',async()=>{
+    if(!session || input.value.trim()!=='حذف') return;
+    btn.disabled=true;
+    input.disabled=true;
+    status.className='status';
+    status.textContent='جاري حذف الحساب والبيانات...';
+    try{
+      const {data,error}=await sb.functions.invoke('delete-my-account',{body:{confirm:true}});
+      if(error) throw error;
+      if(!data || data.deleted!==true) throw new Error('تعذر تأكيد الحذف.');
+      clearLocalGameData();
+      status.textContent='تم حذف الحساب والبيانات بنجاح ✓';
+      status.className='status ok';
+      setTimeout(()=>location.href='index.html?account=deleted',1200);
+    }catch(err){
+      btn.disabled=false;
+      input.disabled=false;
+      status.textContent=String(err && err.message || 'تعذر حذف الحساب. جرّب مرة أخرى.');
+      status.className='status err';
+    }
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
