@@ -202,6 +202,43 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .rank-title {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 5px;
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    line-height: 1.5;
+    color: var(--ink-dim);
+    background: rgba(255,255,255,0.025);
+  }
+  .rank-title-1 {
+    color: #e2c27f;
+    border-color: rgba(226,194,127,.45);
+    background: rgba(226,194,127,.08);
+    box-shadow: 0 0 14px rgba(226,194,127,.08);
+  }
+  .rank-title-2 {
+    color: #d8d0c2;
+    border-color: rgba(216,208,194,.35);
+    background: rgba(216,208,194,.05);
+  }
+  .rank-title-3 {
+    color: #c78a5f;
+    border-color: rgba(199,138,95,.38);
+    background: rgba(199,138,95,.05);
+  }
+  .rank-title-4 {
+    color: #b7a98f;
+    border-color: rgba(183,169,143,.3);
+  }
+  .rank-title-5 {
+    color: #9e9380;
+    border-color: rgba(158,147,128,.28);
+  }
   .entry-meta {
     font-size: 12px;
     color: var(--ink-dim);
@@ -254,6 +291,7 @@
   @media (max-width: 480px) {
     .tab { font-size: 12px; padding: 12px 4px; }
     .entry-value { font-size: 17px; }
+    .rank-title { font-size: 10px; padding: 2px 7px; }
   }
 </style>
 </head>
@@ -286,6 +324,21 @@
   const tabs = document.querySelectorAll('.tab');
   let activeTab = 'cases';
   let selectedCaseId = '';
+
+  const TOP_RANK_TITLES = [
+    'المحقق الأسطوري',
+    'كبير المحققين',
+    'المحقق الخبير',
+    'المحقق المحترف',
+    'المحقق الصاعد'
+  ];
+
+  function getRankTitle(index) {
+    const title = TOP_RANK_TITLES[index];
+    return title
+      ? `<div class="rank-title rank-title-${index + 1}">${title}</div>`
+      : '';
+  }
 
   function showLoading() {
     panel.innerHTML = `
@@ -322,6 +375,7 @@
         <div class="rank">${i + 1}</div>
         <div class="entry-main">
           <div class="entry-name">${escapeHtml(row.player_name)}</div>
+          ${getRankTitle(i)}
           <div class="entry-meta">${row.total_points} نقطة إجمالي</div>
         </div>
         <div class="entry-value">${row.cases_solved}<small>قضية</small></div>
@@ -336,6 +390,7 @@
         <div class="rank">${i + 1}</div>
         <div class="entry-main">
           <div class="entry-name">${escapeHtml(row.player_name)}</div>
+          ${getRankTitle(i)}
           <div class="entry-meta">${row.cases_solved} قضية محلولة</div>
         </div>
         <div class="entry-value">${row.total_points}<small>نقطة</small></div>
@@ -381,6 +436,7 @@
           <div class="rank">${i + 1}</div>
           <div class="entry-main">
             <div class="entry-name">${escapeHtml(row.player_name)}</div>
+            ${getRankTitle(i)}
             <div class="entry-meta">${row.points} نقطة</div>
           </div>
           <div class="entry-value">${formatTime(row.solve_time_seconds)}<small>دقيقة</small></div>
