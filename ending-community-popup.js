@@ -117,7 +117,10 @@
       .ending-rotation-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;border-radius:11px;border:1px solid #e0a458;background:#e0a458;color:#111;text-decoration:none;font:800 14px Cairo,Tahoma,sans-serif;cursor:pointer;padding:9px 12px}
       .ending-rotation-btn:disabled{opacity:.55;cursor:not-allowed}.ending-rotation-btn.ghost{margin-top:9px;background:#1b1f28;color:#f1c786;border-color:#3a3f4b}
       .ending-review-stars{display:flex;direction:ltr;justify-content:center;gap:4px;margin:7px 0 14px}.ending-review-star{border:0;background:transparent;color:#e0a458;font-size:36px;line-height:1;cursor:pointer;padding:2px}
-      .ending-review-comment{width:100%;min-height:78px;box-sizing:border-box;resize:vertical;border:1px solid #343946;background:#171a22;color:#eee;border-radius:11px;padding:11px 12px;font:13px Cairo,Tahoma,sans-serif;margin-bottom:10px}
+      .ending-review-question{text-align:center;color:#f1c786;font-size:13px;line-height:1.8;margin:-2px 0 10px;min-height:24px}
+      .ending-review-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:0 0 10px}.ending-review-topic{border:1px solid #343946;background:#171a22;color:#c9cbd0;border-radius:999px;padding:6px 10px;font:700 11px Cairo,Tahoma,sans-serif;cursor:pointer}.ending-review-topic:hover,.ending-review-topic.active{border-color:#e0a458;color:#f1c786;background:#211d18}
+      .ending-review-comment{width:100%;min-height:86px;box-sizing:border-box;resize:vertical;border:1px solid #343946;background:#171a22;color:#eee;border-radius:11px;padding:11px 12px;font:13px Cairo,Tahoma,sans-serif;margin-bottom:5px}
+      .ending-review-helper{display:flex;justify-content:space-between;gap:10px;color:#858a94;font-size:11px;line-height:1.6;margin:0 2px 11px}.ending-review-helper .useful{color:#79c9a5}
       .ending-support-method{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:11px 12px;margin-top:9px}
       .ending-support-copy{min-width:0}.ending-support-copy strong{display:block;font-size:13px}.ending-support-copy span{display:block;direction:ltr;text-align:left;color:#aeb2b9;font:12px monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
       .ending-support-actions{display:flex;gap:6px}.ending-mini-btn{border:1px solid #3a3f4b;background:#1b1f28;color:#f1c786;border-radius:9px;padding:7px 9px;font:700 12px Cairo,Tahoma,sans-serif;text-decoration:none;cursor:pointer}.ending-mini-btn.primary{background:#e0a458;color:#111;border-color:#e0a458}
@@ -167,12 +170,43 @@
       <div class="ending-review-stars" data-review-stars data-rating="0">
         ${[1,2,3,4,5].map(n=>`<button type="button" class="ending-review-star" data-star="${n}" aria-label="تقييم ${n} نجوم">☆</button>`).join('')}
       </div>
-      <textarea class="ending-review-comment" data-review-comment maxlength="240" rows="3" placeholder="رأيك في القضية (اختياري)..."></textarea>
+      <div class="ending-review-question" data-review-question>اختار النجوم الأول، وبعدها هنطلب منك سؤال واحد بسيط.</div>
+      <div class="ending-review-topics" aria-label="اختار نقطة تتكلم عنها">
+        <button type="button" class="ending-review-topic" data-review-topic="القصة">القصة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="الأدلة">الأدلة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="الصعوبة">الصعوبة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="واجهة اللعب">واجهة اللعب</button>
+      </div>
+      <textarea class="ending-review-comment" data-review-comment maxlength="240" rows="3" placeholder="اختار النجوم واكتب جملة قصيرة..."></textarea>
+      <div class="ending-review-helper">
+        <span data-review-helper>حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.</span>
+        <span data-review-count>0/240</span>
+      </div>
       <button type="button" class="ending-rotation-btn" data-submit-review disabled>أرسل التقييم</button>
       <button type="button" class="ending-rotation-btn ghost" data-review-later>مش دلوقتي</button>`);
 
     const stars = overlay.querySelector('[data-review-stars]');
     const submit = overlay.querySelector('[data-submit-review]');
+    const commentBox = overlay.querySelector('[data-review-comment]');
+    const question = overlay.querySelector('[data-review-question]');
+    const helper = overlay.querySelector('[data-review-helper]');
+    const countLabel = overlay.querySelector('[data-review-count]');
+
+    function refreshCommentNudge(){
+      const comment = (commentBox.value || '').trim();
+      const words = comment ? comment.split(/\s+/).filter(Boolean).length : 0;
+      countLabel.textContent = `${commentBox.value.length}/240`;
+      helper.classList.toggle('useful', words >= 3);
+      helper.textContent = words >= 3
+        ? 'كده رأيك واضح ومفيد — شكرًا بجد.'
+        : words > 0
+          ? 'كمّل الفكرة بكلمتين كمان عشان نفهم قصدك.'
+          : 'حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.';
+      if(Number(stars.dataset.rating) > 0){
+        submit.textContent = comment ? 'أرسل التقييم والرأي' : 'إرسال النجوم فقط';
+      }
+    }
+
     stars.querySelectorAll('[data-star]').forEach(button=>{
       button.addEventListener('click', ()=>{
         const rating = Number(button.dataset.star) || 0;
@@ -181,13 +215,30 @@
           star.textContent = Number(star.dataset.star) <= rating ? '★' : '☆';
         });
         submit.disabled = rating < 1;
+        question.textContent = rating <= 3
+          ? 'إيه أكتر حاجة عطلتك أو محتاجة تتصلح؟'
+          : 'إيه أكتر جزء عجبك وعايز تشوف زيه في القضايا الجاية؟';
+        commentBox.placeholder = rating <= 3
+          ? 'مثال: الأدلة كانت محتاجة توضيح أكتر...'
+          : 'مثال: الربط بين الأدلة كان أكتر جزء عجبني...';
+        refreshCommentNudge();
       });
     });
+
+    overlay.querySelectorAll('[data-review-topic]').forEach(topic=>{
+      topic.addEventListener('click', ()=>{
+        overlay.querySelectorAll('[data-review-topic]').forEach(item=>item.classList.toggle('active', item === topic));
+        const label = topic.dataset.reviewTopic || '';
+        commentBox.placeholder = `قولنا رأيك في ${label} بجملة قصيرة...`;
+        commentBox.focus();
+      });
+    });
+    commentBox.addEventListener('input', refreshCommentNudge);
 
     submit.addEventListener('click', async ()=>{
       const rating = Number(stars.dataset.rating) || 0;
       if(rating < 1) return;
-      const comment = (overlay.querySelector('[data-review-comment]').value || '').trim().slice(0,240);
+      const comment = (commentBox.value || '').trim().slice(0,240);
       submit.disabled = true;
       submit.textContent = 'جارِ الإرسال...';
 
@@ -226,17 +277,21 @@
       <div class="ending-rotation-head">
         <div class="ending-rotation-icon">📢</div>
         <h3>متفوّتش القضية الجاية</h3>
-        <p>القضايا الجديدة، التحديثات، ونتائج المتصدرين هتلاقيها على قناة طرف الخيط.</p>
+        <p>القضايا الجديدة، التحديثات، ونتائج المتصدرين هتلاقيها على قناة طرف الخيط. لو أنت عضو بالفعل بلغنا مرة واحدة ومش هنطلب منك تاني.</p>
       </div>
-      <a href="${esc(telegramUrl)}" target="_blank" rel="noopener noreferrer" class="ending-rotation-btn" data-ending-telegram data-telegram-cta="ending_rotation_popup">فتح قناة تيليجرام</a>
-      <button type="button" class="ending-rotation-btn ghost" data-telegram-later>كمّل من غير انضمام</button>`);
+      <a href="${esc(telegramUrl)}" target="_blank" rel="noopener noreferrer" class="ending-rotation-btn" data-ending-telegram data-telegram-cta="ending_rotation_popup">انضم للقناة</a>
+      <button type="button" class="ending-rotation-btn ghost" data-telegram-already>أنا منضم بالفعل ✓</button>`);
 
     overlay.querySelector('[data-ending-telegram]').addEventListener('click', ()=>{
       storageSet(TELEGRAM_DONE_KEY, '1');
-      track('ending_rotation_action_complete', {popup_type:'telegram', completed_cases:count});
+      track('ending_rotation_action_complete', {popup_type:'telegram', telegram_action:'join_click', completed_cases:count});
       setTimeout(close, 150);
     });
-    overlay.querySelector('[data-telegram-later]').addEventListener('click', close);
+    overlay.querySelector('[data-telegram-already]').addEventListener('click', ()=>{
+      storageSet(TELEGRAM_DONE_KEY, '1');
+      track('ending_rotation_action_complete', {popup_type:'telegram', telegram_action:'already_joined', completed_cases:count});
+      close();
+    });
     overlay.querySelector('[data-ending-telegram]').focus();
   }
 
