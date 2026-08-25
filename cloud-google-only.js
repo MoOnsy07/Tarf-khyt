@@ -4,7 +4,6 @@
 
   const SUPABASE_URL = 'https://meynspmfkkedhqhffsqk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
-  let linkClient = null;
 
   function disableEmailLogin(){
     const emailRow = document.querySelector('.pf-cloud-email-row');
@@ -55,28 +54,45 @@
     return window.location.origin + '/profile.html?cloud=linked';
   }
 
-  async function getLinkClient(){
+  async function linkIdentity(provider){
+    // لو الصفحة عندها client مشترك (زي index.html) استخدمه مباشرة.
     try{
-      if(typeof sb !== 'undefined' && sb && sb.auth && typeof sb.auth.linkIdentity === 'function') return sb;
-    }catch(e){}
+      if(typeof sb !== 'undefined' && sb && sb.auth && typeof sb.auth.linkIdentity === 'function'){
+        const options = {redirectTo:authRedirectURL()};
+        if(provider === 'facebook') options.scopes = 'email public_profile user_friends';
+        const {data,error} = await sb.auth.linkIdentity({provider,options});
+        if(error) throw error;
+        return data;
+      }
+    }catch(err){
+      if(err && !/not defined/i.test(String(err.message || err))) throw err;
+    }
 
+    // profile.html لا يملك sb مشتركًا. لا ننشئ client دائم آخر ينافس Cloud Sync على refresh token.
+    if(!window.TarafCloud || typeof window.TarafCloud.getSession !== 'function'){
+      throw new Error('جلسة الحساب لسه ما اتحمّلتش. جرّب تاني بعد لحظة.');
+    }
+    const session = await window.TarafCloud.getSession();
+    if(!session || !session.access_token || !session.refresh_token){
+      throw new Error('لازم تكون مسجل دخول الأول قبل ربط حساب إضافي.');
+    }
     if(!window.supabase || typeof window.supabase.createClient !== 'function'){
       throw new Error('مكتبة تسجيل الدخول لسه ما اتحمّلتش. جرّب تاني بعد لحظة.');
     }
-    if(!linkClient){
-      linkClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
-      });
-    }
-    return linkClient;
-  }
 
-  async function linkIdentity(provider){
-    const client = await getLinkClient();
-    const options = { redirectTo: authRedirectURL() };
+    // Client مؤقت بدون localStorage وبدون auto refresh، فيمنع تعارض جلسات Auth.
+    const temp = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    const {error:setError} = await temp.auth.setSession({
+      access_token:session.access_token,
+      refresh_token:session.refresh_token,
+    });
+    if(setError) throw setError;
+
+    const options = {redirectTo:authRedirectURL()};
     if(provider === 'facebook') options.scopes = 'email public_profile user_friends';
-
-    const {data, error} = await client.auth.linkIdentity({ provider, options });
+    const {data,error} = await temp.auth.linkIdentity({provider,options});
     if(error) throw error;
     return data;
   }
@@ -96,7 +112,7 @@
   function friendlyLinkError(err){
     const msg = String(err && (err.message || err.error_description) || '');
     if(/already.*linked|identity.*exists|already.*registered|conflict/i.test(msg)){
-      return 'الحساب ده مربوط بالفعل بملف محقق تاني. ادخل بالحساب ده الأول لو عايز تستخدمه.';
+      return 'الحساب ده مربوط بالفعل بملف محقق تاني.';
     }
     if(/manual.*link|linking.*disabled/i.test(msg)){
       return 'ربط الحسابات لسه مش متفعّل في إعدادات Supabase.';
@@ -145,31 +161,21 @@
       if(status) status.insertAdjacentElement('beforebegin', box);
       else card.appendChild(box);
 
-      const googleLink = document.getElementById('pf-link-google');
-      if(googleLink){
-        googleLink.addEventListener('click', async()=>{
-          googleLink.disabled = true;
-          if(status){ status.className='pf-cloud-status'; status.textContent='بنربط Google بنفس ملف المحقق...'; }
-          try{ await linkIdentity('google'); }
-          catch(err){
-            googleLink.disabled = false;
-            if(status){ status.className='pf-cloud-status pf-cloud-error'; status.textContent=friendlyLinkError(err); }
-          }
-        });
-      }
+      const startLink = async(provider, btn, label)=>{
+        if(!btn) return;
+        btn.disabled = true;
+        if(status){ status.className='pf-cloud-status'; status.textContent='بنربط ' + label + ' بنفس ملف المحقق...'; }
+        try{ await linkIdentity(provider); }
+        catch(err){
+          btn.disabled = false;
+          if(status){ status.className='pf-cloud-status pf-cloud-error'; status.textContent=friendlyLinkError(err); }
+        }
+      };
 
+      const googleLink = document.getElementById('pf-link-google');
+      if(googleLink) googleLink.addEventListener('click', ()=>startLink('google',googleLink,'Google'));
       const facebookLink = document.getElementById('pf-link-facebook');
-      if(facebookLink){
-        facebookLink.addEventListener('click', async()=>{
-          facebookLink.disabled = true;
-          if(status){ status.className='pf-cloud-status'; status.textContent='بنربط Facebook بنفس ملف المحقق...'; }
-          try{ await linkIdentity('facebook'); }
-          catch(err){
-            facebookLink.disabled = false;
-            if(status){ status.className='pf-cloud-status pf-cloud-error'; status.textContent=friendlyLinkError(err); }
-          }
-        });
-      }
+      if(facebookLink) facebookLink.addEventListener('click', ()=>startLink('facebook',facebookLink,'Facebook'));
     }catch(e){}
     finally{ enhanceIdentityLinking._busy = false; }
   }
@@ -183,13 +189,13 @@
   function boot(){
     refreshEnhancements();
     const observer = new MutationObserver(refreshEnhancements);
-    observer.observe(document.documentElement, {childList:true, subtree:true});
+    observer.observe(document.documentElement, {childList:true,subtree:true});
     window.addEventListener('taraf:auth-changed', refreshEnhancements);
     window.addEventListener('taraf:cloud-sync-complete', refreshEnhancements);
     let tries = 0;
     const timer = setInterval(function(){
       refreshEnhancements();
-      if(++tries >= 80) clearInterval(timer);
+      if(++tries >= 40) clearInterval(timer);
     }, 250);
   }
 
