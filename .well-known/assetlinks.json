@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "online.taraf5eet.app",
+      "sha256_cert_fingerprints": [
+        "25:4F:B6:37:E9:6B:1A:E4:A4:11:DB:87:16:05:D1:A4:E0:41:CC:5E:E0:B3:AF:27:5D:3C:EA:60:11:DD:13:5E"
+      ]
+    }
+  }
+]
