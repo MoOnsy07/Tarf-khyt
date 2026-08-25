@@ -26,12 +26,24 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   }catch(e){}
 })();
 
+// تتبع نسخة Android: أول فتح + المستخدمين النشطين. لا يعمل على زوار الويب العاديين.
+(function(){
+  try{
+    if(document.querySelector('script[data-taraf-android-analytics]')) return;
+    const s=document.createElement('script');
+    s.src='android-app-analytics.js?v=20260825-1';
+    s.defer=true;
+    s.setAttribute('data-taraf-android-analytics','1');
+    document.head.appendChild(s);
+  }catch(e){}
+})();
+
 // زر تحميل Android. يفضل مخفي لحد ما Workflow ينجح ويحوّل APK_READY إلى true.
 (function(){
   try{
     if(document.querySelector('script[data-taraf-android-download]')) return;
     const s=document.createElement('script');
-    s.src='android-download.js?v=apk-1';
+    s.src='android-download.js?v=apk-2';
     s.defer=true;
     s.setAttribute('data-taraf-android-download','1');
     document.head.appendChild(s);
