@@ -38,6 +38,19 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   }catch(e){}
 })();
 
+// أرقام Android داخل لوحة الأدمن فقط.
+(function(){
+  try{
+    if(!/\/admin\.html$/i.test(location.pathname)) return;
+    if(document.querySelector('script[data-taraf-admin-android-stats]')) return;
+    const s=document.createElement('script');
+    s.src='admin-android-stats.js?v=20260825-1';
+    s.defer=true;
+    s.setAttribute('data-taraf-admin-android-stats','1');
+    document.head.appendChild(s);
+  }catch(e){}
+})();
+
 // زر تحميل Android. يفضل مخفي لحد ما Workflow ينجح ويحوّل APK_READY إلى true.
 (function(){
   try{
