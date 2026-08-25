@@ -7,154 +7,124 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20260825-admin5">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20260825-admin6">
 <style>
-.ad-wrap{max-width:980px;margin:0 auto;padding:34px 16px 70px}.ad-back{display:inline-flex;color:var(--ink-dim);text-decoration:none;font-size:13px;margin-bottom:22px}.ad-back:hover{color:var(--amber)}
-.ad-head{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:14px}.ad-head h1{margin:0 0 5px;font-size:28px}.ad-head p{margin:0;color:var(--ink-dim);font-size:13px}.ad-head-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ad-refresh-btn{margin:0 0 14px}
-.ad-section{background:linear-gradient(135deg,rgba(224,164,88,.08),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:8px;padding:15px;margin-bottom:22px}.ad-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.ad-section-title{font-weight:900;font-size:17px}.ad-section-sub{color:var(--ink-dim);font-size:11.5px;margin-top:3px}
-.ad-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ad-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:14px;text-align:center}.ad-stat .num{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:900;color:var(--amber)}.ad-stat .lbl{font-size:10.5px;color:var(--ink-dim);margin-top:4px;line-height:1.5}.ad-foot{display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-dim);font-size:10.5px;margin-top:10px}
-.ad-table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}table.ad-table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}table.ad-table th{text-align:right;padding:12px 14px;color:var(--amber);border-bottom:1px solid var(--line);white-space:nowrap}table.ad-table td{padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}.ad-case-title{font-weight:700}.ad-case-no{color:var(--ink-dim);font-size:10.5px;font-family:'JetBrains Mono',monospace}.ad-num{text-align:center;font-family:'JetBrains Mono',monospace}.ad-loading,.ad-error,.ad-empty{text-align:center;padding:30px 12px;color:var(--ink-dim)}.ad-error{color:#e08a7c}
-.ad-push-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ad-field{display:flex;flex-direction:column;gap:6px}.ad-field.full{grid-column:1/-1}.ad-field label{font-size:11px;color:var(--ink-dim);font-weight:700}.ad-input,.ad-textarea{width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:'Cairo',sans-serif;padding:11px 12px;outline:none}.ad-input:focus,.ad-textarea:focus{border-color:var(--amber-dim)}.ad-textarea{min-height:92px;resize:vertical}.ad-push-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.ad-push-status{font-size:11.5px;color:var(--ink-dim)}.ad-push-status.ok{color:#8fd6a4}.ad-push-status.err{color:#e08a7c}.ad-mini-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.ad-mini{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--ink-dim)}.ad-mini b{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:15px;margin-left:4px}
-.ad-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;position:relative;z-index:5}.ad-gate-card{width:min(430px,100%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.35)}.ad-lock{font-size:42px;margin-bottom:8px}.ad-gate-card h1{font-size:25px;margin:0 0 8px}.ad-gate-card p{color:var(--ink-dim);font-size:13px;line-height:1.8;margin:0 0 18px}.ad-gate-status{font-size:11.5px;color:var(--ink-dim);margin-top:12px;min-height:20px}.ad-gate-status.err{color:#e08a7c}.ad-user-pill{font-size:10.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;padding:7px 10px}.ad-logout{font-size:11px;padding:8px 11px}
-[hidden]{display:none!important}
-@media(max-width:700px){.ad-summary{grid-template-columns:1fr 1fr}.ad-head h1{font-size:23px}.ad-push-form{grid-template-columns:1fr}}
+*{box-sizing:border-box}.mono{font-family:'JetBrains Mono',monospace}.ad-wrap{max-width:1000px;margin:auto;padding:30px 16px 70px}.ad-back{display:inline-flex;color:var(--ink-dim);text-decoration:none;font-size:12px;margin-bottom:18px}.ad-head,.ad-section,.ad-table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:8px}.ad-head{padding:20px;margin-bottom:14px}.ad-head-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ad-head h1{margin:0 0 4px;font-size:27px}.ad-head p{margin:0;color:var(--ink-dim);font-size:12px}.ad-user{display:flex;align-items:center;gap:8px}.ad-pill{font-size:10px;color:var(--amber);border:1px solid var(--line);padding:6px 9px;border-radius:999px}.ad-section{padding:15px;margin-bottom:18px;background:linear-gradient(135deg,rgba(224,164,88,.07),rgba(255,255,255,.015))}.ad-title{font-size:17px;font-weight:900;margin-bottom:3px}.ad-sub{font-size:11px;color:var(--ink-dim)}.ad-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.ad-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:13px;text-align:center}.ad-stat .num{font:900 22px 'JetBrains Mono',monospace;color:var(--amber)}.ad-stat .lbl{font-size:10px;color:var(--ink-dim);margin-top:4px;line-height:1.5}.ad-foot{display:flex;gap:15px;flex-wrap:wrap;color:var(--ink-dim);font-size:10px;margin-top:10px}.ad-table-wrap{overflow:auto}.ad-table{width:100%;border-collapse:collapse;min-width:700px;font-size:12px}.ad-table th{padding:11px 12px;text-align:right;color:var(--amber);border-bottom:1px solid var(--line)}.ad-table td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}.ad-num{text-align:center;font-family:'JetBrains Mono',monospace}.ad-case{font-weight:700}.ad-case-id{font-size:9px;color:var(--ink-dim)}.ad-loading,.ad-error,.ad-empty{text-align:center;padding:24px;color:var(--ink-dim);font-size:12px}.ad-error{color:#e08a7c}.ad-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.ad-push-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.ad-field{display:flex;flex-direction:column;gap:5px}.ad-field.full{grid-column:1/-1}.ad-field label{font-size:10px;color:var(--ink-dim);font-weight:700}.ad-input,.ad-textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:'Cairo',sans-serif;padding:10px 11px;outline:none}.ad-input:focus,.ad-textarea:focus{border-color:var(--amber-dim)}.ad-textarea{min-height:84px;resize:vertical}.ad-push-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}.ad-status{font-size:11px;color:var(--ink-dim)}.ad-status.ok{color:#8fd6a4}.ad-status.err{color:#e08a7c}.ad-mini{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.ad-mini span{font-size:10px;color:var(--ink-dim);background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:7px 9px}.ad-mini b{color:var(--amber);font-family:'JetBrains Mono',monospace}.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px;position:relative;z-index:5}.gate-card{width:min(410px,100%);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:27px;box-shadow:0 25px 90px rgba(0,0,0,.38)}.gate-lock{text-align:center;font-size:39px}.gate h1{text-align:center;margin:8px 0 5px;font-size:25px}.gate-copy{text-align:center;color:var(--ink-dim);font-size:12px;margin:0 0 19px}.gate-form{display:grid;gap:10px}.gate-form label{font-size:10px;color:var(--ink-dim);font-weight:700}.gate-field{display:grid;gap:5px}.gate-btn{width:100%;margin-top:3px}.gate-status{text-align:center;min-height:20px;margin-top:10px;font-size:11px;color:var(--ink-dim)}.gate-status.err{color:#e08a7c}[hidden]{display:none!important}
+@media(max-width:720px){.ad-summary{grid-template-columns:1fr 1fr}.ad-push-grid{grid-template-columns:1fr}.ad-field.full{grid-column:auto}.ad-head h1{font-size:23px}}
 </style>
 </head>
 <body>
 <div class="grain"></div><div class="scan"></div>
 
-<div class="ad-gate" id="admin-gate">
-  <div class="ad-gate-card">
-    <div class="ad-lock">🔐</div>
-    <h1>لوحة <span class="accent">محمية</span></h1>
-    <p id="gate-copy">جاري التحقق من صلاحية حسابك…</p>
-    <button type="button" class="btn mono" id="admin-login" hidden>G&nbsp; دخول Google للأدمن</button>
-    <button type="button" class="btn ghost mono" id="admin-switch" hidden>تسجيل الخروج وتجربة حساب آخر</button>
-    <div class="ad-gate-status mono" id="gate-status"></div>
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-lock">🔐</div>
+    <h1>دخول <span class="accent">الإدارة</span></h1>
+    <p class="gate-copy">الصفحة مخصصة للإدارة فقط.</p>
+    <form class="gate-form" id="login-form" autocomplete="off">
+      <div class="gate-field"><label for="admin-user">اسم المستخدم</label><input class="ad-input mono" id="admin-user" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+      <div class="gate-field"><label for="admin-pass">كلمة المرور</label><input class="ad-input" id="admin-pass" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn mono gate-btn" id="login-btn" type="submit">دخول</button>
+    </form>
+    <div class="gate-status mono" id="gate-status"></div>
   </div>
 </div>
 
 <div class="ad-wrap" id="admin-app" hidden>
-<a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
-<div class="ad-head">
-  <div class="ad-head-row">
-    <div><h1>لوحة <span class="accent">المتابعة</span></h1><p>إحصائيات القضايا ونسخة Android والإشعارات في مكان واحد.</p></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="ad-user-pill mono">🔒 ADMIN</span><button type="button" class="btn ghost mono ad-logout" id="admin-logout">خروج</button></div>
-  </div>
-</div>
-<button class="btn ghost mono ad-refresh-btn" id="ad-refresh">↻ تحديث الأرقام</button>
-
-<section class="ad-section" id="android-box"><div class="ad-loading mono">بيجيب أرقام Android...</div></section>
-
-<section class="ad-section" id="push-box">
-  <div class="ad-section-head"><div><div class="ad-section-title">🔔 إرسال إشعار</div><div class="ad-section-sub">للأجهزة اللي ثبّتت تطبيق Android وسمحت بالإشعارات.</div></div></div>
-  <div class="ad-mini-stats" id="push-stats"><div class="ad-mini">أجهزة مسجلة: <b>0</b></div></div>
-  <div class="ad-push-form">
-    <div class="ad-field"><label for="push-title">عنوان الإشعار</label><input id="push-title" class="ad-input" maxlength="80" placeholder="قضية جديدة وصلت 🔎"></div>
-    <div class="ad-field"><label for="push-url">الرابط عند الضغط</label><input id="push-url" class="ad-input mono" maxlength="500" value="https://taraf5eet.online/" placeholder="https://taraf5eet.online/"></div>
-    <div class="ad-field full"><label for="push-body">نص الإشعار</label><textarea id="push-body" class="ad-textarea" maxlength="240" placeholder="الخروج الأخير متاحة دلوقتي.. تقدر تحلها؟"></textarea></div>
-  </div>
-  <div class="ad-push-actions"><button type="button" class="btn mono" id="push-send">إرسال للجميع</button><span id="push-status" class="ad-push-status">لا يتم إرسال أي شيء قبل الضغط على الزر.</span></div>
-</section>
-
-<div id="ad-root"><div class="ad-loading mono">بيجيب أرقام القضايا...</div></div>
+  <a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
+  <div class="ad-head"><div class="ad-head-row"><div><h1>لوحة <span class="accent">المتابعة</span></h1><p>إحصائيات القضايا وAndroid والإشعارات.</p></div><div class="ad-user"><span class="ad-pill mono">🔒 ADMIN</span><button class="btn ghost mono" id="logout-btn" type="button">خروج</button></div></div></div>
+  <div class="ad-actions"><button class="btn ghost mono" id="refresh-btn" type="button">↻ تحديث الأرقام</button></div>
+  <section class="ad-section" id="android-box"><div class="ad-loading mono">بيجيب أرقام Android...</div></section>
+  <section class="ad-section" id="push-box">
+    <div class="ad-title">🔔 إرسال إشعار</div><div class="ad-sub">للأجهزة اللي سمحت بإشعارات تطبيق Android.</div>
+    <div class="ad-mini" id="push-stats"></div>
+    <div class="ad-push-grid">
+      <div class="ad-field"><label>عنوان الإشعار</label><input id="push-title" class="ad-input" maxlength="80" placeholder="قضية جديدة وصلت 🔎"></div>
+      <div class="ad-field"><label>الرابط عند الضغط</label><input id="push-url" class="ad-input mono" maxlength="500" value="https://taraf5eet.online/"></div>
+      <div class="ad-field full"><label>نص الإشعار</label><textarea id="push-body" class="ad-textarea" maxlength="240" placeholder="قضية جديدة متاحة دلوقتي.. تقدر تحلها؟"></textarea></div>
+    </div>
+    <div class="ad-push-actions"><button class="btn mono" id="push-send" type="button">إرسال للجميع</button><span class="ad-status" id="push-status">لا يتم إرسال شيء قبل الضغط على الزر.</span></div>
+  </section>
+  <div id="cases-root"><div class="ad-loading mono">بيجيب أرقام القضايا...</div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const ADMIN_SUPABASE_URL='https://meynspmfkkedhqhffsqk.supabase.co';
-const ADMIN_SUPABASE_KEY='sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
-const adminSb=window.supabase.createClient(ADMIN_SUPABASE_URL,ADMIN_SUPABASE_KEY);
+const SUPA_URL='https://meynspmfkkedhqhffsqk.supabase.co';
+const SUPA_KEY='sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
+const adminSb=window.supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const TOKEN_KEY='taraf_admin_session_v2';
+let adminToken=sessionStorage.getItem(TOKEN_KEY)||'';
 const CASE_META={
-'93rd-minute':['الدقيقة 93','CASE 001'],'wedding-gold':['دهب الفرح','CASE 002'],'buffalo-case':['قضية الجاموسة','CASE 003'],'dark-testimony':['شهادة في العتمة','CASE 004'],'leaked-video':['قضية الفيديو المسرّب','CASE 005'],'missing-bride':['قضية العروسة المفقودة','CASE 006'],'final-testament':['الوصية الأخيرة','CASE 007'],'forged-canvas':['اللوحة المزيفة','CASE 008'],'ghost-author':['القلم الخفي','CASE 009'],'last-dish':['الطبخة الأخيرة','CASE 010'],'exam-leak':['ورقة الامتحان','CASE 011'],'lost-wallet':['المحفظة المفقودة','CASE 012'],'fake-audio':['التسجيل المفبرك','CASE 013'],'false-rumor':['الوشاية','CASE 014'],'vanished-wife':['اختفاء منى','CASE 015'],'bribery':['قبول بالواسطة','CASE 016'],'illusion-startup':['مشروع الوهم','CASE 017'],'hit-and-run':['حادثة الطريق','CASE 018'],'charity-funds':['تبرعات في الهوا','CASE 019'],'var-conspiracy':['الجون اللي ما اتحسبش','CASE 020'],'last-rehearsal':['آخر بروفة','CASE 021'],'number-19':['القميص رقم 19','CASE 022'],'deleted-scene':['المشهد المحذوف','CASE 023'],'no-witness-night':['ليلة من غير شاهد','CASE 024'],'room-307':['باب 307','CASE 025'],'shifting-painting':['اللوحة اللي بتتغير','CASE 026'],'role-of-lifetime':['دور العمر','CASE 028'],'last-call':['آخر مكالمة','CASE 029'],'red-thread':['خيط أحمر','CASE 030'],'flat-12b':['الشقة 12 ب','CASE 031'],'suspicious-transfer':['تحويل مشبوه','CASE 032'],'mud-print':['بصمة في الوحل','CASE 033'],'opening-night':['ليلة الافتتاح','CASE 034'],'vault-key':['مفتاح الخزنة','CASE 035'],'recorded-voice':['الصوت المسجل','CASE 036'],'old-estate':['العزبة القديمة','CASE 037'],'dating-app':['تطبيق التعارف','CASE 038'],'behind-scenes':['كواليس البرنامج','CASE 039'],'finish-line':['خط النهاية','CASE 040'],'forged-will':['الوصية المزورة','CASE 041'],'dawn-club':['نادي الفجر','CASE 042'],'warehouse-fire':['حريق المخزن','CASE 043'],'last-update':['آخر تحديث','CASE 044'],'old-photo':['صورة قديمة','CASE 045'],'secret-clinic':['العيادة السرية','CASE 046'],'dawn-call':['مكالمة الفجر','CASE 047'],'last-bell':['الجرس الأخير','CASE 048'],'grandma-ring':['خاتم الجدة','CASE 049'],'nile-cruise':['الرحلة النيلية','CASE 050'],'closed-file':['ملف مغلق','CASE 051'],'one-comment':['تعليق واحد','CASE 052'],'last-laugh':['ضحكة أخيرة','CASE 053'],'missing-twin':['التوأم المفقود','CASE 054'],'overbilled':['فاتورة زيادة','CASE 055'],'second-face':['الوش التاني','CASE 056'],'broken-faucet':['صنبور مكسور','CASE 057'],'postponed-engagement':['خطوبة مؤجلة','CASE 058'],'secret-recipe':['الوصفة السرية','CASE 059'],'coded-message':['الرسالة المشفرة','CASE 060'],'last-episode':['الحلقة الأخيرة','FILE NO. 0417']};
+'93rd-minute':'الدقيقة 93','wedding-gold':'دهب الفرح','buffalo-case':'قضية الجاموسة','dark-testimony':'شهادة في العتمة','leaked-video':'قضية الفيديو المسرّب','missing-bride':'قضية العروسة المفقودة','final-testament':'الوصية الأخيرة','forged-canvas':'اللوحة المزيفة','ghost-author':'القلم الخفي','last-dish':'الطبخة الأخيرة','exam-leak':'ورقة الامتحان','lost-wallet':'المحفظة المفقودة','fake-audio':'التسجيل المفبرك','false-rumor':'الوشاية','vanished-wife':'اختفاء منى','bribery':'قبول بالواسطة','illusion-startup':'مشروع الوهم','hit-and-run':'حادثة الطريق','charity-funds':'تبرعات في الهوا','var-conspiracy':'الجون اللي ما اتحسبش','last-rehearsal':'آخر بروفة','number-19':'القميص رقم 19','deleted-scene':'المشهد المحذوف','no-witness-night':'ليلة من غير شاهد','room-307':'باب 307','shifting-painting':'اللوحة اللي بتتغير','role-of-lifetime':'دور العمر','last-call':'آخر مكالمة','red-thread':'خيط أحمر','flat-12b':'الشقة 12 ب','suspicious-transfer':'تحويل مشبوه','mud-print':'بصمة في الوحل','opening-night':'ليلة الافتتاح','vault-key':'مفتاح الخزنة','recorded-voice':'الصوت المسجل','old-estate':'العزبة القديمة','dating-app':'تطبيق التعارف','behind-scenes':'كواليس البرنامج','finish-line':'خط النهاية','forged-will':'الوصية المزورة','dawn-club':'نادي الفجر','warehouse-fire':'حريق المخزن','last-update':'آخر تحديث','old-photo':'صورة قديمة','secret-clinic':'العيادة السرية','dawn-call':'مكالمة الفجر','last-bell':'الجرس الأخير','grandma-ring':'خاتم الجدة','nile-cruise':'الرحلة النيلية','closed-file':'ملف مغلق','one-comment':'تعليق واحد','last-laugh':'ضحكة أخيرة','missing-twin':'التوأم المفقود','overbilled':'فاتورة زيادة','second-face':'الوش التاني','broken-faucet':'صنبور مكسور','postponed-engagement':'خطوبة مؤجلة','secret-recipe':'الوصفة السرية','coded-message':'الرسالة المشفرة','last-episode':'الحلقة الأخيرة','return-from-death':'العودة من الموت','last-exit':'الخروج الأخير'};
 function esc(v){const d=document.createElement('div');d.textContent=v==null?'':String(v);return d.innerHTML}
-function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}catch(e){return '—'}}
+function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}catch{return '—'}}
+function showGate(msg='',err=false){document.getElementById('gate').hidden=false;document.getElementById('admin-app').hidden=true;const s=document.getElementById('gate-status');s.textContent=msg;s.className='gate-status mono'+(err?' err':'')}
+function showApp(){document.getElementById('gate').hidden=true;document.getElementById('admin-app').hidden=false}
+function clearToken(){adminToken='';sessionStorage.removeItem(TOKEN_KEY)}
 
-async function loginAdmin(){
-  const status=document.getElementById('gate-status');
-  status.textContent='بنفتح Google…';status.className='ad-gate-status mono';
-  const {error}=await adminSb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/admin.html'}});
-  if(error){status.textContent='تعذر فتح Google: '+error.message;status.classList.add('err')}
-}
-async function logoutAdmin(){await adminSb.auth.signOut();window.location.replace('admin.html')}
-
-async function initAdmin(){
-  const gate=document.getElementById('admin-gate'),app=document.getElementById('admin-app');
-  const copy=document.getElementById('gate-copy'),status=document.getElementById('gate-status');
-  const login=document.getElementById('admin-login'),sw=document.getElementById('admin-switch');
-  gate.hidden=false;app.hidden=true;login.hidden=true;sw.hidden=true;status.textContent='';status.className='ad-gate-status mono';
+async function login(e){
+  e.preventDefault();
+  const btn=document.getElementById('login-btn'),status=document.getElementById('gate-status');
+  const username=document.getElementById('admin-user').value.trim();
+  const password=document.getElementById('admin-pass').value;
+  if(!username||!password)return;
+  btn.disabled=true;status.textContent='جاري التحقق…';status.className='gate-status mono';
   try{
-    if(new URLSearchParams(location.search).has('code')) await new Promise(r=>setTimeout(r,250));
-    const {data:{session},error:sessionError}=await adminSb.auth.getSession();
-    if(sessionError) throw sessionError;
-    if(!session){copy.textContent='سجّل بحساب Google المصرح له للوصول للوحة المتابعة.';login.hidden=false;return}
-    copy.textContent='جاري التحقق من صلاحية الحساب…';
-    const {data,error}=await adminSb.rpc('is_admin');
-    if(error) throw error;
-    if(data!==true){copy.textContent='الحساب الحالي مسجل في طرف الخيط لكنه غير مصرح له بدخول لوحة الأدمن.';status.textContent='⛔ ACCESS DENIED';status.classList.add('err');sw.hidden=false;return}
-    gate.hidden=true;app.hidden=false;
-    refresh();
-  }catch(e){console.error(e);copy.textContent='تعذر التحقق من صلاحية الأدمن.';status.textContent=String(e&&e.message||e);status.classList.add('err');sw.hidden=false}
+    const {data,error}=await adminSb.rpc('admin_login',{p_username:username,p_password:password});
+    if(error)throw error;
+    if(!data)throw new Error('INVALID');
+    adminToken=String(data);sessionStorage.setItem(TOKEN_KEY,adminToken);document.getElementById('admin-pass').value='';
+    await loadDashboard(true);
+  }catch(e){clearToken();status.textContent='اسم المستخدم أو كلمة المرور غير صحيحة.';status.className='gate-status mono err'}finally{btn.disabled=false}
 }
 
-async function loadAndroid(){
-  const box=document.getElementById('android-box');box.innerHTML='<div class="ad-loading mono">بيجيب أرقام Android...</div>';
+async function logout(){
+  const t=adminToken;clearToken();showGate('تم تسجيل الخروج.');
+  if(t)adminSb.rpc('admin_logout',{p_token:t}).catch(()=>{});
+}
+
+async function fetchDashboard(){
+  if(!adminToken)throw new Error('NO_SESSION');
+  const {data,error}=await adminSb.rpc('admin_dashboard',{p_token:adminToken});
+  if(error)throw error;
+  return data||{};
+}
+
+function renderAndroid(r={}){
+  const box=document.getElementById('android-box');
+  const clicks=Number(r.total_download_clicks)||0,unique=Number(r.unique_downloaders)||0,installs=Number(r.installs)||0,conv=unique?Math.round(installs/unique*100):0;
+  box.innerHTML=`<div class="ad-title">📱 Android APK</div><div class="ad-sub">الأرقام محفوظة في Supabase ومش بتتصفر مع إصدار APK جديد.</div><div class="ad-summary"><div class="ad-stat"><div class="num">${clicks}</div><div class="lbl">ضغطات تحميل APK</div></div><div class="ad-stat"><div class="num">${unique}</div><div class="lbl">أجهزة ضغطت تحميل</div></div><div class="ad-stat"><div class="num">${installs}</div><div class="lbl">أول فتح للتطبيق</div></div><div class="ad-stat"><div class="num">${Number(r.installs_7d)||0}</div><div class="lbl">تثبيتات 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_7d)||0}</div><div class="lbl">نشطين 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_30d)||0}</div><div class="lbl">نشطين 30 يوم</div></div><div class="ad-stat"><div class="num">${Number(r.total_app_opens)||0}</div><div class="lbl">إجمالي الفتحات</div></div><div class="ad-stat"><div class="num">${conv}%</div><div class="lbl">تحميل → فتح</div></div></div><div class="ad-foot"><span>آخر تحميل: ${esc(fmt(r.last_download_at))}</span><span>آخر فتح: ${esc(fmt(r.last_app_open_at))}</span></div>`;
+}
+function renderPush(r={}){document.getElementById('push-stats').innerHTML=`<span>أجهزة مسجلة: <b>${Number(r.registered_devices)||0}</b></span><span>نشطين 30 يوم: <b>${Number(r.active_30d)||0}</b></span><span>آخر تسجيل: ${esc(fmt(r.last_registered_at))}</span>`}
+function renderCases(rows=[]){
+  const root=document.getElementById('cases-root');if(!rows.length){root.innerHTML='<div class="ad-empty mono">مفيش بيانات قضايا لسه.</div>';return}
+  let started=0,done=0,good=0,dropped=0;rows.forEach(r=>{started+=Number(r.started_count)||0;done+=Number(r.completed_count)||0;good+=Number(r.good_count)||0;dropped+=Number(r.dropped_count)||0});
+  const body=rows.map(r=>{const s=Number(r.started_count)||0,c=Number(r.completed_count)||0,d=Number(r.dropped_count)||0,rate=s?Math.round(c/s*100):0;return `<tr><td><div class="ad-case">${esc(CASE_META[r.case_id]||r.case_id)}</div><div class="ad-case-id mono">${esc(r.case_id)}</div></td><td class="ad-num">${s}</td><td class="ad-num">${c}</td><td class="ad-num">${Number(r.good_count)||0}</td><td class="ad-num">${Number(r.partial_count)||0}</td><td class="ad-num">${Number(r.bad_count)||0}</td><td class="ad-num">${d}</td><td class="ad-num">${rate}%</td></tr>`}).join('');
+  root.innerHTML=`<section class="ad-section"><div class="ad-title">🕵️ القضايا</div><div class="ad-summary"><div class="ad-stat"><div class="num">${started}</div><div class="lbl">مرات اللعب</div></div><div class="ad-stat"><div class="num">${done}</div><div class="lbl">مرات الإنهاء</div></div><div class="ad-stat"><div class="num">${good}</div><div class="lbl">نجاح كامل</div></div><div class="ad-stat"><div class="num">${dropped}</div><div class="lbl">خرجوا قبل النهاية</div></div></div></section><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>القضية</th><th>لعب</th><th>خلّص</th><th>نجاح</th><th>جزئي</th><th>غلط</th><th>خرج</th><th>الإنهاء</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+async function loadDashboard(first=false){
   try{
-    const {data,error}=await adminSb.rpc('get_android_app_stats');if(error)throw error;
-    const r=Array.isArray(data)?data[0]:data;if(!r)throw new Error('No Android stats');
-    const clicks=Number(r.total_download_clicks)||0,unique=Number(r.unique_downloaders)||0,installs=Number(r.installs)||0,conv=unique?Math.round(installs/unique*100):0;
-    box.innerHTML=`<div class="ad-section-head"><div><div class="ad-section-title">📱 Android APK</div><div class="ad-section-sub">العداد محفوظ في Supabase ومش بيتصفر مع إصدار APK جديد.</div></div><div class="mono" style="color:var(--ink-dim);font-size:11px">تحميل → فتح ${conv}%</div></div><div class="ad-summary"><div class="ad-stat"><div class="num">${clicks}</div><div class="lbl">ضغطات تحميل APK</div></div><div class="ad-stat"><div class="num">${unique}</div><div class="lbl">أجهزة ضغطت تحميل</div></div><div class="ad-stat"><div class="num">${installs}</div><div class="lbl">أول فتح فعلي للتطبيق</div></div><div class="ad-stat"><div class="num">${Number(r.installs_7d)||0}</div><div class="lbl">تثبيتات آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_7d)||0}</div><div class="lbl">نشطين آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_30d)||0}</div><div class="lbl">نشطين آخر 30 يوم</div></div><div class="ad-stat"><div class="num">${Number(r.total_app_opens)||0}</div><div class="lbl">إجمالي فتحات التطبيق</div></div><div class="ad-stat"><div class="num">${conv}%</div><div class="lbl">نسبة التحويل</div></div></div><div class="ad-foot"><span>آخر تحميل: ${esc(fmt(r.last_download_at))}</span><span>آخر فتح تطبيق: ${esc(fmt(r.last_app_open_at))}</span></div>`;
-  }catch(e){console.error(e);box.innerHTML='<div class="ad-error mono">تعذر تحميل أرقام Android.</div>'}
+    const data=await fetchDashboard();showApp();renderAndroid(data.android||{});renderPush(data.push||{});renderCases(Array.isArray(data.cases)?data.cases:[]);
+  }catch(e){console.error(e);clearToken();showGate(first?'انتهت الجلسة أو غير مصرح بالدخول.':'الجلسة انتهت. سجل دخول من جديد.',true)}
 }
-
-async function loadPushStats(){
-  const box=document.getElementById('push-stats');
-  try{
-    const {data,error}=await adminSb.rpc('get_push_stats');if(error)throw error;
-    const r=Array.isArray(data)?data[0]:data||{};
-    box.innerHTML=`<div class="ad-mini">أجهزة مسجلة: <b>${Number(r.registered_devices)||0}</b></div><div class="ad-mini">نشطين 30 يوم: <b>${Number(r.active_30d)||0}</b></div><div class="ad-mini">آخر تسجيل: <span>${esc(fmt(r.last_registered_at))}</span></div>`;
-  }catch(e){console.error(e);box.innerHTML='<div class="ad-mini">تعذر تحميل عداد الإشعارات.</div>'}
-}
-
 async function sendPush(){
   const btn=document.getElementById('push-send'),status=document.getElementById('push-status');
-  const title=document.getElementById('push-title').value.trim();
-  const body=document.getElementById('push-body').value.trim();
-  const url=document.getElementById('push-url').value.trim()||'https://taraf5eet.online/';
-  status.className='ad-push-status';
-  if(!title||!body){status.textContent='اكتب العنوان والنص الأول.';status.classList.add('err');return}
-  btn.disabled=true;status.textContent='جاري التحقق والإرسال…';
+  const title=document.getElementById('push-title').value.trim(),body=document.getElementById('push-body').value.trim(),url=document.getElementById('push-url').value.trim()||'https://taraf5eet.online/';
+  status.className='ad-status';if(!title||!body){status.textContent='اكتب العنوان والنص الأول.';status.classList.add('err');return}
+  btn.disabled=true;status.textContent='جاري الإرسال…';
   try{
-    const {data:{session}}=await adminSb.auth.getSession();
-    if(!session||!session.access_token) throw new Error('LOGIN_REQUIRED');
-    const res=await fetch(ADMIN_SUPABASE_URL+'/functions/v1/send-push',{method:'POST',headers:{'Content-Type':'application/json','apikey':ADMIN_SUPABASE_KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({title,body,url})});
-    const out=await res.json().catch(()=>({}));
-    if(!res.ok){const msg=String(out.error||'SEND_FAILED');if(msg==='Firebase is not configured'||msg==='Invalid Firebase service account JSON'||msg==='Incomplete Firebase service account')throw new Error('FIREBASE_NOT_CONFIGURED');if(msg==='Forbidden')throw new Error('FORBIDDEN');throw new Error(out.detail||msg)}
-    status.textContent='✅ الإشعار اتبعت لكل الأجهزة المشتركة.';status.classList.add('ok');loadPushStats();
-  }catch(e){const code=String(e&&e.message||e);if(code==='LOGIN_REQUIRED')status.textContent='انتهت جلسة الأدمن. اعمل Refresh وسجل دخول.';else if(code==='FIREBASE_NOT_CONFIGURED')status.textContent='ناقص ربط Firebase Service Account في Supabase.';else if(code==='FORBIDDEN')status.textContent='الحساب الحالي مش مصرح له بإرسال إشعارات.';else status.textContent='تعذر الإرسال: '+code;status.classList.add('err')}
-  finally{btn.disabled=false}
+    const res=await fetch(SUPA_URL+'/functions/v1/send-push',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'x-admin-token':adminToken},body:JSON.stringify({title,body,url})});
+    const out=await res.json().catch(()=>({}));if(res.status===401){clearToken();showGate('الجلسة انتهت. سجل دخول من جديد.',true);return}if(!res.ok)throw new Error(out.detail||out.error||'SEND_FAILED');
+    status.textContent='✅ الإشعار اتبعت.';status.classList.add('ok');
+  }catch(e){const m=String(e.message||e);status.textContent=m.includes('Firebase is not configured')?'ناقص ربط Firebase عشان الإرسال يشتغل.':'تعذر الإرسال: '+m;status.classList.add('err')}finally{btn.disabled=false}
 }
-
-async function loadCases(){
-  const root=document.getElementById('ad-root');root.innerHTML='<div class="ad-loading mono">بيجيب أرقام القضايا...</div>';
-  try{
-    const {data,error}=await adminSb.rpc('get_case_stats');if(error)throw error;const rows=data||[];
-    if(!rows.length){root.innerHTML='<div class="ad-empty mono">مفيش بيانات قضايا لسه.</div>';return}
-    let started=0,done=0,good=0,dropped=0;rows.forEach(r=>{started+=Number(r.started_count)||0;done+=Number(r.completed_count)||0;good+=Number(r.good_count)||0;dropped+=Number(r.dropped_count)||0});
-    const tableBody=rows.map(r=>{const m=CASE_META[r.case_id]||[r.case_id,''];const s=Number(r.started_count)||0,c=Number(r.completed_count)||0,d=Number(r.dropped_count)||0,rate=s?Math.round(c/s*100):0;return `<tr><td><div class="ad-case-title">${esc(m[0])}</div><div class="ad-case-no">${esc(m[1])}</div></td><td class="ad-num">${s}</td><td class="ad-num">${c}</td><td class="ad-num">${Number(r.good_count)||0}</td><td class="ad-num">${Number(r.partial_count)||0}</td><td class="ad-num">${Number(r.bad_count)||0}</td><td class="ad-num">${d}</td><td class="ad-num">${rate}%</td></tr>`}).join('');
-    root.innerHTML=`<section class="ad-section"><div class="ad-section-title" style="margin-bottom:12px">🕵️ القضايا</div><div class="ad-summary"><div class="ad-stat"><div class="num">${started}</div><div class="lbl">إجمالي مرات اللعب</div></div><div class="ad-stat"><div class="num">${done}</div><div class="lbl">إجمالي مرات الإنهاء</div></div><div class="ad-stat"><div class="num">${good}</div><div class="lbl">نجاح كامل</div></div><div class="ad-stat"><div class="num">${dropped}</div><div class="lbl">خرجوا قبل النهاية</div></div></div></section><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>القضية</th><th>لعبها</th><th>خلّصها</th><th>نجاح</th><th>جزئي</th><th>غلط</th><th>خرج</th><th>الإنهاء</th></tr></thead><tbody>${tableBody}</tbody></table></div>`;
-  }catch(e){console.error(e);root.innerHTML='<div class="ad-error mono">تعذر تحميل إحصائيات القضايا.</div>'}
-}
-
-function refresh(){loadAndroid();loadPushStats();loadCases()}
-document.getElementById('admin-login').addEventListener('click',loginAdmin);
-document.getElementById('admin-switch').addEventListener('click',logoutAdmin);
-document.getElementById('admin-logout').addEventListener('click',logoutAdmin);
-document.getElementById('ad-refresh').addEventListener('click',refresh);
+document.getElementById('login-form').addEventListener('submit',login);
+document.getElementById('logout-btn').addEventListener('click',logout);
+document.getElementById('refresh-btn').addEventListener('click',()=>loadDashboard(false));
 document.getElementById('push-send').addEventListener('click',sendPush);
-adminSb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')window.location.replace('admin.html')});
-initAdmin();
+if(adminToken)loadDashboard(true);else showGate();
 </script>
 </body>
 </html>
