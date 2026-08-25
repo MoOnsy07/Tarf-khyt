@@ -19,7 +19,7 @@
 
   const styles = document.createElement('style');
   styles.textContent = `
-  .taraf-support-fab{position:fixed;left:18px;bottom:18px;z-index:9997;border:1px solid rgba(224,164,88,.45);background:linear-gradient(135deg,#171a22,#0d0f15);color:#f4dfbd;border-radius:999px;padding:11px 15px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer;box-shadow:0 12px 34px rgba(0,0,0,.35);display:flex;align-items:center;gap:7px}
+  .taraf-support-fab{position:fixed;right:18px;left:auto;bottom:18px;z-index:9997;border:1px solid rgba(224,164,88,.45);background:linear-gradient(135deg,#171a22,#0d0f15);color:#f4dfbd;border-radius:999px;padding:11px 15px;font-family:Cairo,Tahoma,sans-serif;font-weight:800;cursor:pointer;box-shadow:0 12px 34px rgba(0,0,0,.35);display:flex;align-items:center;gap:7px}
   .taraf-support-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(3,4,7,.8);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}.taraf-support-backdrop.is-open{display:flex}
   .taraf-support-card{width:min(480px,100%);max-height:90vh;overflow:auto;background:#11141b;border:1px solid rgba(224,164,88,.28);border-radius:22px;padding:22px;color:#ece5d8;font-family:Cairo,Tahoma,sans-serif;box-shadow:0 24px 70px rgba(0,0,0,.58);position:relative}
   .taraf-support-close{position:absolute;left:14px;top:12px;width:34px;height:34px;border:0;border-radius:50%;background:#1d212b;color:#fff;font-size:22px;cursor:pointer}.taraf-support-card h3{margin:0 0 8px;font-size:22px;color:#f1c786}.taraf-support-card p{color:#c9c4ba;line-height:1.8;font-size:14px}
@@ -29,7 +29,7 @@
   .taraf-support-form{display:none}.taraf-support-form.is-open{display:block}.taraf-support-field{display:block;margin:10px 0}.taraf-support-field span{display:block;font-size:12px;color:#aeb2b9;margin-bottom:5px}.taraf-support-field input,.taraf-support-field select{width:100%;box-sizing:border-box;background:#0d1016;color:#fff;border:1px solid #303642;border-radius:10px;padding:10px;font-family:Cairo,Tahoma,sans-serif}.taraf-support-check{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#bbb;margin-top:10px}
   .taraf-support-status{display:none;margin-top:10px;padding:10px;border-radius:10px;font-size:13px}.taraf-support-status.ok{display:block;background:#11251a;color:#9ce2b1;border:1px solid #245735}.taraf-support-status.err{display:block;background:#2a1515;color:#f0a8a8;border:1px solid #6b2c2c}
   .taraf-wall{display:none}.taraf-wall.is-open{display:block}.taraf-wall-list{display:grid;gap:8px;margin-top:12px}.taraf-wall-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:10px 12px}.taraf-wall-name{font-weight:800}.taraf-wall-meta{font-size:11px;color:#8f949c}.taraf-wall-empty{text-align:center;color:#8f949c;padding:18px 8px}
-  @media(max-width:560px){.taraf-support-fab{left:12px;bottom:12px;font-size:13px}.taraf-support-card{padding:20px 16px}}
+  @media(max-width:560px){.taraf-support-fab{right:12px;left:auto;bottom:12px;font-size:13px}.taraf-support-card{padding:20px 16px}}
   `;
   document.head.appendChild(styles);
 
