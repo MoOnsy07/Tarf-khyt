@@ -3,7 +3,7 @@
   'use strict';
 
   // بيتحوّل لـ true تلقائيًا من Workflow بعد أول APK ناجح.
-  const APK_READY = false;
+  const APK_READY = true;
   const APK_URL = 'https://github.com/MoOnsy07/Tarf-khyt/releases/download/android-latest/taraf-khyt.apk';
 
   function mount(){
