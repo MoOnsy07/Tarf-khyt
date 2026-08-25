@@ -5,326 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة المتابعة | طرف الخيط</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0c12'/%3E%3Cpath d='M50 15 C25 15 12 32 12 50 C12 78 25 92 50 92 M50 25 C32 25 20 36 20 50 C20 76 32 84 50 84 M50 35 C40 35 30 42 30 50 C30 72 40 76 50 76' stroke='%23e0a458' stroke-width='3' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=Rakkas&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20260825-admin3">
 <style>
-  .ad-wrap{ max-width:980px; margin:0 auto; padding:34px 16px 70px; }
-  .ad-back{
-    display:inline-flex; align-items:center; gap:6px; color:var(--ink-dim);
-    text-decoration:none; font-size:13px; margin-bottom:22px; transition:.15s;
-  }
-  .ad-back:hover{ color:var(--amber); }
-
-  .ad-summary{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:26px 0 22px; }
-  @media (max-width:640px){ .ad-summary{ grid-template-columns:1fr 1fr; } }
-  .ad-stat{ background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px; text-align:center; }
-  .ad-stat .num{ font-family:'JetBrains Mono', monospace; font-size:24px; font-weight:800; color:var(--amber); text-shadow:var(--gold-glow); }
-  .ad-stat .lbl{ font-size:11.5px; color:var(--ink-dim); margin-top:4px; }
-
-  .ad-table-wrap{ overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:6px; }
-  table.ad-table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
-  table.ad-table th{
-    text-align:right; padding:12px 14px; color:var(--amber); font-size:12px;
-    font-family:'JetBrains Mono', monospace; border-bottom:1px solid var(--line);
-    white-space:nowrap;
-  }
-  table.ad-table td{ padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink); white-space:nowrap; }
-  table.ad-table tr:last-child td{ border-bottom:none; }
-  table.ad-table tr:hover td{ background:var(--panel-2); }
-  .ad-case-title{ font-weight:700; }
-  .ad-case-no{ color:var(--ink-dim); font-size:11px; font-family:'JetBrains Mono', monospace; }
-  .ad-num{ font-family:'JetBrains Mono', monospace; text-align:center; }
-  .ad-good{ color:#8fd6a4; }
-  .ad-partial{ color:var(--amber); }
-  .ad-bad{ color:#e08a7c; }
-  .ad-dropped{ color:var(--ink-dim); }
-  .ad-rate{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-dim); }
-
-  .ad-loading, .ad-error, .ad-empty{ text-align:center; padding:40px 16px; color:var(--ink-dim); font-size:14px; }
-  .ad-error{ color:#e08a7c; }
-
-  .ad-refresh-btn{ margin-bottom:14px; }
+.ad-wrap{max-width:980px;margin:0 auto;padding:34px 16px 70px}.ad-back{display:inline-flex;color:var(--ink-dim);text-decoration:none;font-size:13px;margin-bottom:22px}.ad-back:hover{color:var(--amber)}
+.ad-head{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:14px}.ad-head h1{margin:0 0 5px;font-size:28px}.ad-head p{margin:0;color:var(--ink-dim);font-size:13px}.ad-refresh-btn{margin:0 0 14px}
+.ad-section{background:linear-gradient(135deg,rgba(224,164,88,.08),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:8px;padding:15px;margin-bottom:22px}.ad-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.ad-section-title{font-weight:900;font-size:17px}.ad-section-sub{color:var(--ink-dim);font-size:11.5px;margin-top:3px}
+.ad-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ad-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:14px;text-align:center}.ad-stat .num{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:900;color:var(--amber)}.ad-stat .lbl{font-size:10.5px;color:var(--ink-dim);margin-top:4px;line-height:1.5}.ad-foot{display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-dim);font-size:10.5px;margin-top:10px}
+.ad-table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}table.ad-table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}table.ad-table th{text-align:right;padding:12px 14px;color:var(--amber);border-bottom:1px solid var(--line);white-space:nowrap}table.ad-table td{padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}.ad-case-title{font-weight:700}.ad-case-no{color:var(--ink-dim);font-size:10.5px;font-family:'JetBrains Mono',monospace}.ad-num{text-align:center;font-family:'JetBrains Mono',monospace}.ad-loading,.ad-error,.ad-empty{text-align:center;padding:30px 12px;color:var(--ink-dim)}.ad-error{color:#e08a7c}
+@media(max-width:700px){.ad-summary{grid-template-columns:1fr 1fr}.ad-head h1{font-size:23px}}
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="scan"></div>
-
+<div class="grain"></div><div class="scan"></div>
 <div class="ad-wrap">
-  <a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
-
-  <div class="lib-hero" style="margin-bottom:6px;">
-    <svg class="lib-fingerprint" viewBox="0 0 200 200" aria-hidden="true">
-      <path d="M100,20 C50,20 20,60 20,100 C20,150 50,180 100,180"/>
-      <path d="M100,35 C62,35 35,68 35,100 C35,142 62,165 100,165"/>
-      <path d="M100,50 C74,50 50,76 50,100 C50,134 74,150 100,150"/>
-      <path d="M100,65 C86,65 65,84 65,100 C65,126 86,135 100,135"/>
-      <path d="M100,20 C150,20 180,60 180,100 C180,150 150,180 100,180" stroke-dasharray="4 6"/>
-      <path d="M100,35 C138,35 165,68 165,100 C165,142 138,165 100,165" stroke-dasharray="3 7"/>
-    </svg>
-    <div class="lib-hero-eyebrow mono">OWNER ONLY</div>
-    <h1 class="lib-hero-title">لوحة <span class="accent">المتابعة</span></h1>
-    <svg class="lib-hero-thread" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M6,6 C60,18 150,-2 214,10"/>
-    </svg>
-    <div class="lib-hero-sub">كام واحد لعب كل قضية، حلّها، أو طلع منها من غير ما يخلّص</div>
-  </div>
-
-  <button class="btn ghost mono ad-refresh-btn" id="ad-refresh">↻ تحديث الأرقام</button>
-
-  <div id="ad-root"></div>
+<a href="index.html" class="ad-back mono">→ رجوع للأرشيف</a>
+<div class="ad-head"><h1>لوحة <span class="accent">المتابعة</span></h1><p>إحصائيات القضايا ونسخة Android في مكان واحد.</p></div>
+<button class="btn ghost mono ad-refresh-btn" id="ad-refresh">↻ تحديث الأرقام</button>
+<section class="ad-section" id="android-box"><div class="ad-loading mono">بيجيب أرقام Android...</div></section>
+<div id="ad-root"><div class="ad-loading mono">بيجيب أرقام القضايا...</div></div>
 </div>
-
-<!-- النسخة القديمة كانت بتحمّل ملفات القضايا كلها، وده كان بيسقط الصفحة على بعض الموبايلات. -->
-<template id="legacy-case-loader">
-<!-- كل ملفات القضايا — محفوظة هنا كمرجع فقط ولا يتم تنفيذها -->
-<script src="cases/case-last-episode.js"></script>
-<script src="cases/case-buffalo.js"></script>
-<script src="cases/case-dark-testimony.js"></script>
-<script src="cases/case-leaked-video.js"></script>
-<script src="cases/case-missing-bride.js"></script>
-<script src="cases/case-final-testament.js"></script>
-<script src="cases/case-93rd-minute.js"></script>
-<script src="cases/case-bribery.js"></script>
-<script src="cases/case-charity-funds.js"></script>
-<script src="cases/case-deleted-scene.js"></script>
-<script src="cases/case-exam-leak.js"></script>
-<script src="cases/case-fake-audio.js"></script>
-<script src="cases/case-false-rumor.js"></script>
-<script src="cases/case-forged-canvas.js"></script>
-<script src="cases/case-ghost-author.js"></script>
-<script src="cases/case-hit-and-run.js"></script>
-<script src="cases/case-illusion-startup.js"></script>
-<script src="cases/case-last-call.js"></script>
-<script src="cases/case-last-dish.js"></script>
-<script src="cases/case-last-rehearsal.js"></script>
-<script src="cases/case-lost-wallet.js"></script>
-<script src="cases/case-no-witness-night.js"></script>
-<script src="cases/case-number-19.js"></script>
-<script src="cases/case-role-of-lifetime.js"></script>
-<script src="cases/case-room-307.js"></script>
-<script src="cases/case-shifting-painting.js"></script>
-<script src="cases/case-vanished-wife.js"></script>
-<script src="cases/case-var-conspiracy.js"></script>
-<script src="cases/case-wedding-gold.js"></script>
-<script src="cases/case-behind-scenes.js"></script>
-<script src="cases/case-broken-faucet.js"></script>
-<script src="cases/case-closed-file.js"></script>
-<script src="cases/case-coded-message.js"></script>
-<script src="cases/case-dating-app.js"></script>
-<script src="cases/case-dawn-call.js"></script>
-<script src="cases/case-dawn-club.js"></script>
-<script src="cases/case-finish-line.js"></script>
-<script src="cases/case-flat-12b.js"></script>
-<script src="cases/case-forged-will.js"></script>
-<script src="cases/case-grandma-ring.js"></script>
-<script src="cases/case-last-bell.js"></script>
-<script src="cases/case-last-laugh.js"></script>
-<script src="cases/case-last-update.js"></script>
-<script src="cases/case-missing-twin.js"></script>
-<script src="cases/case-mud-print.js"></script>
-<script src="cases/case-nile-cruise.js"></script>
-<script src="cases/case-old-estate.js"></script>
-<script src="cases/case-old-photo.js"></script>
-<script src="cases/case-one-comment.js"></script>
-<script src="cases/case-opening-night.js"></script>
-<script src="cases/case-overbilled.js"></script>
-<script src="cases/case-postponed-engagement.js"></script>
-<script src="cases/case-recorded-voice.js"></script>
-<script src="cases/case-red-thread.js"></script>
-<script src="cases/case-second-face.js"></script>
-<script src="cases/case-secret-clinic.js"></script>
-<script src="cases/case-secret-recipe.js"></script>
-<script src="cases/case-suspicious-transfer.js"></script>
-<script src="cases/case-vault-key.js"></script>
-<script src="cases/case-warehouse-fire.js"></script>
-<script>
-  const CASES_REGISTRY = [
-    CASE_LAST_EPISODE, CASE_BUFFALO, CASE_DARK_TESTIMONY, CASE_LEAKED_VIDEO,
-    CASE_MISSING_BRIDE, CASE_FINAL_TESTAMENT, CASE_93RD_MINUTE, CASE_BRIBERY,
-    CASE_CHARITY_FUNDS, CASE_DELETED_SCENE, CASE_EXAM_LEAK, CASE_FAKE_AUDIO,
-    CASE_FALSE_RUMOR, CASE_FORGED_CANVAS, CASE_GHOST_AUTHOR, CASE_HIT_AND_RUN,
-    CASE_ILLUSION_STARTUP, CASE_LAST_CALL, CASE_LAST_DISH, CASE_LAST_REHEARSAL,
-    CASE_LOST_WALLET, CASE_NO_WITNESS_NIGHT, CASE_NUMBER_19, CASE_ROLE_OF_LIFETIME,
-    CASE_ROOM_307, CASE_SHIFTING_PAINTING, CASE_VANISHED_WIFE, CASE_VAR_CONSPIRACY,
-    CASE_WEDDING_GOLD,
-    CASE_BEHIND_SCENES, CASE_BROKEN_FAUCET, CASE_CLOSED_FILE, CASE_CODED_MESSAGE,
-    CASE_DATING_APP, CASE_DAWN_CALL, CASE_DAWN_CLUB, CASE_FINISH_LINE,
-    CASE_FLAT_12B, CASE_FORGED_WILL, CASE_GRANDMA_RING, CASE_LAST_BELL,
-    CASE_LAST_LAUGH, CASE_LAST_UPDATE, CASE_MISSING_TWIN, CASE_MUD_PRINT,
-    CASE_NILE_CRUISE, CASE_OLD_ESTATE, CASE_OLD_PHOTO, CASE_ONE_COMMENT,
-    CASE_OPENING_NIGHT, CASE_OVERBILLED, CASE_POSTPONED_ENGAGEMENT, CASE_RECORDED_VOICE,
-    CASE_RED_THREAD, CASE_SECOND_FACE, CASE_SECRET_CLINIC, CASE_SECRET_RECIPE,
-    CASE_SUSPICIOUS_TRANSFER, CASE_VAULT_KEY, CASE_WAREHOUSE_FIRE,
-  ];
-</script>
-</template>
-
-<script>
-const CASE_META = {
-  "93rd-minute": { title:"الدقيقة 93", caseNo:"CASE 001" },
-  "behind-scenes": { title:"كواليس البرنامج", caseNo:"CASE 039" },
-  "bribery": { title:"قبول بالواسطة", caseNo:"CASE 016" },
-  "broken-faucet": { title:"صنبور مكسور", caseNo:"CASE 057" },
-  "buffalo-case": { title:"قضية الجاموسة", caseNo:"CASE 003" },
-  "charity-funds": { title:"تبرعات في الهوا", caseNo:"CASE 019" },
-  "closed-file": { title:"ملف مغلق", caseNo:"CASE 051" },
-  "coded-message": { title:"الرسالة المشفرة", caseNo:"CASE 060" },
-  "dark-testimony": { title:"شهادة في العتمة", caseNo:"CASE 004" },
-  "dating-app": { title:"تطبيق التعارف", caseNo:"CASE 038" },
-  "dawn-call": { title:"مكالمة الفجر", caseNo:"CASE 047" },
-  "dawn-club": { title:"نادي الفجر", caseNo:"CASE 042" },
-  "deleted-scene": { title:"المشهد المحذوف", caseNo:"CASE 023" },
-  "exam-leak": { title:"ورقة الامتحان", caseNo:"CASE 011" },
-  "fake-audio": { title:"التسجيل المفبرك", caseNo:"CASE 013" },
-  "false-rumor": { title:"الوشاية", caseNo:"CASE 014" },
-  "final-testament": { title:"الوصية الأخيرة", caseNo:"CASE 007" },
-  "finish-line": { title:"خط النهاية", caseNo:"CASE 040" },
-  "flat-12b": { title:"الشقة 12 ب", caseNo:"CASE 031" },
-  "forged-canvas": { title:"اللوحة المزيفة", caseNo:"CASE 008" },
-  "forged-will": { title:"الوصية المزورة", caseNo:"CASE 041" },
-  "ghost-author": { title:"القلم الخفي", caseNo:"CASE 009" },
-  "grandma-ring": { title:"خاتم الجدة", caseNo:"CASE 049" },
-  "hit-and-run": { title:"حادثة الطريق", caseNo:"CASE 018" },
-  "illusion-startup": { title:"مشروع الوهم", caseNo:"CASE 017" },
-  "last-bell": { title:"الجرس الأخير", caseNo:"CASE 048" },
-  "last-call": { title:"آخر مكالمة", caseNo:"CASE 029" },
-  "last-dish": { title:"الطبخة الأخيرة", caseNo:"CASE 010" },
-  "last-episode": { title:"الحلقة الأخيرة", caseNo:"FILE NO. 0417" },
-  "last-laugh": { title:"ضحكة أخيرة", caseNo:"CASE 053" },
-  "last-rehearsal": { title:"آخر بروفة", caseNo:"CASE 021" },
-  "last-update": { title:"آخر تحديث", caseNo:"CASE 044" },
-  "leaked-video": { title:"قضية الفيديو المسرّب", caseNo:"CASE 005" },
-  "lost-wallet": { title:"المحفظة المفقودة", caseNo:"CASE 012" },
-  "missing-bride": { title:"قضية العروسة المفقودة", caseNo:"CASE 006" },
-  "missing-twin": { title:"التوأم المفقود", caseNo:"CASE 054" },
-  "mud-print": { title:"بصمة في الوحل", caseNo:"CASE 033" },
-  "nile-cruise": { title:"الرحلة النيلية", caseNo:"CASE 050" },
-  "no-witness-night": { title:"ليلة من غير شاهد", caseNo:"CASE 024" },
-  "number-19": { title:"القميص رقم 19", caseNo:"CASE 022" },
-  "old-estate": { title:"العزبة القديمة", caseNo:"CASE 037" },
-  "old-photo": { title:"صورة قديمة", caseNo:"CASE 045" },
-  "one-comment": { title:"تعليق واحد", caseNo:"CASE 052" },
-  "opening-night": { title:"ليلة الافتتاح", caseNo:"CASE 034" },
-  "overbilled": { title:"فاتورة زيادة", caseNo:"CASE 055" },
-  "postponed-engagement": { title:"خطوبة مؤجلة", caseNo:"CASE 058" },
-  "recorded-voice": { title:"الصوت المسجل", caseNo:"CASE 036" },
-  "red-thread": { title:"خيط أحمر", caseNo:"CASE 030" },
-  "role-of-lifetime": { title:"دور العمر", caseNo:"CASE 028" },
-  "room-307": { title:"باب 307", caseNo:"CASE 025" },
-  "second-face": { title:"الوش التاني", caseNo:"CASE 056" },
-  "secret-clinic": { title:"العيادة السرية", caseNo:"CASE 046" },
-  "secret-recipe": { title:"الوصفة السرية", caseNo:"CASE 059" },
-  "shifting-painting": { title:"اللوحة اللي بتتغير", caseNo:"CASE 026" },
-  "suspicious-transfer": { title:"تحويل مشبوه", caseNo:"CASE 032" },
-  "vanished-wife": { title:"اختفاء منى", caseNo:"CASE 015" },
-  "var-conspiracy": { title:"الجون اللي ما اتحسبش", caseNo:"CASE 020" },
-  "vault-key": { title:"مفتاح الخزنة", caseNo:"CASE 035" },
-  "warehouse-fire": { title:"حريق المخزن", caseNo:"CASE 043" },
-  "wedding-gold": { title:"دهب الفرح", caseNo:"CASE 002" },
-};
-</script>
-
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="supabase-client.js"></script>
-
 <script>
-(function(){
-  const root = document.getElementById('ad-root');
-  const refreshBtn = document.getElementById('ad-refresh');
-
-  const caseById = {};
-  Object.assign(caseById, CASE_META);
-
-  function escapeHTML(str){
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  async function load(){
-    root.innerHTML = '<div class="ad-loading mono">بيجيب الأرقام من Supabase...</div>';
-    let rows;
-    try{
-      rows = await fetchCaseStats();
-    }catch(e){
-      root.innerHTML = '<div class="ad-error mono">حصل خطأ في الاتصال. تأكد إنك شغّلت CASE_EVENTS_SETUP.sql في Supabase.</div>';
-      return;
-    }
-    if(!rows || !rows.length){
-      root.innerHTML = '<div class="ad-empty mono">مفيش بيانات لسه. الأرقام هتبدأ تظهر أول ما لاعب يفتح قضية بعد رفع التحديث ده.</div>';
-      return;
-    }
-
-    let totalStarted = 0, totalCompleted = 0, totalDropped = 0, totalGood = 0;
-    rows.forEach(r=>{
-      totalStarted += Number(r.started_count)||0;
-      totalCompleted += Number(r.completed_count)||0;
-      totalDropped += Number(r.dropped_count)||0;
-      totalGood += Number(r.good_count)||0;
-    });
-
-    const rowsHTML = rows.map(r=>{
-      const c = caseById[r.case_id];
-      const title = c ? c.title : r.case_id;
-      const caseNo = c ? c.caseNo : '';
-      const started = Number(r.started_count)||0;
-      const completed = Number(r.completed_count)||0;
-      const dropped = Number(r.dropped_count)||0;
-      const completionRate = started ? Math.round((completed/started)*100) : 0;
-      return `
-        <tr>
-          <td>
-            <div class="ad-case-title">${escapeHTML(title)}</div>
-            <div class="ad-case-no">${escapeHTML(caseNo)}</div>
-          </td>
-          <td class="ad-num">${started}</td>
-          <td class="ad-num">${completed}</td>
-          <td class="ad-num ad-good">${Number(r.good_count)||0}</td>
-          <td class="ad-num ad-partial">${Number(r.partial_count)||0}</td>
-          <td class="ad-num ad-bad">${Number(r.bad_count)||0}</td>
-          <td class="ad-num ad-dropped">${dropped}</td>
-          <td class="ad-rate">${started ? completionRate + '%' : '—'}</td>
-        </tr>
-      `;
-    }).join('');
-
-    root.innerHTML = `
-      <div class="ad-summary">
-        <div class="ad-stat"><div class="num mono">${totalStarted}</div><div class="lbl">إجمالي مرات اللعب</div></div>
-        <div class="ad-stat"><div class="num mono">${totalCompleted}</div><div class="lbl">إجمالي مرات الإنهاء</div></div>
-        <div class="ad-stat"><div class="num mono">${totalGood}</div><div class="lbl">نجاح كامل</div></div>
-        <div class="ad-stat"><div class="num mono">${totalDropped}</div><div class="lbl">طلعوا من غير ما يخلّصوا</div></div>
-      </div>
-
-      <div class="ad-table-wrap">
-        <table class="ad-table">
-          <thead>
-            <tr>
-              <th>القضية</th>
-              <th>لعبها</th>
-              <th>خلّصها</th>
-              <th>نجاح</th>
-              <th>جزئي</th>
-              <th>غلط</th>
-              <th>طلع منها</th>
-              <th>نسبة الإنهاء</th>
-            </tr>
-          </thead>
-          <tbody>${rowsHTML}</tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  refreshBtn.addEventListener('click', load);
-  load();
-})();
+const ADMIN_SUPABASE_URL='https://meynspmfkkedhqhffsqk.supabase.co';
+const ADMIN_SUPABASE_KEY='sb_publishable_uAUBrJE76udggvmbU95DVQ_HYDoyEB9';
+const adminSb=window.supabase.createClient(ADMIN_SUPABASE_URL,ADMIN_SUPABASE_KEY);
+const CASE_META={
+'93rd-minute':['الدقيقة 93','CASE 001'],'wedding-gold':['دهب الفرح','CASE 002'],'buffalo-case':['قضية الجاموسة','CASE 003'],'dark-testimony':['شهادة في العتمة','CASE 004'],'leaked-video':['قضية الفيديو المسرّب','CASE 005'],'missing-bride':['قضية العروسة المفقودة','CASE 006'],'final-testament':['الوصية الأخيرة','CASE 007'],'forged-canvas':['اللوحة المزيفة','CASE 008'],'ghost-author':['القلم الخفي','CASE 009'],'last-dish':['الطبخة الأخيرة','CASE 010'],'exam-leak':['ورقة الامتحان','CASE 011'],'lost-wallet':['المحفظة المفقودة','CASE 012'],'fake-audio':['التسجيل المفبرك','CASE 013'],'false-rumor':['الوشاية','CASE 014'],'vanished-wife':['اختفاء منى','CASE 015'],'bribery':['قبول بالواسطة','CASE 016'],'illusion-startup':['مشروع الوهم','CASE 017'],'hit-and-run':['حادثة الطريق','CASE 018'],'charity-funds':['تبرعات في الهوا','CASE 019'],'var-conspiracy':['الجون اللي ما اتحسبش','CASE 020'],'last-rehearsal':['آخر بروفة','CASE 021'],'number-19':['القميص رقم 19','CASE 022'],'deleted-scene':['المشهد المحذوف','CASE 023'],'no-witness-night':['ليلة من غير شاهد','CASE 024'],'room-307':['باب 307','CASE 025'],'shifting-painting':['اللوحة اللي بتتغير','CASE 026'],'role-of-lifetime':['دور العمر','CASE 028'],'last-call':['آخر مكالمة','CASE 029'],'red-thread':['خيط أحمر','CASE 030'],'flat-12b':['الشقة 12 ب','CASE 031'],'suspicious-transfer':['تحويل مشبوه','CASE 032'],'mud-print':['بصمة في الوحل','CASE 033'],'opening-night':['ليلة الافتتاح','CASE 034'],'vault-key':['مفتاح الخزنة','CASE 035'],'recorded-voice':['الصوت المسجل','CASE 036'],'old-estate':['العزبة القديمة','CASE 037'],'dating-app':['تطبيق التعارف','CASE 038'],'behind-scenes':['كواليس البرنامج','CASE 039'],'finish-line':['خط النهاية','CASE 040'],'forged-will':['الوصية المزورة','CASE 041'],'dawn-club':['نادي الفجر','CASE 042'],'warehouse-fire':['حريق المخزن','CASE 043'],'last-update':['آخر تحديث','CASE 044'],'old-photo':['صورة قديمة','CASE 045'],'secret-clinic':['العيادة السرية','CASE 046'],'dawn-call':['مكالمة الفجر','CASE 047'],'last-bell':['الجرس الأخير','CASE 048'],'grandma-ring':['خاتم الجدة','CASE 049'],'nile-cruise':['الرحلة النيلية','CASE 050'],'closed-file':['ملف مغلق','CASE 051'],'one-comment':['تعليق واحد','CASE 052'],'last-laugh':['ضحكة أخيرة','CASE 053'],'missing-twin':['التوأم المفقود','CASE 054'],'overbilled':['فاتورة زيادة','CASE 055'],'second-face':['الوش التاني','CASE 056'],'broken-faucet':['صنبور مكسور','CASE 057'],'postponed-engagement':['خطوبة مؤجلة','CASE 058'],'secret-recipe':['الوصفة السرية','CASE 059'],'coded-message':['الرسالة المشفرة','CASE 060'],'last-episode':['الحلقة الأخيرة','FILE NO. 0417']};
+function esc(v){const d=document.createElement('div');d.textContent=v==null?'':String(v);return d.innerHTML}
+function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}catch(e){return '—'}}
+async function loadAndroid(){const box=document.getElementById('android-box');box.innerHTML='<div class="ad-loading mono">بيجيب أرقام Android...</div>';try{const {data,error}=await adminSb.rpc('get_android_app_stats');if(error)throw error;const r=Array.isArray(data)?data[0]:data;if(!r)throw new Error('No Android stats');const clicks=Number(r.total_download_clicks)||0,unique=Number(r.unique_downloaders)||0,installs=Number(r.installs)||0,conv=unique?Math.round(installs/unique*100):0;box.innerHTML=`<div class="ad-section-head"><div><div class="ad-section-title">📱 Android APK</div><div class="ad-section-sub">العداد محفوظ في Supabase ومش بيتصفر مع إصدار APK جديد.</div></div><div class="mono" style="color:var(--ink-dim);font-size:11px">تحميل → فتح ${conv}%</div></div><div class="ad-summary"><div class="ad-stat"><div class="num">${clicks}</div><div class="lbl">ضغطات تحميل APK</div></div><div class="ad-stat"><div class="num">${unique}</div><div class="lbl">أجهزة ضغطت تحميل</div></div><div class="ad-stat"><div class="num">${installs}</div><div class="lbl">أول فتح فعلي للتطبيق</div></div><div class="ad-stat"><div class="num">${Number(r.installs_7d)||0}</div><div class="lbl">تثبيتات آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_7d)||0}</div><div class="lbl">نشطين آخر 7 أيام</div></div><div class="ad-stat"><div class="num">${Number(r.active_30d)||0}</div><div class="lbl">نشطين آخر 30 يوم</div></div><div class="ad-stat"><div class="num">${Number(r.total_app_opens)||0}</div><div class="lbl">إجمالي فتحات التطبيق</div></div><div class="ad-stat"><div class="num">${conv}%</div><div class="lbl">نسبة التحويل</div></div></div><div class="ad-foot"><span>آخر تحميل: ${esc(fmt(r.last_download_at))}</span><span>آخر فتح تطبيق: ${esc(fmt(r.last_app_open_at))}</span></div>`}catch(e){console.error(e);box.innerHTML='<div class="ad-error mono">تعذر تحميل أرقام Android: '+esc(e.message||e)+'</div>'}}
+async function loadCases(){const root=document.getElementById('ad-root');root.innerHTML='<div class="ad-loading mono">بيجيب أرقام القضايا...</div>';try{const {data,error}=await adminSb.rpc('get_case_stats');if(error)throw error;const rows=data||[];if(!rows.length){root.innerHTML='<div class="ad-empty mono">مفيش بيانات قضايا لسه.</div>';return}let started=0,done=0,good=0,dropped=0;rows.forEach(r=>{started+=Number(r.started_count)||0;done+=Number(r.completed_count)||0;good+=Number(r.good_count)||0;dropped+=Number(r.dropped_count)||0});const body=rows.map(r=>{const m=CASE_META[r.case_id]||[r.case_id,''];const s=Number(r.started_count)||0,c=Number(r.completed_count)||0,d=Number(r.dropped_count)||0,rate=s?Math.round(c/s*100):0;return `<tr><td><div class="ad-case-title">${esc(m[0])}</div><div class="ad-case-no">${esc(m[1])}</div></td><td class="ad-num">${s}</td><td class="ad-num">${c}</td><td class="ad-num">${Number(r.good_count)||0}</td><td class="ad-num">${Number(r.partial_count)||0}</td><td class="ad-num">${Number(r.bad_count)||0}</td><td class="ad-num">${d}</td><td class="ad-num">${rate}%</td></tr>`}).join('');root.innerHTML=`<section class="ad-section"><div class="ad-section-title" style="margin-bottom:12px">🕵️ القضايا</div><div class="ad-summary"><div class="ad-stat"><div class="num">${started}</div><div class="lbl">إجمالي مرات اللعب</div></div><div class="ad-stat"><div class="num">${done}</div><div class="lbl">إجمالي مرات الإنهاء</div></div><div class="ad-stat"><div class="num">${good}</div><div class="lbl">نجاح كامل</div></div><div class="ad-stat"><div class="num">${dropped}</div><div class="lbl">خرجوا قبل النهاية</div></div></div></section><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>القضية</th><th>لعبها</th><th>خلّصها</th><th>نجاح</th><th>جزئي</th><th>غلط</th><th>خرج</th><th>الإنهاء</th></tr></thead><tbody>${body}</tbody></table></div>`}catch(e){console.error(e);root.innerHTML='<div class="ad-error mono">تعذر تحميل إحصائيات القضايا.</div>'}}
+function refresh(){loadAndroid();loadCases()}
+document.getElementById('ad-refresh').addEventListener('click',refresh);refresh();
 </script>
 </body>
 </html>
