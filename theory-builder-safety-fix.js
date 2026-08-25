@@ -165,21 +165,39 @@
     window.TarafCaseLogic = { isEnabled, solved, currentPhase, phaseVisible, requirementsOk, solveDeduction };
   }
 
-  const EXCLUSIVE_ID = 'return-from-death';
-  const ACCESS_KEY = 'ca_exclusive_access_' + EXCLUSIVE_ID;
-  const EXPECTED_HASH = '4045aa5c';
+  /* ============================================================
+     Registry للقضايا الحصرية. كل قضية لها Hash مستقل وكود reusable.
+     الكود نفسه لا يُخزن plain-text في JavaScript.
+     ============================================================ */
+  const EXCLUSIVE_CASES = {
+    'return-from-death': { expectedHash:'4045aa5c' },
+    'final-exit': { expectedHash:'00771648' },
+  };
+
   function codeHash(value){
     let h = 0x811c9dc5;
     const s = String(value || '').trim().toUpperCase();
     for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
     return h.toString(16).padStart(8,'0');
   }
-  function hasExclusiveAccess(){ try { return localStorage.getItem(ACCESS_KEY) === '1'; } catch(_) { return false; } }
-  function unlockExclusive(code){
-    const ok = codeHash(code) === EXPECTED_HASH;
+
+  function exclusiveCfg(caseId){ return EXCLUSIVE_CASES[String(caseId || '')] || null; }
+  function accessKey(caseId){ return 'ca_exclusive_access_' + String(caseId || ''); }
+  function hasExclusiveAccess(caseId){
+    const id = String(caseId || 'return-from-death');
+    if(!exclusiveCfg(id)) return true;
+    try { return localStorage.getItem(accessKey(id)) === '1'; } catch(_) { return false; }
+  }
+  function unlockExclusive(caseId, code){
+    let id = String(caseId || '');
+    let value = code;
+    // Backward compatibility: unlockExclusive(code) كان خاص بالعودة من الموت.
+    if(arguments.length === 1){ value = caseId; id = 'return-from-death'; }
+    const cfg = exclusiveCfg(id);
+    const ok = !!cfg && codeHash(value) === cfg.expectedHash;
     if(ok){
-      try { localStorage.setItem(ACCESS_KEY, '1'); } catch(_) {}
-      try { gaTrack('exclusive_case_unlocked', { exclusive_case_id:EXCLUSIVE_ID }); } catch(_) {}
+      try { localStorage.setItem(accessKey(id), '1'); } catch(_) {}
+      try { gaTrack('exclusive_case_unlocked', { exclusive_case_id:id }); } catch(_) {}
     }
     return ok;
   }
@@ -187,13 +205,14 @@
   if(typeof isCaseLocked === 'function'){
     const baseLocked = isCaseLocked;
     isCaseLocked = function(c){
-      if(c && c.id === EXCLUSIVE_ID && !hasExclusiveAccess()) return { locked:true, reason:'telegram-exclusive' };
+      if(c && exclusiveCfg(c.id) && !hasExclusiveAccess(c.id)) return { locked:true, reason:'telegram-exclusive' };
       return baseLocked.apply(this, arguments);
     };
   }
 
   function accessModal(caseData){
     if(document.getElementById('exclusiveAccessOverlay')) return;
+    if(!caseData || !exclusiveCfg(caseData.id)) return;
     if(typeof isCaseReady === 'function' && !isCaseReady(caseData)){
       if(typeof showToast === 'function') showToast('القضية لسه تحت التجهيز وهتتفتح بعد اكتمال الصور.', 'amber');
       return;
@@ -201,14 +220,14 @@
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
     overlay.id = 'exclusiveAccessOverlay';
-    overlay.innerHTML = `<div class="modal"><div class="tag mono">🔐 قضية حصرية</div><h3>${(caseData && caseData.title) || 'قضية حصرية لأعضاء القناة'}</h3><p>الكود موجود في رسالة القضية على قناة طرف الخيط. الكود مش بيتستهلك وينفع لكل أعضاء القناة.</p><input id="exclusiveAccessCode" class="lib-search-input" dir="ltr" autocomplete="off" placeholder="اكتب كود القضية" style="width:100%;margin:10px 0"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exclusiveAccessSubmit">فتح القضية</button><a class="btn ghost" href="https://t.me/taraf5eet" target="_blank" rel="noopener">افتح القناة</a><button class="btn ghost" id="exclusiveAccessClose">إلغاء</button></div></div>`;
+    overlay.innerHTML = `<div class="modal"><div class="tag mono">🔐 قضية حصرية</div><h3>${caseData.title || 'قضية حصرية لأعضاء القناة'}</h3><p>الكود موجود في رسالة القضية على قناة طرف الخيط. الكود مش بيتستهلك وينفع لكل أعضاء القناة.</p><input id="exclusiveAccessCode" class="lib-search-input" dir="ltr" autocomplete="off" placeholder="اكتب كود القضية" style="width:100%;margin:10px 0"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exclusiveAccessSubmit">فتح القضية</button><a class="btn ghost" href="https://t.me/taraf5eet" target="_blank" rel="noopener">افتح القناة</a><button class="btn ghost" id="exclusiveAccessClose">إلغاء</button></div></div>`;
     document.body.appendChild(overlay);
     const close = () => overlay.remove();
     overlay.addEventListener('click', e => { if(e.target === overlay) close(); });
     overlay.querySelector('#exclusiveAccessClose').addEventListener('click', close);
     overlay.querySelector('#exclusiveAccessSubmit').addEventListener('click', () => {
       const input = overlay.querySelector('#exclusiveAccessCode');
-      if(!unlockExclusive(input.value)){
+      if(!unlockExclusive(caseData.id, input.value)){
         if(typeof showToast === 'function') showToast('الكود غير صحيح. انسخه من رسالة القضية في القناة.', 'danger');
         input.select();
         return;
@@ -216,22 +235,43 @@
       close();
       if(typeof showToast === 'function') showToast('✓ اتفتحت القضية على الجهاز ده.', 'amber');
       if(typeof showLibrary === 'function') showLibrary();
-      if(caseData && typeof enterCase === 'function') enterCase(caseData);
+      if(typeof enterCase === 'function') enterCase(caseData);
     });
     setTimeout(() => { const i = overlay.querySelector('#exclusiveAccessCode'); if(i) i.focus(); }, 0);
   }
 
   document.addEventListener('click', e => {
-    const card = e.target && e.target.closest ? e.target.closest(`.lib-card[data-case="${EXCLUSIVE_ID}"]`) : null;
-    if(!card || hasExclusiveAccess()) return;
-    const c = (typeof CASES_REGISTRY !== 'undefined' && CASES_REGISTRY.find) ? CASES_REGISTRY.find(x => x && x.id === EXCLUSIVE_ID) : null;
+    const card = e.target && e.target.closest ? e.target.closest('.lib-card[data-case]') : null;
+    if(!card) return;
+    const id = String(card.dataset.case || '');
+    if(!exclusiveCfg(id) || hasExclusiveAccess(id)) return;
+    const c = (typeof CASES_REGISTRY !== 'undefined' && CASES_REGISTRY.find) ? CASES_REGISTRY.find(x => x && x.id === id) : null;
     if(!c || (typeof isCaseReady === 'function' && !isCaseReady(c))) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     accessModal(c);
   }, true);
 
+  function addEvidenceIfMissing(c, item){
+    if(!c || !Array.isArray(c.evidence) || !item || !item.id) return;
+    if(!c.evidence.some(e => e && e.id === item.id)) c.evidence.push(item);
+  }
+
+  function registerCase(c){
+    if(!c || typeof CASES_REGISTRY === 'undefined') return;
+    c.access = { type:'shared-code', source:'telegram', reusable:true };
+    if(!CASES_REGISTRY.some(x => x && x.id === c.id)) CASES_REGISTRY.push(c);
+    if(typeof showLibrary === 'function' && typeof app !== 'undefined' && app.view === 'library') showLibrary();
+    try {
+      const wanted = new URLSearchParams(location.search).get('case');
+      if(wanted === c.id && typeof isCaseReady === 'function' && isCaseReady(c)){
+        if(hasExclusiveAccess(c.id) && typeof enterCase === 'function') enterCase(c);
+        else accessModal(c);
+      }
+    } catch(_) {}
+  }
+
   function registerReturnFromDeath(){
-    if(typeof CASE_RETURN_FROM_DEATH === 'undefined' || typeof CASES_REGISTRY === 'undefined') return;
+    if(typeof CASE_RETURN_FROM_DEATH === 'undefined') return;
     const c = CASE_RETURN_FROM_DEATH;
     c.caseCharacters = [
       { id:'kareem', name:'كريم الدسوقي', role:'الضحية المعلنة / محور القضية', img:c.coverImg ? c.coverImg.replace('cover.jpg','kareem.jpg') : null },
@@ -240,28 +280,57 @@
     c.suspects = (c.suspects || []).filter(s => s && s.id !== 'kareem' && s.id !== 'reda');
     const noteAction = (c.investigationActions || []).find(a => a && a.id === 'rd_laptop_note');
     if(noteAction){ delete noteAction.phase; noteAction.minPhase = 'death'; }
-    c.access = { type:'shared-code', source:'telegram', reusable:true };
-    if(!CASES_REGISTRY.some(x => x && x.id === c.id)) CASES_REGISTRY.push(c);
-    if(typeof showLibrary === 'function' && typeof app !== 'undefined' && app.view === 'library') showLibrary();
-    try {
-      const wanted = new URLSearchParams(location.search).get('case');
-      if(wanted === EXCLUSIVE_ID && typeof isCaseReady === 'function' && isCaseReady(c)){
-        if(hasExclusiveAccess() && typeof enterCase === 'function') enterCase(c);
-        else accessModal(c);
-      }
-    } catch(_) {}
+    registerCase(c);
   }
 
-  if(typeof CASE_RETURN_FROM_DEATH !== 'undefined') {
-    registerReturnFromDeath();
-  } else {
+  function registerFinalExit(){
+    if(typeof CASE_FINAL_EXIT === 'undefined') return;
+    const c = CASE_FINAL_EXIT;
+    c.caseCharacters = [
+      { id:'karim-final-exit', name:'كريم نادر مراد', role:'الضحية / مدير المراجعة الداخلية', img:IMG_BASE_FINAL_EXIT + 'victim-karim.jpg' },
+      { id:'emad-final-exit', name:'عماد رجب', role:'فرد أمن / شاهد مهمة فتح الأرشيف', img:null },
+    ];
+
+    // Evidence صغيرة ناتجة من الاستجوابات نفسها؛ وجودها ضروري لمسارات requires اللاحقة.
+    addEvidenceIfMissing(c, { id:'sara_dispute', tag:'استجواب سارة', crit:false, title:'خلاف مهني مع كريم', img:null, short:'خلاف حول ملفات مشروع قديم', full:'سارة أقرت بخلاف مهني مع كريم بشأن طلب ملفات مشروع قديم وطريقة المراجعة.', unlocked:false, order:90 });
+    addEvidenceIfMissing(c, { id:'sherif_shift', tag:'استجواب شريف', crit:false, title:'شريف مسؤول الوردية الليلية', img:null, short:'مسؤول عن الأمن والبوابات والكاميرات', full:'شريف كان مشرف الوردية الليلية ومسؤولًا عن متابعة البوابات والكاميرات وأفراد الأمن.', unlocked:false, order:91 });
+    addEvidenceIfMissing(c, { id:'archive_permissions', tag:'استجواب شريف', crit:false, title:'صلاحيات الأرشيف بعد 22:00', img:null, short:'بطاقات الطوارئ تقدر تفتح بعد الوقت', full:'بعد الساعة 22:00 لا تعمل كل صلاحيات الموظفين العادية، وتستخدم بطاقات طوارئ الأمن عند الحاجة.', unlocked:false, order:92 });
+    addEvidenceIfMissing(c, { id:'marwan_role', tag:'استجواب مروان', crit:false, title:'دور مروان الفني', img:null, short:'مسؤول تشغيل وصيانة ومتابعة المصاعد', full:'معرفة مروان بالنظام تمنحه قدرة تفسير فنية، لكنها لا تثبت استخدامه للنظام في الجريمة.', unlocked:false, order:93 });
+    addEvidenceIfMissing(c, { id:'service_access_info', tag:'استجواب مروان', crit:false, title:'طرق تشغيل وضع الخدمة', img:null, short:'مفتاح محلي أو صلاحية فنية', full:'وضع الخدمة يمكن أن يظهر من تحكم محلي أو صلاحيات فنية، والسجل التفصيلي هو الذي يحدد المصدر.', unlocked:false, order:94 });
+    addEvidenceIfMissing(c, { id:'laila_archive_request', tag:'استجواب ليلى', crit:false, title:'كريم طلب ملفات من الأرشيف', img:null, short:'طلب ملفات ARCH-19 خلال يوم الحادث', full:'ليلى أكدت أن كريم كان يطلب ملفات من الأرشيف خلال اليوم، ما يعطي سببًا طبيعيًا لنزوله إلى B2.', unlocked:false, order:95 });
+    addEvidenceIfMissing(c, { id:'hossam_visit', tag:'استجواب حسام', crit:false, title:'حسام جاء لتسليم أوراق المشروع', img:null, short:'زيارة مرتبطة بعقد قديم', full:'حسام قال إنه حضر بصفته مندوبًا إداريًا لتسليم أوراق متابعة مرتبطة بالعقد القديم.', unlocked:false, order:96 });
+    registerCase(c);
+  }
+
+  function loadCaseScript(src, onload, label){
     const s = document.createElement('script');
-    s.src = 'cases/case-return-from-death.js?v=20260825-1';
-    s.onload = registerReturnFromDeath;
-    s.onerror = () => { try { console.error('Failed to load return-from-death case'); } catch(_) {} };
+    s.src = src;
+    s.onload = onload;
+    s.onerror = () => { try { console.error('Failed to load exclusive case: ' + label); } catch(_) {} };
     document.head.appendChild(s);
   }
 
-  window.TarafExclusiveCases = { hasExclusiveAccess, unlockExclusive, openAccessModal:accessModal };
-  window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = { version:'2026-08-25-v4', wrongAccusationSkipsTheory:true, phasedDeductions:true, exclusiveSharedCode:true, dynamicReturnFromDeath:true, blocksEntryUntilReady:true };
+  if(typeof CASE_RETURN_FROM_DEATH !== 'undefined') registerReturnFromDeath();
+  else loadCaseScript('cases/case-return-from-death.js?v=20260825-1', registerReturnFromDeath, 'return-from-death');
+
+  if(typeof CASE_FINAL_EXIT !== 'undefined') registerFinalExit();
+  else loadCaseScript('cases/case-final-exit.js?v=20260825-1', registerFinalExit, 'final-exit');
+
+  window.TarafExclusiveCases = {
+    hasExclusiveAccess,
+    unlockExclusive,
+    openAccessModal:accessModal,
+    isExclusiveCase: id => !!exclusiveCfg(id),
+    configuredCaseIds: Object.keys(EXCLUSIVE_CASES),
+  };
+  window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = {
+    version:'2026-08-25-v5',
+    wrongAccusationSkipsTheory:true,
+    phasedDeductions:true,
+    exclusiveSharedCode:true,
+    multiExclusiveRegistry:true,
+    dynamicReturnFromDeath:true,
+    dynamicFinalExit:true,
+    blocksEntryUntilReady:true,
+  };
 })();
