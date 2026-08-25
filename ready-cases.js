@@ -76,7 +76,7 @@ const READY_CASE_IDS = new Set([
 (function loadTarafCloudGoogleOnly(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-cloud-google-only]')) return;
   const s = document.createElement('script');
-  s.src = 'cloud-google-only.js?v=20260825-2';
+  s.src = 'cloud-google-only.js?v=20260825-3';
   s.async = false;
   s.dataset.tarafCloudGoogleOnly = '1';
   (document.head || document.documentElement).appendChild(s);
@@ -85,7 +85,7 @@ const READY_CASE_IDS = new Set([
 (function loadTarafSocialProfileSync(){
   if(typeof document === 'undefined' || document.querySelector('script[data-taraf-social-profile-sync]')) return;
   const s = document.createElement('script');
-  s.src = 'social-profile-sync.js?v=20260825-1';
+  s.src = 'social-profile-sync.js?v=20260825-2';
   s.async = false;
   s.dataset.tarafSocialProfileSync = '1';
   (document.head || document.documentElement).appendChild(s);
