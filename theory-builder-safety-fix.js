@@ -122,6 +122,15 @@
       };
     }
 
+    if(typeof orderedSuspects === 'function'){
+      const baseOrderedSuspects = orderedSuspects;
+      orderedSuspects = function(){
+        const all = baseOrderedSuspects.apply(this, arguments) || [];
+        if(!isEnabled()) return all;
+        return all.filter(s => !s || !s.hiddenUntilDeduction || solved(s.hiddenUntilDeduction));
+      };
+    }
+
     if(typeof clearLocalProgress === 'function'){
       const baseClear = clearLocalProgress;
       clearLocalProgress = function(caseId){
@@ -167,7 +176,6 @@
 
   /* ============================================================
      Registry للقضايا الحصرية. كل قضية لها Hash مستقل وكود reusable.
-     الكود نفسه لا يُخزن plain-text في JavaScript.
      ============================================================ */
   const EXCLUSIVE_CASES = {
     'return-from-death': { expectedHash:'4045aa5c' },
@@ -191,7 +199,6 @@
   function unlockExclusive(caseId, code){
     let id = String(caseId || '');
     let value = code;
-    // Backward compatibility: unlockExclusive(code) كان خاص بالعودة من الموت.
     if(arguments.length === 1){ value = caseId; id = 'return-from-death'; }
     const cfg = exclusiveCfg(id);
     const ok = !!cfg && codeHash(value) === cfg.expectedHash;
@@ -291,7 +298,14 @@
       { id:'emad-final-exit', name:'عماد رجب', role:'فرد أمن / شاهد مهمة فتح الأرشيف', img:null },
     ];
 
-    // Evidence صغيرة ناتجة من الاستجوابات نفسها؛ وجودها ضروري لمسارات requires اللاحقة.
+    const hossam = (c.suspects || []).find(s => s && s.id === 'hossam');
+    if(hossam) hossam.hiddenUntilDeduction = 'hossam_present';
+
+    // شبكة الأعذار الأولى تخص الأربع شخصيات المعروفة؛ حسام يظهر لاحقًا كخيط جديد.
+    if(c.alibiGridPuzzle && c.alibiGridPuzzle.suspectClaims){
+      delete c.alibiGridPuzzle.suspectClaims.hossam;
+    }
+
     addEvidenceIfMissing(c, { id:'sara_dispute', tag:'استجواب سارة', crit:false, title:'خلاف مهني مع كريم', img:null, short:'خلاف حول ملفات مشروع قديم', full:'سارة أقرت بخلاف مهني مع كريم بشأن طلب ملفات مشروع قديم وطريقة المراجعة.', unlocked:false, order:90 });
     addEvidenceIfMissing(c, { id:'sherif_shift', tag:'استجواب شريف', crit:false, title:'شريف مسؤول الوردية الليلية', img:null, short:'مسؤول عن الأمن والبوابات والكاميرات', full:'شريف كان مشرف الوردية الليلية ومسؤولًا عن متابعة البوابات والكاميرات وأفراد الأمن.', unlocked:false, order:91 });
     addEvidenceIfMissing(c, { id:'archive_permissions', tag:'استجواب شريف', crit:false, title:'صلاحيات الأرشيف بعد 22:00', img:null, short:'بطاقات الطوارئ تقدر تفتح بعد الوقت', full:'بعد الساعة 22:00 لا تعمل كل صلاحيات الموظفين العادية، وتستخدم بطاقات طوارئ الأمن عند الحاجة.', unlocked:false, order:92 });
@@ -299,6 +313,23 @@
     addEvidenceIfMissing(c, { id:'service_access_info', tag:'استجواب مروان', crit:false, title:'طرق تشغيل وضع الخدمة', img:null, short:'مفتاح محلي أو صلاحية فنية', full:'وضع الخدمة يمكن أن يظهر من تحكم محلي أو صلاحيات فنية، والسجل التفصيلي هو الذي يحدد المصدر.', unlocked:false, order:94 });
     addEvidenceIfMissing(c, { id:'laila_archive_request', tag:'استجواب ليلى', crit:false, title:'كريم طلب ملفات من الأرشيف', img:null, short:'طلب ملفات ARCH-19 خلال يوم الحادث', full:'ليلى أكدت أن كريم كان يطلب ملفات من الأرشيف خلال اليوم، ما يعطي سببًا طبيعيًا لنزوله إلى B2.', unlocked:false, order:95 });
     addEvidenceIfMissing(c, { id:'hossam_visit', tag:'استجواب حسام', crit:false, title:'حسام جاء لتسليم أوراق المشروع', img:null, short:'زيارة مرتبطة بعقد قديم', full:'حسام قال إنه حضر بصفته مندوبًا إداريًا لتسليم أوراق متابعة مرتبطة بالعقد القديم.', unlocked:false, order:96 });
+    addEvidenceIfMissing(c, { id:'alibi_grid_ready', tag:'مسار التحقيق', crit:false, title:'شبكة الأعذار أصبحت متاحة', img:null, short:'الأدلة كفت لمقارنة مواقع المشتبهين الأربعة', full:'بعد فهم نمط المستندات أصبح من المنطقي اختبار أماكن المشتبهين في الأوقات الحرجة.', unlocked:false, unlocksAlibiGrid:true, order:97 });
+    addEvidenceIfMissing(c, { id:'timeline_ready', tag:'مسار التحقيق', crit:false, title:'إعادة بناء الخط الزمني أصبحت متاحة', img:null, short:'اتضح صاحب سجل الخروج ويمكن الآن ترتيب الأحداث التقنية', full:'بعد تحديد من استخدم بطاقة كريم أصبح ممكنًا ترتيب الأحداث بدون خلط حركة البطاقة بحركة صاحبها.', unlocked:false, unlocksTimeline:true, order:98 });
+
+    const documentScheme = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'document_scheme');
+    if(documentScheme){
+      const ids = new Set(documentScheme.resultEvidenceIds || []);
+      ids.add('alibi_grid_ready');
+      documentScheme.resultEvidenceIds = [...ids];
+    }
+    const sherifUsed = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'sherif_used_card');
+    if(sherifUsed){
+      const ids = new Set(sherifUsed.resultEvidenceIds || []);
+      ids.add('fake_exit_confirmed');
+      ids.add('timeline_ready');
+      sherifUsed.resultEvidenceIds = [...ids];
+    }
+
     registerCase(c);
   }
 
@@ -324,11 +355,13 @@
     configuredCaseIds: Object.keys(EXCLUSIVE_CASES),
   };
   window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = {
-    version:'2026-08-25-v5',
+    version:'2026-08-25-v6',
     wrongAccusationSkipsTheory:true,
     phasedDeductions:true,
     exclusiveSharedCode:true,
     multiExclusiveRegistry:true,
+    phasedSuspectReveal:true,
+    gatedTimelineAndAlibi:true,
     dynamicReturnFromDeath:true,
     dynamicFinalExit:true,
     blocksEntryUntilReady:true,
