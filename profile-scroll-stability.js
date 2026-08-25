@@ -33,9 +33,19 @@
     (document.head||document.documentElement).appendChild(s);
   }
 
+  function loadFacebookLaunchMode(){
+    if(document.querySelector('script[data-taraf-facebook-launch-mode]')) return;
+    const s=document.createElement('script');
+    s.src='facebook-launch-mode.js?v=20260825-1';
+    s.async=false;
+    s.dataset.tarafFacebookLaunchMode='1';
+    (document.head||document.documentElement).appendChild(s);
+  }
+
   function boot(){
     installStyle();
     loadSessionGuard();
+    loadFacebookLaunchMode();
     const root = document.getElementById('pf-root');
     if(root){
       const observer = new MutationObserver(installStyle);
