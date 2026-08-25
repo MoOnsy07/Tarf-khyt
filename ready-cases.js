@@ -119,7 +119,7 @@ const READY_CASE_IDS = new Set([
       await loadScript('social-profile-sync.js?v=20260825-3','data-taraf-social-profile-sync',8000);
 
       if(/\/profile\.html$/i.test(window.location.pathname)){
-        await loadScript('avatar-controls.js?v=20260825-2','data-taraf-avatar-controls',8000);
+        await loadScript('avatar-controls.js?v=20260825-3','data-taraf-avatar-controls',8000);
       }
     }catch(err){
       console.warn('Taraf auth stack:',err && err.message || err);
