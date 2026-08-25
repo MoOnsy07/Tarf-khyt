@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+// Firebase is optional until google-services.json is added.
+// This keeps the APK buildable and usable before Firebase setup is completed.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
 def buildVersionCode = (System.getenv('ANDROID_VERSION_CODE') ?: '1') as Integer
 def buildVersionName = System.getenv('ANDROID_VERSION_NAME') ?: '1.0.0'
 
@@ -42,4 +48,6 @@ android {
 }
 
 dependencies {
+    implementation platform('com.google.firebase:firebase-bom:34.17.0')
+    implementation 'com.google.firebase:firebase-messaging'
 }
