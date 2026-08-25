@@ -1,8 +1,6 @@
 /* ============================================================
    طرف الخيط — Profile Scroll Stability
    يحافظ على ثبات مساحة كارت الحساب أثناء تحميل حالة الربط.
-   ملاحظة: عرض الصورة الشخصية يتم الآن من social-profile-sync.js
-   و avatar-controls.js، لذلك لا نقرأ Auth من هنا نهائيًا.
    ============================================================ */
 (function(){
   'use strict';
@@ -26,8 +24,18 @@
     document.head.appendChild(style);
   }
 
+  function loadSessionGuard(){
+    if(document.querySelector('script[data-taraf-cloud-session-guard]')) return;
+    const s=document.createElement('script');
+    s.src='cloud-session-guard.js?v=20260825-1';
+    s.async=false;
+    s.dataset.tarafCloudSessionGuard='1';
+    (document.head||document.documentElement).appendChild(s);
+  }
+
   function boot(){
     installStyle();
+    loadSessionGuard();
     const root = document.getElementById('pf-root');
     if(root){
       const observer = new MutationObserver(installStyle);
