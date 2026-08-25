@@ -174,9 +174,6 @@
     window.TarafCaseLogic = { isEnabled, solved, currentPhase, phaseVisible, requirementsOk, solveDeduction };
   }
 
-  /* ============================================================
-     Registry للقضايا الحصرية. كل قضية لها Hash مستقل وكود reusable.
-     ============================================================ */
   const EXCLUSIVE_CASES = {
     'return-from-death': { expectedHash:'4045aa5c' },
     'final-exit': { expectedHash:'00771648' },
@@ -300,11 +297,7 @@
 
     const hossam = (c.suspects || []).find(s => s && s.id === 'hossam');
     if(hossam) hossam.hiddenUntilDeduction = 'hossam_present';
-
-    // شبكة الأعذار الأولى تخص الأربع شخصيات المعروفة؛ حسام يظهر لاحقًا كخيط جديد.
-    if(c.alibiGridPuzzle && c.alibiGridPuzzle.suspectClaims){
-      delete c.alibiGridPuzzle.suspectClaims.hossam;
-    }
+    if(c.alibiGridPuzzle && c.alibiGridPuzzle.suspectClaims) delete c.alibiGridPuzzle.suspectClaims.hossam;
 
     addEvidenceIfMissing(c, { id:'sara_dispute', tag:'استجواب سارة', crit:false, title:'خلاف مهني مع كريم', img:null, short:'خلاف حول ملفات مشروع قديم', full:'سارة أقرت بخلاف مهني مع كريم بشأن طلب ملفات مشروع قديم وطريقة المراجعة.', unlocked:false, order:90 });
     addEvidenceIfMissing(c, { id:'sherif_shift', tag:'استجواب شريف', crit:false, title:'شريف مسؤول الوردية الليلية', img:null, short:'مسؤول عن الأمن والبوابات والكاميرات', full:'شريف كان مشرف الوردية الليلية ومسؤولًا عن متابعة البوابات والكاميرات وأفراد الأمن.', unlocked:false, order:91 });
@@ -313,15 +306,43 @@
     addEvidenceIfMissing(c, { id:'service_access_info', tag:'استجواب مروان', crit:false, title:'طرق تشغيل وضع الخدمة', img:null, short:'مفتاح محلي أو صلاحية فنية', full:'وضع الخدمة يمكن أن يظهر من تحكم محلي أو صلاحيات فنية، والسجل التفصيلي هو الذي يحدد المصدر.', unlocked:false, order:94 });
     addEvidenceIfMissing(c, { id:'laila_archive_request', tag:'استجواب ليلى', crit:false, title:'كريم طلب ملفات من الأرشيف', img:null, short:'طلب ملفات ARCH-19 خلال يوم الحادث', full:'ليلى أكدت أن كريم كان يطلب ملفات من الأرشيف خلال اليوم، ما يعطي سببًا طبيعيًا لنزوله إلى B2.', unlocked:false, order:95 });
     addEvidenceIfMissing(c, { id:'hossam_visit', tag:'استجواب حسام', crit:false, title:'حسام جاء لتسليم أوراق المشروع', img:null, short:'زيارة مرتبطة بعقد قديم', full:'حسام قال إنه حضر بصفته مندوبًا إداريًا لتسليم أوراق متابعة مرتبطة بالعقد القديم.', unlocked:false, order:96 });
-    addEvidenceIfMissing(c, { id:'alibi_grid_ready', tag:'مسار التحقيق', crit:false, title:'شبكة الأعذار أصبحت متاحة', img:null, short:'الأدلة كفت لمقارنة مواقع المشتبهين الأربعة', full:'بعد فهم نمط المستندات أصبح من المنطقي اختبار أماكن المشتبهين في الأوقات الحرجة.', unlocked:false, unlocksAlibiGrid:true, order:97 });
+    addEvidenceIfMissing(c, { id:'alibi_grid_ready', tag:'مسار التحقيق', crit:false, title:'شبكة الأعذار أصبحت متاحة', img:null, short:'تم جمع مواقع المشتبهين الأربعة في الأوقات الحرجة', full:'بعد جمع سجلات سارة ومروان وليلى وشريف أصبح ممكنًا مقارنة رواياتهم في شبكة واحدة.', unlocked:false, unlocksAlibiGrid:true, order:97 });
     addEvidenceIfMissing(c, { id:'timeline_ready', tag:'مسار التحقيق', crit:false, title:'إعادة بناء الخط الزمني أصبحت متاحة', img:null, short:'اتضح صاحب سجل الخروج ويمكن الآن ترتيب الأحداث التقنية', full:'بعد تحديد من استخدم بطاقة كريم أصبح ممكنًا ترتيب الأحداث بدون خلط حركة البطاقة بحركة صاحبها.', unlocked:false, unlocksTimeline:true, order:98 });
 
-    const documentScheme = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'document_scheme');
-    if(documentScheme){
-      const ids = new Set(documentScheme.resultEvidenceIds || []);
-      ids.add('alibi_grid_ready');
-      documentScheme.resultEvidenceIds = [...ids];
+    // منع الانتقال من مرحلة قبل جمع دليل مطلوب في مرحلة لاحقة.
+    const didLeave = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'did_he_leave');
+    if(didLeave){
+      const req = new Set(didLeave.requires || []);
+      req.add('audio_message');
+      didLeave.requires = [...req];
     }
+    const cartNotBody = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'cart_not_body');
+    if(cartNotBody){
+      const req = new Set(cartNotBody.requires || []);
+      req.add('door_access_2257');
+      cartNotBody.requires = [...req];
+    }
+
+    const actionById = id => (c.investigationActions || []).find(a => a && a.id === id);
+    const serviceRoute = actionById('fe_service_route');
+    if(serviceRoute){ delete serviceRoute.phase; serviceRoute.minPhase = 'wrong_scene'; }
+    const archive19Action = actionById('fe_archive19');
+    if(archive19Action){ archive19Action.phase = 'missing_file'; }
+    const badgeClipAction = actionById('fe_badge_clip');
+    if(badgeClipAction){ badgeClipAction.phase = 'card'; }
+
+    // شبكة الأعذار لا تفتح بمجرد دخول المرحلة؛ لازم الأول تجمع أربع مصادر مستقلة.
+    const documentScheme = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'document_scheme');
+    if(documentScheme) documentScheme.resultEvidenceIds = (documentScheme.resultEvidenceIds || []).filter(id => id !== 'alibi_grid_ready');
+    if(!(c.investigationActions || []).some(a => a && a.id === 'fe_build_alibi_grid')){
+      c.investigationActions.push({
+        id:'fe_build_alibi_grid', kind:'تحليل أعذار', label:'اجمع مواقع المشتبهين في شبكة واحدة', phase:'alibis',
+        requires:['sara_car_exit','marwan_external_alibi','laila_home_alibi','sherif_landline'],
+        resultEvidenceIds:['alibi_grid_ready'], successText:'شبكة الأعذار جاهزة للمقارنة من أربع مصادر مستقلة.'
+      });
+    }
+
+    // الـTimeline لا يظهر قبل ما يتحدد صاحب استخدام بطاقة كريم.
     const sherifUsed = c.deductions && c.deductions.items && c.deductions.items.find(d => d && d.id === 'sherif_used_card');
     if(sherifUsed){
       const ids = new Set(sherifUsed.resultEvidenceIds || []);
@@ -355,13 +376,14 @@
     configuredCaseIds: Object.keys(EXCLUSIVE_CASES),
   };
   window.__TARAF_THEORY_BUILDER_SAFETY_FIX__ = {
-    version:'2026-08-25-v6',
+    version:'2026-08-25-v7',
     wrongAccusationSkipsTheory:true,
     phasedDeductions:true,
     exclusiveSharedCode:true,
     multiExclusiveRegistry:true,
     phasedSuspectReveal:true,
     gatedTimelineAndAlibi:true,
+    finalExitProgressionGuard:true,
     dynamicReturnFromDeath:true,
     dynamicFinalExit:true,
     blocksEntryUntilReady:true,
