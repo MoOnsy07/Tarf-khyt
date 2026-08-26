@@ -1,16 +1,14 @@
 /* ============================================================
-   طرف الخيط — دوران نوافذ ما بعد القضية
-   1: تقييم، 2: تيليجرام، 3: دعم، ثم تكرار محسوب بدون إزعاج
+   طرف الخيط — نافذة ما بعد القضية
+   التقييم أساسي بعد كل قضية + كارت ثانوي بالتناوب:
+   قضية فردية: قناة تيليجرام — قضية زوجية: دعم اللعبة.
+   لو اللاعب أكد إنه انضم للقناة، أدوار القناة تتحول للدعم.
    ============================================================ */
 (function(){
   'use strict';
 
-  const REVIEW_DONE_KEY = 'ca_ending_review_done_v1';
   const TELEGRAM_DONE_KEY = 'ca_telegram_cta_opened_v1';
-  const LAST_SHOWN_PREFIX = 'ca_ending_popup_last_';
-  const LEGACY_COMMUNITY_LAST_KEY = 'ca_community_popup_last_completed_count_v1';
-  const SUPPORT_FIRST_AT = 3;
-  const SUPPORT_INTERVAL = 6;
+  const SHOWN_CASE_PREFIX = 'ca_ending_review_popup_shown_';
 
   const telegramUrl = (typeof TELEGRAM_CHANNEL_URL !== 'undefined' && TELEGRAM_CHANNEL_URL)
     ? TELEGRAM_CHANNEL_URL
@@ -29,9 +27,7 @@
     try{
       const value = localStorage.getItem(key);
       return value == null ? fallback : value;
-    }catch(_){
-      return fallback;
-    }
+    }catch(_){ return fallback; }
   }
 
   function storageSet(key, value){
@@ -48,52 +44,12 @@
     return 0;
   }
 
-  function hasAnySavedReview(){
-    if(storageGet(REVIEW_DONE_KEY) === '1') return true;
-    try{
-      for(let i=0; i<localStorage.length; i++){
-        const key = localStorage.key(i) || '';
-        if(!key.startsWith('ca_review_')) continue;
-        const saved = JSON.parse(localStorage.getItem(key) || 'null');
-        if(saved && Number(saved.rating) >= 1){
-          storageSet(REVIEW_DONE_KEY, '1');
-          return true;
-        }
-      }
-    }catch(_){ }
-    return false;
+  function currentCaseId(){
+    try{ return CASE && CASE.id ? String(CASE.id) : ''; }catch(_){ return ''; }
   }
 
   function telegramWasOpened(){
     return storageGet(TELEGRAM_DONE_KEY) === '1';
-  }
-
-  function lastShown(type){
-    const own = Number(storageGet(LAST_SHOWN_PREFIX + type, '0')) || 0;
-    if(type !== 'support' || own) return own;
-    return Number(storageGet(LEGACY_COMMUNITY_LAST_KEY, '0')) || 0;
-  }
-
-  function scheduledTypeForCount(count){
-    if(!Number.isFinite(count) || count < 1) return null;
-
-    // التقييم: 1، 4، 7... لحد ما اللاعب يرسل تقييمًا واحدًا.
-    if(count % 3 === 1 && !hasAnySavedReview() && lastShown('review') !== count){
-      return 'review';
-    }
-
-    // تيليجرام: 2، 5، 8... لحد ما اللاعب يفتح القناة مرة واحدة.
-    if(count % 3 === 2 && !telegramWasOpened() && lastShown('telegram') !== count){
-      return 'telegram';
-    }
-
-    // الدعم يبدأ بعد القضية الثالثة ثم كل 6 قضايا: 3، 9، 15...
-    if(count >= SUPPORT_FIRST_AT && (count - SUPPORT_FIRST_AT) % SUPPORT_INTERVAL === 0){
-      const last = lastShown('support');
-      if(last !== count && (!last || count - last >= SUPPORT_INTERVAL)) return 'support';
-    }
-
-    return null;
   }
 
   function track(name, params={}){
@@ -108,33 +64,29 @@
     const style = document.createElement('style');
     style.id = 'ending-rotation-popup-styles';
     style.textContent = `
-      /* التقييم بقى Popup؛ نخفي النسخة القديمة داخل شاشة النهاية لمنع التكرار. */
       #panelBody .review-box{display:none!important}
-      .ending-rotation-overlay{position:fixed;inset:0;z-index:10020;background:rgba(3,4,7,.84);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;font-family:Cairo,Tahoma,sans-serif}
-      .ending-rotation-modal{width:min(520px,100%);max-height:90vh;overflow:auto;background:#11141b;border:1px solid rgba(224,164,88,.32);border-radius:22px;padding:22px;color:#ece5d8;box-shadow:0 24px 70px rgba(0,0,0,.62);position:relative;direction:rtl}
+      .ending-rotation-overlay{position:fixed;inset:0;z-index:10020;background:rgba(3,4,7,.86);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;font-family:Cairo,Tahoma,sans-serif}
+      .ending-rotation-modal{width:min(540px,100%);max-height:92vh;overflow:auto;background:#11141b;border:1px solid rgba(224,164,88,.32);border-radius:22px;padding:22px;color:#ece5d8;box-shadow:0 24px 70px rgba(0,0,0,.62);position:relative;direction:rtl}
       .ending-rotation-close{position:absolute;left:14px;top:12px;width:36px;height:36px;border:0;border-radius:50%;background:#1d212b;color:#fff;font-size:22px;cursor:pointer}
-      .ending-rotation-head{text-align:center;padding:4px 36px 15px}.ending-rotation-icon{font-size:40px}.ending-rotation-head h3{margin:7px 0 5px;color:#f1c786;font-size:22px}.ending-rotation-head p{margin:0;color:#aeb2b9;font-size:13px;line-height:1.8}
-      .ending-rotation-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;border-radius:11px;border:1px solid #e0a458;background:#e0a458;color:#111;text-decoration:none;font:800 14px Cairo,Tahoma,sans-serif;cursor:pointer;padding:9px 12px}
-      .ending-rotation-btn:disabled{opacity:.55;cursor:not-allowed}.ending-rotation-btn.ghost{margin-top:9px;background:#1b1f28;color:#f1c786;border-color:#3a3f4b}
-      .ending-review-stars{display:flex;direction:ltr;justify-content:center;gap:4px;margin:7px 0 14px}.ending-review-star{border:0;background:transparent;color:#e0a458;font-size:36px;line-height:1;cursor:pointer;padding:2px}
+      .ending-rotation-head{text-align:center;padding:4px 36px 12px}.ending-rotation-icon{font-size:38px}.ending-rotation-head h3{margin:7px 0 5px;color:#f1c786;font-size:22px}.ending-rotation-head p{margin:0;color:#aeb2b9;font-size:13px;line-height:1.8}
+      .ending-review-stars{display:flex;direction:ltr;justify-content:center;gap:4px;margin:7px 0 13px}.ending-review-star{border:0;background:transparent;color:#e0a458;font-size:38px;line-height:1;cursor:pointer;padding:2px}
       .ending-review-question{text-align:center;color:#f1c786;font-size:13px;line-height:1.8;margin:-2px 0 10px;min-height:24px}
       .ending-review-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:0 0 10px}.ending-review-topic{border:1px solid #343946;background:#171a22;color:#c9cbd0;border-radius:999px;padding:6px 10px;font:700 11px Cairo,Tahoma,sans-serif;cursor:pointer}.ending-review-topic:hover,.ending-review-topic.active{border-color:#e0a458;color:#f1c786;background:#211d18}
-      .ending-review-comment{width:100%;min-height:86px;box-sizing:border-box;resize:vertical;border:1px solid #343946;background:#171a22;color:#eee;border-radius:11px;padding:11px 12px;font:13px Cairo,Tahoma,sans-serif;margin-bottom:5px}
-      .ending-review-helper{display:flex;justify-content:space-between;gap:10px;color:#858a94;font-size:11px;line-height:1.6;margin:0 2px 11px}.ending-review-helper .useful{color:#79c9a5}
-      .ending-support-method{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:11px 12px;margin-top:9px}
-      .ending-support-copy{min-width:0}.ending-support-copy strong{display:block;font-size:13px}.ending-support-copy span{display:block;direction:ltr;text-align:left;color:#aeb2b9;font:12px monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
-      .ending-support-actions{display:flex;gap:6px}.ending-mini-btn{border:1px solid #3a3f4b;background:#1b1f28;color:#f1c786;border-radius:9px;padding:7px 9px;font:700 12px Cairo,Tahoma,sans-serif;text-decoration:none;cursor:pointer}.ending-mini-btn.primary{background:#e0a458;color:#111;border-color:#e0a458}
-      .ending-rotation-note{text-align:center;color:#777;font-size:11px;margin:13px 0 0;line-height:1.7}
-      @media(max-width:560px){.ending-rotation-modal{padding:20px 15px}.ending-support-method{align-items:flex-start}.ending-support-copy span{max-width:185px}}
+      .ending-review-comment{width:100%;min-height:88px;box-sizing:border-box;resize:vertical;border:1px solid #343946;background:#171a22;color:#eee;border-radius:11px;padding:11px 12px;font:13px Cairo,Tahoma,sans-serif;margin-bottom:5px}
+      .ending-review-helper{display:flex;justify-content:space-between;gap:10px;color:#858a94;font-size:11px;line-height:1.6;margin:0 2px 11px}.ending-review-helper.useful{color:#79c9a5}
+      .ending-rotation-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;border-radius:11px;border:1px solid #e0a458;background:#e0a458;color:#111;text-decoration:none;font:800 14px Cairo,Tahoma,sans-serif;cursor:pointer;padding:9px 12px}.ending-rotation-btn:disabled{opacity:.55;cursor:not-allowed}.ending-rotation-btn.ghost{background:#1b1f28;color:#f1c786;border-color:#3a3f4b}
+      .ending-extra-card{margin-top:16px;padding:14px;border:1px solid #2f3440;border-radius:15px;background:#151820}.ending-extra-label{color:#858a94;font:700 10px Cairo,Tahoma,sans-serif;margin-bottom:4px}.ending-extra-card h4{margin:0 0 5px;color:#f1c786;font-size:15px}.ending-extra-card p{margin:0 0 11px;color:#aeb2b9;font-size:12px;line-height:1.75}.ending-extra-actions{display:flex;gap:8px;flex-wrap:wrap}.ending-extra-actions .ending-rotation-btn{flex:1;min-width:150px;min-height:40px;font-size:12px}
+      .ending-support-method{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #2b3039;background:#11141b;border-radius:11px;padding:9px 10px;margin-top:8px}.ending-support-copy{min-width:0}.ending-support-copy strong{display:block;font-size:12px}.ending-support-copy span{display:block;direction:ltr;text-align:left;color:#aeb2b9;font:11px monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}.ending-support-actions{display:flex;gap:6px}.ending-mini-btn{border:1px solid #3a3f4b;background:#1b1f28;color:#f1c786;border-radius:9px;padding:6px 8px;font:700 11px Cairo,Tahoma,sans-serif;text-decoration:none;cursor:pointer}.ending-mini-btn.primary{background:#e0a458;color:#111;border-color:#e0a458}
+      .ending-rotation-note{text-align:center;color:#777;font-size:10px;margin:9px 0 0;line-height:1.7}
+      @media(max-width:560px){.ending-rotation-modal{padding:19px 14px}.ending-support-method{align-items:flex-start}.ending-support-copy span{max-width:175px}.ending-extra-actions{display:block}.ending-extra-actions .ending-rotation-btn{margin-top:7px}}
     `;
     document.head.appendChild(style);
   }
 
-  function createOverlay(type, innerHTML){
+  function createOverlay(innerHTML){
     const overlay = document.createElement('div');
     overlay.id = 'endingRotationOverlay';
     overlay.className = 'ending-rotation-overlay';
-    overlay.dataset.popupType = type;
     overlay.setAttribute('role','dialog');
     overlay.setAttribute('aria-modal','true');
     overlay.innerHTML = `
@@ -160,148 +112,13 @@
     return { overlay, close };
   }
 
-  function showReviewPopup(count){
-    const {overlay, close} = createOverlay('review', `
-      <div class="ending-rotation-head">
-        <div class="ending-rotation-icon">⭐</div>
-        <h3>قيّم القضية</h3>
-        <p>تقييمك بيساعدنا نعرف إيه اللي يستاهل يتكرر وإيه اللي محتاج يتظبط.</p>
-      </div>
-      <div class="ending-review-stars" data-review-stars data-rating="0">
-        ${[1,2,3,4,5].map(n=>`<button type="button" class="ending-review-star" data-star="${n}" aria-label="تقييم ${n} نجوم">☆</button>`).join('')}
-      </div>
-      <div class="ending-review-question" data-review-question>اختار النجوم الأول، وبعدها هنطلب منك سؤال واحد بسيط.</div>
-      <div class="ending-review-topics" aria-label="اختار نقطة تتكلم عنها">
-        <button type="button" class="ending-review-topic" data-review-topic="القصة">القصة</button>
-        <button type="button" class="ending-review-topic" data-review-topic="الأدلة">الأدلة</button>
-        <button type="button" class="ending-review-topic" data-review-topic="الصعوبة">الصعوبة</button>
-        <button type="button" class="ending-review-topic" data-review-topic="واجهة اللعب">واجهة اللعب</button>
-      </div>
-      <textarea class="ending-review-comment" data-review-comment maxlength="240" rows="3" placeholder="اختار النجوم واكتب جملة قصيرة..."></textarea>
-      <div class="ending-review-helper">
-        <span data-review-helper>حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.</span>
-        <span data-review-count>0/240</span>
-      </div>
-      <button type="button" class="ending-rotation-btn" data-submit-review disabled>أرسل التقييم</button>
-      <button type="button" class="ending-rotation-btn ghost" data-review-later>مش دلوقتي</button>`);
-
-    const stars = overlay.querySelector('[data-review-stars]');
-    const submit = overlay.querySelector('[data-submit-review]');
-    const commentBox = overlay.querySelector('[data-review-comment]');
-    const question = overlay.querySelector('[data-review-question]');
-    const helper = overlay.querySelector('[data-review-helper]');
-    const countLabel = overlay.querySelector('[data-review-count]');
-
-    function refreshCommentNudge(){
-      const comment = (commentBox.value || '').trim();
-      const words = comment ? comment.split(/\s+/).filter(Boolean).length : 0;
-      countLabel.textContent = `${commentBox.value.length}/240`;
-      helper.classList.toggle('useful', words >= 3);
-      helper.textContent = words >= 3
-        ? 'كده رأيك واضح ومفيد — شكرًا بجد.'
-        : words > 0
-          ? 'كمّل الفكرة بكلمتين كمان عشان نفهم قصدك.'
-          : 'حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.';
-      if(Number(stars.dataset.rating) > 0){
-        submit.textContent = comment ? 'أرسل التقييم والرأي' : 'إرسال النجوم فقط';
-      }
-    }
-
-    stars.querySelectorAll('[data-star]').forEach(button=>{
-      button.addEventListener('click', ()=>{
-        const rating = Number(button.dataset.star) || 0;
-        stars.dataset.rating = String(rating);
-        stars.querySelectorAll('[data-star]').forEach(star=>{
-          star.textContent = Number(star.dataset.star) <= rating ? '★' : '☆';
-        });
-        submit.disabled = rating < 1;
-        question.textContent = rating <= 3
-          ? 'إيه أكتر حاجة عطلتك أو محتاجة تتصلح؟'
-          : 'إيه أكتر جزء عجبك وعايز تشوف زيه في القضايا الجاية؟';
-        commentBox.placeholder = rating <= 3
-          ? 'مثال: الأدلة كانت محتاجة توضيح أكتر...'
-          : 'مثال: الربط بين الأدلة كان أكتر جزء عجبني...';
-        refreshCommentNudge();
-      });
-    });
-
-    overlay.querySelectorAll('[data-review-topic]').forEach(topic=>{
-      topic.addEventListener('click', ()=>{
-        overlay.querySelectorAll('[data-review-topic]').forEach(item=>item.classList.toggle('active', item === topic));
-        const label = topic.dataset.reviewTopic || '';
-        commentBox.placeholder = `قولنا رأيك في ${label} بجملة قصيرة...`;
-        commentBox.focus();
-      });
-    });
-    commentBox.addEventListener('input', refreshCommentNudge);
-
-    submit.addEventListener('click', async ()=>{
-      const rating = Number(stars.dataset.rating) || 0;
-      if(rating < 1) return;
-      const comment = (commentBox.value || '').trim().slice(0,240);
-      submit.disabled = true;
-      submit.textContent = 'جارِ الإرسال...';
-
-      try{
-        if(typeof submitCaseReview === 'function'){
-          await submitCaseReview(rating, comment);
-        }else{
-          const currentCase = (typeof CASE !== 'undefined' && CASE) ? CASE : null;
-          if(currentCase) storageSet('ca_review_' + currentCase.id, JSON.stringify({rating, comment}));
-          if(currentCase && typeof submitReview === 'function'){
-            await submitReview({
-              caseId: currentCase.id,
-              visitorId: typeof getVisitorId === 'function' ? getVisitorId() : '',
-              playerName: typeof getPlayerName === 'function' ? (getPlayerName() || 'محقق مجهول') : 'محقق مجهول',
-              rating,
-              comment,
-            });
-          }
-        }
-        storageSet(REVIEW_DONE_KEY, '1');
-        track('ending_rotation_action_complete', {popup_type:'review', completed_cases:count, rating:String(rating)});
-        close();
-      }catch(err){
-        console.error('ending review failed', err);
-        submit.disabled = false;
-        submit.textContent = 'حاول تاني';
-      }
-    });
-
-    overlay.querySelector('[data-review-later]').addEventListener('click', close);
-    overlay.querySelector('[data-star]').focus();
-  }
-
-  function showTelegramPopup(count){
-    const {overlay, close} = createOverlay('telegram', `
-      <div class="ending-rotation-head">
-        <div class="ending-rotation-icon">📢</div>
-        <h3>متفوّتش القضية الجاية</h3>
-        <p>القضايا الجديدة، التحديثات، ونتائج المتصدرين هتلاقيها على قناة طرف الخيط. لو أنت عضو بالفعل بلغنا مرة واحدة ومش هنطلب منك تاني.</p>
-      </div>
-      <a href="${esc(telegramUrl)}" target="_blank" rel="noopener noreferrer" class="ending-rotation-btn" data-ending-telegram data-telegram-cta="ending_rotation_popup">انضم للقناة</a>
-      <button type="button" class="ending-rotation-btn ghost" data-telegram-already>أنا منضم بالفعل ✓</button>`);
-
-    overlay.querySelector('[data-ending-telegram]').addEventListener('click', ()=>{
-      storageSet(TELEGRAM_DONE_KEY, '1');
-      track('ending_rotation_action_complete', {popup_type:'telegram', telegram_action:'join_click', completed_cases:count});
-      setTimeout(close, 150);
-    });
-    overlay.querySelector('[data-telegram-already]').addEventListener('click', ()=>{
-      storageSet(TELEGRAM_DONE_KEY, '1');
-      track('ending_rotation_action_complete', {popup_type:'telegram', telegram_action:'already_joined', completed_cases:count});
-      close();
-    });
-    overlay.querySelector('[data-ending-telegram]').focus();
-  }
-
   function copyText(value, button, method){
     if(!value) return;
     const done = ()=>{
       const old = button.textContent;
       button.textContent = 'تم ✓';
       setTimeout(()=>{ if(button.isConnected) button.textContent = old; }, 1200);
-      track('donation_payment_copy', {payment_method:method, cta_location:'ending_rotation_popup'});
+      track('donation_payment_copy', {payment_method:method, cta_location:'ending_review_popup'});
     };
     const fallback = ()=>{
       const ta = document.createElement('textarea');
@@ -333,63 +150,224 @@
       </div>`;
   }
 
-  function showSupportPopup(count){
-    const {overlay} = createOverlay('support', `
-      <div class="ending-rotation-head">
-        <div class="ending-rotation-icon">❤️</div>
-        <h3>ادعم طرف الخيط</h3>
-        <p>لو التجربة عجبتك، تقدر تساعد المشروع يكمل بأي مبلغ يناسبك.</p>
-      </div>
-      ${supportMethod('📱','Vodafone Cash — داخل مصر',vodafone,'vodafone_cash','')}
-      ${supportMethod('⚡','InstaPay — داخل مصر',instapay,'instapay',instapayLink)}
-      ${supportMethod('🌍','PayPal — من خارج مصر',paypal,'paypal','')}
-      <p class="ending-rotation-note">الدعم اختياري بالكامل ولا يفتح مزايا داخل اللعبة أو يؤثر على ترتيب اللاعبين.</p>`);
+  function telegramCard(){
+    return `
+      <div class="ending-extra-card" data-extra-card="telegram">
+        <div class="ending-extra-label">بعد ما تبعت رأيك</div>
+        <h4>📢 متفوّتش القضية الجاية</h4>
+        <p>القضايا الجديدة، التحديثات ونتائج المتصدرين بتنزل على قناة طرف الخيط.</p>
+        <div class="ending-extra-actions">
+          <a href="${esc(telegramUrl)}" target="_blank" rel="noopener noreferrer" class="ending-rotation-btn" data-ending-telegram data-telegram-cta="ending_review_popup">انضم للقناة</a>
+          <button type="button" class="ending-rotation-btn ghost" data-telegram-already>أنا انضمّيت قبل كده ✓</button>
+        </div>
+      </div>`;
+  }
 
-    overlay.querySelectorAll('[data-copy-value]').forEach(button=>{
+  function supportCard(){
+    const methods = [
+      supportMethod('📱','Vodafone Cash — داخل مصر',vodafone,'vodafone_cash',''),
+      supportMethod('⚡','InstaPay — داخل مصر',instapay,'instapay',instapayLink),
+      supportMethod('🌍','PayPal — من خارج مصر',paypal,'paypal','')
+    ].join('');
+    if(!methods) return '';
+    return `
+      <div class="ending-extra-card" data-extra-card="support">
+        <div class="ending-extra-label">اختياري بالكامل</div>
+        <h4>❤️ ادعم طرف الخيط</h4>
+        <p>لو التجربة عجبتك، دعمك بيساعدنا نكمل تطوير قضايا وصور وأنظمة جديدة.</p>
+        ${methods}
+        <p class="ending-rotation-note">الدعم لا يفتح مزايا ولا يؤثر على ترتيب اللاعبين.</p>
+      </div>`;
+  }
+
+  function secondaryCardForCount(count){
+    const wantsTelegram = count % 2 === 1 && !telegramWasOpened();
+    return wantsTelegram ? telegramCard() : supportCard();
+  }
+
+  function showReviewPopup(count){
+    const {overlay, close} = createOverlay(`
+      <div class="ending-rotation-head">
+        <div class="ending-rotation-icon">⭐</div>
+        <h3>رأيك في القضية؟</h3>
+        <p>قولنا إيه اللي عجبك أو إيه اللي محتاج يتظبط — رأيك بيفرق فعلًا في القضايا الجاية.</p>
+      </div>
+      <div class="ending-review-stars" data-review-stars data-rating="0">
+        ${[1,2,3,4,5].map(n=>`<button type="button" class="ending-review-star" data-star="${n}" aria-label="تقييم ${n} نجوم">☆</button>`).join('')}
+      </div>
+      <div class="ending-review-question" data-review-question>اختار تقييمك الأول.</div>
+      <div class="ending-review-topics" aria-label="اختار نقطة تتكلم عنها">
+        <button type="button" class="ending-review-topic" data-review-topic="القصة">القصة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="الأدلة">الأدلة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="الصعوبة">الصعوبة</button>
+        <button type="button" class="ending-review-topic" data-review-topic="واجهة اللعب">واجهة اللعب</button>
+      </div>
+      <textarea class="ending-review-comment" data-review-comment maxlength="240" rows="3" placeholder="اكتب رأيك في سطر أو سطرين..."></textarea>
+      <div class="ending-review-helper">
+        <span data-review-helper>حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.</span>
+        <span data-review-count>0/240</span>
+      </div>
+      <button type="button" class="ending-rotation-btn" data-submit-review disabled>إرسال رأيي ⭐</button>
+      ${secondaryCardForCount(count)}`);
+
+    const stars = overlay.querySelector('[data-review-stars]');
+    const submit = overlay.querySelector('[data-submit-review]');
+    const commentBox = overlay.querySelector('[data-review-comment]');
+    const question = overlay.querySelector('[data-review-question]');
+    const helper = overlay.querySelector('[data-review-helper]');
+    const countLabel = overlay.querySelector('[data-review-count]');
+
+    function refreshCommentNudge(){
+      const comment = (commentBox.value || '').trim();
+      const words = comment ? comment.split(/\s+/).filter(Boolean).length : 0;
+      countLabel.textContent = `${commentBox.value.length}/240`;
+      helper.classList.toggle('useful', words >= 3);
+      helper.textContent = words >= 3
+        ? 'تمام، كده رأيك واضح وهيوصل لنا 👌'
+        : words > 0
+          ? 'كمّل الفكرة بكلمتين كمان عشان نفهم قصدك.'
+          : 'حتى جملة قصيرة هتساعدنا أكتر من النجوم لوحدها.';
+    }
+
+    stars.querySelectorAll('[data-star]').forEach(button=>{
+      button.addEventListener('click', ()=>{
+        const rating = Number(button.dataset.star) || 0;
+        stars.dataset.rating = String(rating);
+        stars.querySelectorAll('[data-star]').forEach(star=>{
+          star.textContent = Number(star.dataset.star) <= rating ? '★' : '☆';
+        });
+        submit.disabled = rating < 1;
+        question.textContent = rating <= 3
+          ? 'إيه أكتر حاجة ضايقتك أو محتاجة تتحسن؟'
+          : 'إيه أكتر حاجة عجبتك وعايز تشوف منها أكتر؟';
+        commentBox.placeholder = rating <= 3
+          ? 'مثال: الأدلة كانت محتاجة توضيح أكتر...'
+          : 'مثال: الربط بين الأدلة كان أكتر جزء عجبني...';
+        refreshCommentNudge();
+      });
+    });
+
+    overlay.querySelectorAll('[data-review-topic]').forEach(topic=>{
+      topic.addEventListener('click', ()=>{
+        overlay.querySelectorAll('[data-review-topic]').forEach(item=>item.classList.toggle('active', item === topic));
+        const label = topic.dataset.reviewTopic || '';
+        const prefix = `بالنسبة لـ${label}: `;
+        if(!(commentBox.value || '').trim()) commentBox.value = prefix;
+        commentBox.placeholder = `قولنا رأيك في ${label} بجملة قصيرة...`;
+        commentBox.focus();
+        commentBox.setSelectionRange(commentBox.value.length, commentBox.value.length);
+        refreshCommentNudge();
+      });
+    });
+    commentBox.addEventListener('input', refreshCommentNudge);
+
+    submit.addEventListener('click', async ()=>{
+      const rating = Number(stars.dataset.rating) || 0;
+      if(rating < 1) return;
+      const comment = (commentBox.value || '').trim().slice(0,240);
+      submit.disabled = true;
+      submit.textContent = 'جارِ الإرسال...';
+
+      try{
+        if(typeof submitCaseReview === 'function'){
+          await submitCaseReview(rating, comment);
+        }else{
+          const currentCase = (typeof CASE !== 'undefined' && CASE) ? CASE : null;
+          if(currentCase) storageSet('ca_review_' + currentCase.id, JSON.stringify({rating, comment}));
+          if(currentCase && typeof submitReview === 'function'){
+            await submitReview({
+              caseId: currentCase.id,
+              visitorId: typeof getVisitorId === 'function' ? getVisitorId() : '',
+              playerName: typeof getPlayerName === 'function' ? (getPlayerName() || 'محقق مجهول') : 'محقق مجهول',
+              rating,
+              comment,
+            });
+          }
+        }
+        track('ending_review_submit', {completed_cases:count, rating:String(rating), has_comment:comment ? '1' : '0'});
+        submit.textContent = 'تم إرسال رأيك ✓';
+        setTimeout(close, 650);
+      }catch(err){
+        console.error('ending review failed', err);
+        submit.disabled = false;
+        submit.textContent = 'حاول تاني';
+      }
+    });
+
+    const telegramJoin = overlay.querySelector('[data-ending-telegram]');
+    if(telegramJoin){
+      telegramJoin.addEventListener('click', ()=>{
+        storageSet(TELEGRAM_DONE_KEY, '1');
+        track('ending_secondary_action', {secondary_type:'telegram', action:'join_click', completed_cases:count});
+      });
+    }
+
+    const telegramAlready = overlay.querySelector('[data-telegram-already]');
+    if(telegramAlready){
+      telegramAlready.addEventListener('click', ()=>{
+        storageSet(TELEGRAM_DONE_KEY, '1');
+        track('ending_secondary_action', {secondary_type:'telegram', action:'already_joined', completed_cases:count});
+        const card = telegramAlready.closest('[data-extra-card]');
+        if(card){
+          const replacement = document.createElement('div');
+          replacement.innerHTML = supportCard();
+          const next = replacement.firstElementChild;
+          if(next){
+            card.replaceWith(next);
+            bindSupportActions(overlay);
+          }else card.remove();
+        }
+      });
+    }
+
+    bindSupportActions(overlay);
+    overlay.querySelector('[data-star]').focus();
+  }
+
+  function bindSupportActions(root){
+    root.querySelectorAll('[data-copy-value]:not([data-bound])').forEach(button=>{
+      button.dataset.bound = '1';
       button.addEventListener('click', ()=>copyText(button.dataset.copyValue || '', button, button.dataset.copyMethod || 'unknown'));
     });
-    overlay.querySelectorAll('[data-payment-open]').forEach(link=>{
-      link.addEventListener('click', ()=>track('donation_payment_open', {payment_method:link.dataset.paymentOpen, cta_location:'ending_rotation_popup'}));
+    root.querySelectorAll('[data-payment-open]:not([data-bound])').forEach(link=>{
+      link.dataset.bound = '1';
+      link.addEventListener('click', ()=>track('donation_payment_open', {payment_method:link.dataset.paymentOpen, cta_location:'ending_review_popup'}));
     });
-    const first = overlay.querySelector('[data-copy-value], [data-payment-open]');
-    if(first) first.focus();
   }
 
   function shouldOpenEndingPopup(){
     try{
       return typeof CASE !== 'undefined' && typeof game !== 'undefined' && CASE && game && game.screen === 'ending';
-    }catch(_){
-      return false;
-    }
+    }catch(_){ return false; }
   }
 
-  function showEndingRotationPopup(){
+  function showEndingReviewPopup(){
     if(!shouldOpenEndingPopup() || document.getElementById('endingRotationOverlay')) return;
-    const count = completedCount();
-    const type = scheduledTypeForCount(count);
-    if(!type) return;
+    const caseId = currentCaseId();
+    if(!caseId) return;
 
-    storageSet(LAST_SHOWN_PREFIX + type, count);
-    track('ending_rotation_popup_impression', {popup_type:type, completed_cases:count});
+    const shownKey = SHOWN_CASE_PREFIX + caseId;
+    if(storageGet(shownKey) === '1') return;
+    storageSet(shownKey, '1');
 
-    if(type === 'review') showReviewPopup(count);
-    else if(type === 'telegram') showTelegramPopup(count);
-    else if(type === 'support') showSupportPopup(count);
+    const count = Math.max(1, completedCount());
+    const secondaryType = (count % 2 === 1 && !telegramWasOpened()) ? 'telegram' : 'support';
+    track('ending_review_popup_impression', {completed_cases:count, secondary_type:secondaryType});
+    showReviewPopup(count);
   }
 
   ensureStyles();
 
-  // engine.js بينادي الدالة دي بعد انتهاء القضية. نستبدلها بالمنظّم الجديد.
+  // engine.js بينادي الدالة دي بعد انتهاء القضية.
   try{
-    window.showTelegramInvite = showEndingRotationPopup;
-    showTelegramInvite = showEndingRotationPopup;
+    window.showTelegramInvite = showEndingReviewPopup;
+    showTelegramInvite = showEndingReviewPopup;
   }catch(_){
-    window.showTelegramInvite = showEndingRotationPopup;
+    window.showTelegramInvite = showEndingReviewPopup;
   }
 
-  // واجهة صغيرة للاختبار اليدوي من غير ما نكشف بيانات أو نغيّر حالة اللاعب.
   window.EndingPopupRotation = {
-    show: showEndingRotationPopup,
-    scheduledTypeForCount,
+    show: showEndingReviewPopup,
+    secondaryForCount: count => (Number(count) % 2 === 1 && !telegramWasOpened()) ? 'telegram' : 'support',
   };
 })();
