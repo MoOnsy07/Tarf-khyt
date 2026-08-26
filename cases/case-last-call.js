@@ -141,7 +141,7 @@ const CASE_LAST_CALL = {
     { id:'call_log_official', tag:'من سجل الهاتف', crit:true, title:'سجل المكالمة الظاهر على هاتف فؤاد', img: IMG_BASE_LASTCALL + 'lastcall-log.jpg', unlocksAudio:true,
       short:'ملف 14 دقيقة ظاهر باسم منة داخل تطبيق تسجيل المكالمات',
       full:'تطبيق تسجيل المكالمات على موبايل فؤاد بيعرض ملف مدته 14 دقيقة باسم منة، لكن ده سجل محلي على الهاتف، مش إثبات من شركة الاتصالات إن مكالمة حصلت فعلًا.',
-      unlocked:true, order:1 },
+      unlocked:false, order:1 },
 
     { id:'daughter_confusion', tag:'من استجواب منة', crit:false, title:'حيرة منة من التسجيل', img:null,
       short:'ماعندهاش تفسير لوجود صوتها في مكالمة تقول إنها ماحصلتش',
@@ -190,6 +190,13 @@ const CASE_LAST_CALL = {
   codeLockPuzzle: { enabled:false },
   matchPuzzle: { enabled:false },
   cipherPuzzle: { enabled:false },
+
+  investigationActions: [
+    { id:'lc_phone_check', kind:'فحص رقمي', label:'افحص موبايل فؤاد اللي جنب العربية', requires:['forensic_report'],
+      description:'الموبايل لقيناه ملقى جنب مكان الحادثة — يستاهل تفحص آخر نشاط عليه قبل ما تسأل حد عن المكالمة.',
+      resultEvidenceIds:['call_log_official'], score:5,
+      successText:'لقيت ملف تسجيل مكالمة مدته 14 دقيقة ظاهر باسم منة داخل تطبيق تسجيل المكالمات.' },
+  ],
 
   audioPuzzle: {
     enabled: true,

@@ -191,7 +191,7 @@ const CASE_FINAL_TESTAMENT = {
     { id:'window_open', tag:'من مسرح الجريمة', crit:true, partial:true, title:'شباك الحمام الملحق بالمكتب مفتوح شوية', img: IMG_BASE_TESTAMENT + 'window.jpg',
       short:'مش مكسور، بس مش مقفول زي العادة',
       full:'الحمام الملحق بمكتب الحاج له شباك صغير بيطل على الجنينة الخلفية. الشباك مش مكسور، بس مش مقفول تمامًا زي باقي شبابيك الفيلا. المدخل ده يخلّي حد عارف تفاصيل البيت يدخل المكتب من غير ما يعدّي من الباب، ويخرج قبل ما الحاج يرجع له.',
-      unlocked:true, order:3 },
+      unlocked:false, order:3 },
 
     { id:'gambling_debt', tag:'من استجواب منير', crit:false, redHerring:true, title:'أوراق ديون قمار منير', img:null,
       short:'مديونية كبيرة، ومحتاج قرار الوصية جدًا',
@@ -252,6 +252,13 @@ const CASE_FINAL_TESTAMENT = {
   evidenceCombinations: [
     { parts:['window_open','window_print'], resultId:'entry_method_confirmed' },
     { parts:['new_will_copy','birth_certificate'], resultId:'true_motive_revealed' },
+  ],
+
+  investigationActions: [
+    { id:'ft_window_check', kind:'مسرح الجريمة', label:'افحص الحمام الملحق بالمكتب', requires:['tea_cup'],
+      description:'الباب مقفول من جوه، ومفيش علامة اقتحام ظاهرة — لازم تتأكد مفيش مدخل تاني قبل ما تستبعد فكرة إن حد دخل من برة.',
+      resultEvidenceIds:['window_open'], score:5,
+      successText:'لقيت شباك الحمام مش مقفول تمامًا زي باقي شبابيك الفيلا.' },
   ],
 
   contradictionPuzzle: {

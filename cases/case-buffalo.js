@@ -204,7 +204,7 @@ const CASE_BUFFALO = {
     { id:'boot', tag:'من الزريبة', crit:true, title:'بصمة حذاء طينية مقاس 43', img: IMG_BASE_BUFFALO + 'buffalo-bootprint.jpg',
       short:'جنب القفل مباشرة',
       full:'بصمة حذاء طينية واضحة، مقاس 43 تقريبًا، جهة يمين القفل مباشرة. المقاس والنقشة ممكن يتقارنوا بجزم المشتبه فيهم.',
-      unlocked:true, order:3 },
+      unlocked:false, order:3 },
 
     { id:'hair', tag:'من السلك الشائك', crit:false, redHerring:true, title:'وبر جاموسة عالق في السلك الشائك', img: IMG_BASE_BUFFALO + 'buffalo-hair.jpg',
       short:'ناحية أرض عم رزق',
@@ -230,6 +230,13 @@ const CASE_BUFFALO = {
       short:'حسني قال إنه نايم طول الليل، وفرحات شافه صاحي قرب الزريبة',
       full:'حسني قال إنه كان نايم في الجرن طول الليل من بدري، لكن فرحات شافه قرب الزريبة الساعة 1 بالليل شايل حاجة تقيلة على كتفه. ده معناه إن حسني خبّى جزء مهم من تحركاته في الليلة دي.',
       unlocked:false, order:8 },
+  ],
+
+  investigationActions: [
+    { id:'buf_boot_check', kind:'مسرح الجريمة', label:'افحص الأرض حوالين القفل كويس', requires:['lock'],
+      description:'القفل اتقطع بكماشة — يستاهل تدوّر حوالينه على أي أثر تاني قبل ما تروح تستجوب حد.',
+      resultEvidenceIds:['boot'], score:5,
+      successText:'لقيت بصمة حذاء طينية واضحة جهة يمين القفل مباشرة، مقاس 43 تقريبًا.' },
   ],
 
   contradictionPuzzle: {
