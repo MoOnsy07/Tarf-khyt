@@ -12,7 +12,7 @@
   if (typeof CASES_REGISTRY === 'undefined' || !Array.isArray(CASES_REGISTRY)) return;
   if (typeof renderTabs !== 'function' || typeof renderPanel !== 'function') return;
 
-  const VERSION = '2026-08-24-realistic-all-v1';
+  const VERSION = '2026-08-26-realistic-code-source-v2';
   const STORAGE_FIELD = 'solvedDiscoveries';
 
   function hashString(value){
@@ -156,7 +156,7 @@
         maxLength:4,
         placeholder:'المرجع المركب...',
         acceptedAnswers:[`${part1}${part2}`],
-        wrongMsg:'✗ المرجع مش مطابق. افتح الدليلين وراجع ملاحظات الفحص الواقعي.',
+        wrongMsg:'✗ المرجع مش مطابق. راجع «مصدر المطلوب» وملاحظات الفحص الظاهرة فوق خانة الإدخال.',
         successText:`المطابقة نجحت. النظام رجّع بادئة مرجع متابعة: ${prefix}.`,
         resultText:`اتأكد إن الخيطين بيرجعوا لنفس مسار الفحص. بادئة المتابعة اللي خرجت من المطابقة: ${prefix}.`,
         resultPrefix:prefix,
@@ -175,7 +175,7 @@
         maxLength:12,
         placeholder:'مرجع المتابعة...',
         acceptedAnswers:[`${prefix}${suffix}`,`${prefix}-${suffix}`,`${prefix} ${suffix}`],
-        wrongMsg:'✗ المرجع مش موجود. راجع نتيجة المطابقة الأولى وملاحظة الفحص في الدليل المطلوب.',
+        wrongMsg:'✗ المرجع مش موجود. راجع نتيجة المطابقة الأولى وملاحظات المصدر الظاهرة فوق خانة الإدخال.',
         successText:'تم فتح سجل التحقق واتأكد الخيط كمعلومة مستقلة في ملف التحقيق.',
         resultText:`سجل المتابعة «${prefix}-${suffix}» اتفتح بنجاح. النتيجة بتأكد صلاحية الخيط للاعتماد عليه مع باقي الأدلة، من غير ما تحدد الجاني لوحدها.`,
         sourceIds:[c.id],
@@ -416,14 +416,54 @@
     return CASE.realisticDiscoveryClues[evidenceId] || [];
   }
 
+  function sourceIdsForLock(lock){
+    const ids = [...(lock.sourceIds || lock.requires || [])];
+    return [...new Set(ids.filter(Boolean))];
+  }
+
   function sourceSummary(lock){
-    const ids = lock.sourceIds || lock.requires || [];
+    const ids = sourceIdsForLock(lock);
     const titles = ids.map(id=>{
       const ev = CASE && CASE.evidence ? CASE.evidence.find(e=>e.id===id) : null;
       return ev ? ev.title : null;
     }).filter(Boolean);
     if(!titles.length) return '';
-    return `<p class="mono dim" style="font-size:11px;margin:8px 0 0;">راجع: ${titles.map(escapeHTML).join(' + ')}</p>`;
+    return `<div style="margin:10px 0 0;padding:10px 12px;border-right:3px solid var(--amber);background:rgba(224,164,88,.06);border-radius:7px;">
+      <div class="mono" style="font-size:11px;margin-bottom:4px;">📌 مصدر المطلوب</div>
+      <div class="dim" style="font-size:12px;line-height:1.7;">${titles.map(escapeHTML).join(' + ')}</div>
+    </div>`;
+  }
+
+  function sourceClueSummary(lock){
+    const ids = sourceIdsForLock(lock);
+    const rows = [];
+    ids.forEach(id=>{
+      if(!(game.collected && game.collected.has(id))) return;
+      const ev = CASE && CASE.evidence ? CASE.evidence.find(e=>e.id===id) : null;
+      const notes = clueNotesForEvidence(id);
+      notes.forEach(note=>{
+        rows.push({ title:ev && ev.title ? ev.title : 'دليل', note });
+      });
+    });
+    if(!rows.length) return '';
+    return `<div style="margin:10px 0 2px;padding:11px 12px;border:1px dashed var(--amber);background:rgba(224,164,88,.08);border-radius:8px;">
+      <div class="tag mono" style="margin-bottom:7px;">🔎 ملاحظات تساعدك توصل للكود</div>
+      ${rows.map(r=>`<p style="margin:6px 0;line-height:1.8;"><strong>${escapeHTML(r.title)}:</strong> ${escapeHTML(r.note)}</p>`).join('')}
+      <p class="dim" style="margin:8px 0 0;font-size:11px;">مش مطلوب تخمّن رقم من عندك. المطلوب كله موجود في الملاحظات دي أو في نتيجة الخطوة السابقة.</p>
+    </div>`;
+  }
+
+  function previousDiscoveryHint(lock){
+    const req = lock.requiresDiscoveries || [];
+    if(!req.length) return '';
+    const previous = locks().find(x=>x && req.includes(x.id) && discoverySolved(x));
+    if(!previous) return '';
+    const text = previous.resultPrefix || previous.successText || previous.resultText || '';
+    if(!text) return '';
+    return `<div style="margin:10px 0 2px;padding:10px 12px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:8px;">
+      <div class="mono" style="font-size:11px;margin-bottom:4px;">↩ نتيجة الخطوة السابقة</div>
+      <div class="dim" style="font-size:12px;line-height:1.7;">${escapeHTML(text)}</div>
+    </div>`;
   }
 
   function cardHTML(lock){
@@ -457,6 +497,8 @@
       ${image}
       <p class="dim" style="margin-bottom:12px;">${escapeHTML(lock.introText || '')}</p>
       ${sourceSummary(lock)}
+      ${sourceClueSummary(lock)}
+      ${previousDiscoveryHint(lock)}
       <input data-real-discovery-input="${escapeHTML(lock.id)}" inputmode="${numeric ? 'numeric' : 'text'}" autocomplete="off" maxlength="${Number(lock.maxLength || 40)}" placeholder="${escapeHTML(lock.placeholder || 'اكتب اللي استنتجته...')}" style="width:100%;max-width:430px;padding:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:8px;margin-top:12px;">
       <div><button class="btn" data-real-discovery-submit="${escapeHTML(lock.id)}" style="margin-top:12px;">نفّذ التحقق</button></div>
       <div class="wave-feedback" data-real-discovery-feedback="${escapeHTML(lock.id)}"></div>
@@ -467,7 +509,7 @@
     const active = locks();
     const done = active.filter(discoverySolved).length;
     return `<h2>اكتشافات التحقيق الواقعي</h2>
-      <p class="dim">دي مش أسئلة ولا اختيارات. افتح الأدلة اللي جمعتها، استخرج الأرقام أو المراجع منها، واكتبها بنفسك عشان تكمل التحقق. لازم تخلص الاكتشافات قبل الاتهام النهائي في الوضع الواقعي.</p>
+      <p class="dim">كل رقم أو مرجع مطلوب له مصدر محدد. بعد ما تجمع الدليل المطلوب هتلاقي اسم المصدر وملاحظة الفحص ظاهرة داخل نفس الاكتشاف. مش مطلوب منك تخمّن أكواد من عندك؛ المطلوب إنك تربط أجزاء المعلومة وتكتبها بالشكل الصحيح.</p>
       <div class="mono dim" style="font-size:11px;margin:10px 0 14px;">${done} / ${active.length} مكتمل</div>
       <div class="divider"></div>
       <div style="display:grid;gap:12px;">${active.map(cardHTML).join('')}</div>`;
@@ -492,7 +534,7 @@
       if(fb){ fb.textContent='✓ '+(lock.successText || 'تم التحقق.'); fb.className='wave-feedback ok'; }
       setTimeout(()=>{ try{ render(); }catch(_){} },650);
     }else{
-      if(fb){ fb.textContent=lock.wrongMsg || '✗ مش مطابق. راجع الخيوط اللي جمعتها.'; fb.className='wave-feedback bad'; }
+      if(fb){ fb.textContent=lock.wrongMsg || '✗ مش مطابق. راجع مصدر المطلوب وملاحظات الفحص الظاهرة فوق.'; fb.className='wave-feedback bad'; }
       try{ gaTrack('realistic_discovery_attempt',{discovery_id:lock.id}); }catch(_){}
     }
   }
