@@ -69,7 +69,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
     try{
       if(document.querySelector('script[data-ending-score]')) return;
       const s=document.createElement('script');
-      s.src='ending-score.js?v=20260827-1';
+      s.src='ending-score.js?v=20260827-2';
       s.setAttribute('data-ending-score','1');
       document.body.appendChild(s);
     }catch(e){}
