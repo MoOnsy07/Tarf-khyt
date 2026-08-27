@@ -49,6 +49,13 @@ jobs:
             exit 1
           fi
 
+      - name: Validate Firebase Android configuration
+        run: |
+          test -f android-app/app/google-services.json
+          test "$(jq -r '.project_info.project_id' android-app/app/google-services.json)" = "taraf5eet"
+          test "$(jq -r '.client[0].client_info.android_client_info.package_name' android-app/app/google-services.json)" = "online.taraf5eet.app"
+          test "$(jq -r '.client[0].client_info.mobilesdk_app_id' android-app/app/google-services.json)" = "1:405157321053:android:af1dcec0bb705fd693b0b4"
+
       - name: Restore release signing key
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

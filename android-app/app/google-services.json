@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "405157321053",
+    "project_id": "taraf5eet",
+    "storage_bucket": "taraf5eet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405157321053:android:af1dcec0bb705fd693b0b4",
+        "android_client_info": {
+          "package_name": "online.taraf5eet.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUV3tDV6xrjbsjlcBy98z92FNevYD4t-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
