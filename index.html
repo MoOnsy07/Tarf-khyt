@@ -73,6 +73,7 @@
   <span class="beta-banner-tag mono">🧪 نسخة تجريبية</span>
   <span class="beta-banner-text">الموقع لسه في مرحلة تجريبية — ممكن تقابل أعطال بسيطة أو تحديثات مفاجئة. أي ملاحظة كلّمنا على واتساب.</span>
 <span class="beta-banner-text">كل يوم بنضيف قضايا جديدة</span>
+  <button id="enable-push-btn" class="beta-banner-close" style="width:auto;padding:4px 10px;font-size:13px;border-radius:6px;" onclick="window.TarafPush && window.TarafPush.enable()">🔔 فعّل الإشعارات</button>
   <button id="beta-banner-close" class="beta-banner-close" aria-label="إغلاق">×</button>
 </div>
 <script>
@@ -99,6 +100,8 @@
 <!-- إعدادات الخدمات المشتركة والاتصال بـ Supabase -->
 <script src="config.js"></script>
 <script src="supabase-client.js"></script>
+<!-- إشعارات اللعبة (Firebase Cloud Messaging) -->
+<script src="push-notifications.js"></script>
 <!-- كل قضية ليها ملف بيانات منفصل — ضيف سطر <script> جديد هنا لكل قضية جديدة -->
 <script src="cases/case-last-episode.js"></script>
 <script src="cases/case-buffalo.js"></script>
