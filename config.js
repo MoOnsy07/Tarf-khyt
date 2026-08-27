@@ -56,7 +56,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   try{
     if(document.querySelector('script[data-taraf-android-download]')) return;
     const s=document.createElement('script');
-    s.src='android-download.js?v=apk-15';
+    s.src='android-download.js?v=apk-16';
     s.defer=true;
     s.setAttribute('data-taraf-android-download','1');
     document.head.appendChild(s);
