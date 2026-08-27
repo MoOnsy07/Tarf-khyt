@@ -7,6 +7,7 @@
   'use strict';
 
   const APP_MARKER_KEY = 'taraf_android_app_v1';
+  const APP_VERSION_KEY = 'taraf_android_app_version_v1';
   const INSTALL_ID_KEY = 'taraf_android_install_id_v1';
   const SESSION_SENT_KEY = 'taraf_android_open_sent_v1';
 
@@ -22,6 +23,8 @@
       const url = new URL(location.href);
       if(url.searchParams.get('android_app') === '1'){
         localStorage.setItem(APP_MARKER_KEY,'1');
+        const appVersion=String(url.searchParams.get('app_version')||'').trim().slice(0,40);
+        if(appVersion) localStorage.setItem(APP_VERSION_KEY,appVersion);
         url.searchParams.delete('android_app');
         url.searchParams.delete('app_version');
         history.replaceState(null,'',url.pathname + (url.search ? url.search : '') + url.hash);
@@ -43,6 +46,11 @@
     }catch(e){ return randomId(); }
   }
 
+  function getAppVersion(){
+    try{ return String(localStorage.getItem(APP_VERSION_KEY)||'').trim().slice(0,40); }
+    catch(e){ return ''; }
+  }
+
   async function sendOpen(){
     if(!isAndroidApp()) return;
     try{
@@ -56,7 +64,7 @@
         const {data,error} = await sb.rpc('track_android_app_open',{
           p_install_id:installId,
           p_path:String(location.pathname || '/').slice(0,180),
-          p_app_version:null,
+          p_app_version:getAppVersion()||null,
         });
         if(error) throw error;
         try{
@@ -76,6 +84,7 @@
   window.TarafAndroidApp = {
     isAndroidApp,
     getInstallId,
+    getAppVersion,
     markerSeen:fromApp,
   };
 

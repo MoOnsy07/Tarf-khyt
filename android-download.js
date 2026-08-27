@@ -4,7 +4,9 @@
 
   const APK_READY = true;
   const APK_URL = 'https://github.com/MoOnsy07/Tarf-khyt/releases/download/android-latest/taraf-khyt.apk';
+  const LATEST_ANDROID_VERSION = '1.0.16';
   const DOWNLOAD_ID_KEY = 'taraf_android_download_visitor_v1';
+  const APP_VERSION_KEY = 'taraf_android_app_version_v1';
 
   function randomId(){
     try{ if(window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID(); }catch(e){}
@@ -23,12 +25,25 @@
 
   function insideAndroidApp(){
     try{
+      if(new URL(location.href).searchParams.get('android_app') === '1') return true;
       return !!(window.TarafAndroidApp && window.TarafAndroidApp.isAndroidApp && window.TarafAndroidApp.isAndroidApp())
         || localStorage.getItem('taraf_android_app_v1') === '1';
     }catch(e){ return false; }
   }
 
-  async function trackDownload(){
+  function installedAppVersion(){
+    try{
+      const fromUrl=String(new URL(location.href).searchParams.get('app_version')||'').trim();
+      if(fromUrl) return fromUrl;
+      if(window.TarafAndroidApp && typeof window.TarafAndroidApp.getAppVersion === 'function'){
+        const fromBridge=String(window.TarafAndroidApp.getAppVersion()||'').trim();
+        if(fromBridge) return fromBridge;
+      }
+      return String(localStorage.getItem(APP_VERSION_KEY)||'').trim();
+    }catch(e){ return ''; }
+  }
+
+  async function trackDownload(isUpdate){
     const id=getDownloadVisitorId();
     try{
       if(typeof sb !== 'undefined' && sb && typeof sb.rpc === 'function'){
@@ -40,13 +55,16 @@
     }catch(e){}
     try{
       if(typeof gtag === 'function'){
-        gtag('event','android_apk_download',{event_category:'android_app'});
+        gtag('event',isUpdate?'android_apk_update':'android_apk_download',{event_category:'android_app'});
       }
     }catch(e){}
   }
 
   function mount(){
-    if(!APK_READY || insideAndroidApp() || document.getElementById('taraf-android-download')) return;
+    if(!APK_READY || document.getElementById('taraf-android-download')) return;
+    const inApp=insideAndroidApp();
+    const installedVersion=installedAppVersion();
+    if(inApp && installedVersion === LATEST_ANDROID_VERSION) return;
     const app=document.getElementById('app');
     if(!app) return;
 
@@ -68,10 +86,10 @@
     wrap.className='taraf-android-download';
     wrap.innerHTML=`<div class="taraf-android-download-card">
       <div class="taraf-android-download-copy">
-        <div class="taraf-android-download-title">📱 طرف الخيط على Android</div>
-        <div class="taraf-android-download-sub">نزّل التطبيق مباشرة بصيغة APK — بدون متجر Play.</div>
+        <div class="taraf-android-download-title">${inApp?'🔔 تحديث ضروري للإشعارات':'📱 طرف الخيط على Android'}</div>
+        <div class="taraf-android-download-sub">${inApp?'حدّث التطبيق مرة واحدة عشان توصلك القضايا والتحديثات الجديدة.':'نزّل التطبيق مباشرة بصيغة APK — بدون متجر Play.'}</div>
       </div>
-      <button type="button" class="taraf-android-download-btn" id="taraf-apk-download-btn">تحميل APK ↓</button>
+      <button type="button" class="taraf-android-download-btn" id="taraf-apk-download-btn">${inApp?'تحميل التحديث ↓':'تحميل APK ↓'}</button>
     </div>`;
     app.parentNode.insertBefore(wrap,app);
 
@@ -81,7 +99,7 @@
       btn.disabled=true;
       const old=btn.textContent;
       btn.textContent='جاري بدء التحميل...';
-      await trackDownload();
+      await trackDownload(inApp);
       window.location.href=APK_URL;
       setTimeout(()=>{ btn.disabled=false; btn.textContent=old; },1200);
     });

@@ -25,7 +25,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4107;
     private static final int NOTIFICATION_PERMISSION_REQUEST = 4108;
-    private static final String START_URL = "https://taraf5eet.online/?android_app=1";
+    private static final String START_URL = "https://taraf5eet.online/";
 
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
             webView.restoreState(savedInstanceState);
         } else {
             String pushUrl = getPushUrl(getIntent());
-            webView.loadUrl(pushUrl != null ? pushUrl : START_URL);
+            webView.loadUrl(pushUrl != null ? pushUrl : getStartUrl());
         }
 
         initPushNotifications();
@@ -130,13 +130,22 @@ public class MainActivity extends Activity {
             if (!"https".equals(scheme) || !("taraf5eet.online".equals(host) || "www.taraf5eet.online".equals(host))) {
                 return null;
             }
-            if (uri.getQueryParameter("android_app") == null) {
-                uri = uri.buildUpon().appendQueryParameter("android_app", "1").build();
-            }
+            Uri.Builder builder = uri.buildUpon();
+            if (uri.getQueryParameter("android_app") == null) builder.appendQueryParameter("android_app", "1");
+            if (uri.getQueryParameter("app_version") == null) builder.appendQueryParameter("app_version", BuildConfig.VERSION_NAME);
+            uri = builder.build();
             return uri.toString();
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String getStartUrl() {
+        return Uri.parse(START_URL).buildUpon()
+                .appendQueryParameter("android_app", "1")
+                .appendQueryParameter("app_version", BuildConfig.VERSION_NAME)
+                .build()
+                .toString();
     }
 
     private boolean handleUrl(Uri uri) {
