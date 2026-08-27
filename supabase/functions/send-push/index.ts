@@ -113,7 +113,11 @@ async function validAdminSession(token: string, supabaseUrl: string, serviceRole
   return (await response.json().catch(() => false)) === true;
 }
 
-async function fetchEnabledWebTokens(supabaseUrl: string, serviceRole: string) {
+async function fetchEnabledTokens(
+  supabaseUrl: string,
+  serviceRole: string,
+  platform: 'android' | 'web',
+) {
   const tokens: string[] = [];
   const pageSize = 1000;
 
@@ -121,13 +125,13 @@ async function fetchEnabledWebTokens(supabaseUrl: string, serviceRole: string) {
     const url = new URL(`${supabaseUrl}/rest/v1/push_devices`);
     url.searchParams.set('select', 'fcm_token');
     url.searchParams.set('enabled', 'eq.true');
-    url.searchParams.set('platform', 'eq.web');
+    url.searchParams.set('platform', `eq.${platform}`);
     url.searchParams.set('order', 'id.asc');
     url.searchParams.set('limit', String(pageSize));
     url.searchParams.set('offset', String(offset));
 
     const response = await fetch(url, { headers: serviceHeaders(serviceRole) });
-    if (!response.ok) throw new Error(`Could not read web push devices: ${response.status}`);
+    if (!response.ok) throw new Error(`Could not read ${platform} push devices: ${response.status}`);
     const rows = await response.json().catch(() => []);
     if (!Array.isArray(rows)) break;
     for (const row of rows) {
@@ -225,6 +229,59 @@ async function sendWebPushes(
   return { success, failure, invalid: invalidTokens.length };
 }
 
+async function sendAndroidPushes(
+  tokens: string[],
+  accessToken: string,
+  serviceAccount: ServiceAccount,
+  title: string,
+  body: string,
+  targetUrl: string,
+  supabaseUrl: string,
+  serviceRole: string,
+) {
+  let success = 0;
+  let failure = 0;
+  const invalidTokens: string[] = [];
+  const messageNames: string[] = [];
+  const concurrency = 25;
+
+  for (let index = 0; index < tokens.length; index += concurrency) {
+    const chunk = tokens.slice(index, index + concurrency);
+    const results = await Promise.all(chunk.map(async (token) => {
+      const result = await sendFcm(accessToken, serviceAccount.project_id, {
+        token,
+        notification: { title, body },
+        data: { title, body, url: targetUrl },
+        android: {
+          priority: 'HIGH',
+          notification: {
+            channel_id: 'taraf_updates',
+            icon: 'ic_launcher',
+            color: '#E0A458',
+            sound: 'default',
+          },
+        },
+      });
+      return { token, result };
+    }));
+
+    for (const item of results) {
+      if (item.result.ok) {
+        success += 1;
+        const name = String(item.result.payload.name || '');
+        if (name) messageNames.push(name);
+      } else {
+        failure += 1;
+        if (tokenIsInvalid(item.result)) invalidTokens.push(item.token);
+        console.error('Android FCM error', item.result.status, item.result.payload);
+      }
+    }
+  }
+
+  await Promise.all(invalidTokens.map((token) => disableToken(token, supabaseUrl, serviceRole)));
+  return { success, failure, invalid: invalidTokens.length, names: messageNames };
+}
+
 async function logCampaign(
   supabaseUrl: string,
   serviceRole: string,
@@ -278,48 +335,49 @@ Deno.serve(async (req: Request) => {
       return json(req, { error: 'Incomplete or wrong Firebase service account' }, 503);
     }
 
-    const accessToken = await firebaseAccessToken(serviceAccount);
-    const webTokens = await fetchEnabledWebTokens(supabaseUrl, serviceRole);
-
-    const androidResult = await sendFcm(accessToken, serviceAccount.project_id, {
-      topic: 'all',
-      notification: { title, body },
-      data: { title, body, url: targetUrl },
-      android: {
-        priority: 'HIGH',
-        notification: {
-          channel_id: 'taraf_updates',
-          icon: 'ic_launcher',
-          color: '#E0A458',
-          sound: 'default',
-        },
-      },
-    });
-
-    if (!androidResult.ok) {
-      console.error('Android topic FCM error', androidResult.status, androidResult.payload);
+    const [androidTokens, webTokens] = await Promise.all([
+      fetchEnabledTokens(supabaseUrl, serviceRole, 'android'),
+      fetchEnabledTokens(supabaseUrl, serviceRole, 'web'),
+    ]);
+    if (androidTokens.length === 0 && webTokens.length === 0) {
+      return json(req, { error: 'No registered push devices' }, 409);
     }
 
-    const web = await sendWebPushes(
-      webTokens,
-      accessToken,
-      serviceAccount,
-      title,
-      body,
-      targetUrl,
-      supabaseUrl,
-      serviceRole,
-    );
+    const accessToken = await firebaseAccessToken(serviceAccount);
+    const [android, web] = await Promise.all([
+      sendAndroidPushes(
+        androidTokens,
+        accessToken,
+        serviceAccount,
+        title,
+        body,
+        targetUrl,
+        supabaseUrl,
+        serviceRole,
+      ),
+      sendWebPushes(
+        webTokens,
+        accessToken,
+        serviceAccount,
+        title,
+        body,
+        targetUrl,
+        supabaseUrl,
+        serviceRole,
+      ),
+    ]);
 
-    const androidName = androidResult.ok ? String(androidResult.payload.name || '') || null : null;
-    if (androidResult.ok || web.success > 0) {
+    const androidName = android.names[0] || null;
+    if (android.success > 0 || web.success > 0) {
       await logCampaign(supabaseUrl, serviceRole, title, body, targetUrl, androidName);
     }
 
-    if (!androidResult.ok && web.success === 0) {
+    if (android.success === 0 && web.success === 0) {
       return json(req, {
         error: 'Firebase send failed',
         detail: 'No Android or web notification was accepted',
+        android_total: androidTokens.length,
+        android_failure: android.failure,
         web_total: webTokens.length,
         web_failure: web.failure,
       }, 502);
@@ -327,11 +385,14 @@ Deno.serve(async (req: Request) => {
 
     return json(req, {
       ok: true,
-      android_sent: androidResult.ok,
+      android_sent: android.success > 0,
+      android_total: androidTokens.length,
+      android_success: android.success,
+      android_failure: android.failure,
       web_total: webTokens.length,
       web_success: web.success,
       web_failure: web.failure,
-      invalid_tokens_disabled: web.invalid,
+      invalid_tokens_disabled: android.invalid + web.invalid,
       name: androidName,
     });
   } catch (error) {
