@@ -63,6 +63,22 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   }catch(e){}
 })();
 
+// إظهار الـ Score النهائي في شاشة حل القضية.
+(function(){
+  function loadEndingScore(){
+    try{
+      if(document.querySelector('script[data-ending-score]')) return;
+      const s=document.createElement('script');
+      s.src='ending-score.js?v=20260827-1';
+      s.setAttribute('data-ending-score','1');
+      document.body.appendChild(s);
+    }catch(e){}
+  }
+
+  if(document.readyState === 'complete') loadEndingScore();
+  else window.addEventListener('load', loadEndingScore, {once:true});
+})();
+
 // منظم نوافذ ما بعد القضية: تقييم، ثم تيليجرام، ثم دعم.
 // بنحمّله بعد اكتمال الصفحة عشان engine.js يكون عرّف دالة نهاية القضية الأول،
 // وبعدها الإضافة تستبدل الدعوة القديمة بالمنظم الجديد بأمان.
