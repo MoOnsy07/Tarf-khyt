@@ -37,7 +37,7 @@
   <div class="ad-actions"><button class="btn ghost mono" id="refresh-btn" type="button">↻ تحديث الأرقام</button></div>
   <section class="ad-section" id="android-box"><div class="ad-loading mono">بيجيب أرقام Android...</div></section>
   <section class="ad-section" id="push-box">
-    <div class="ad-title">🔔 إرسال إشعار</div><div class="ad-sub">للأجهزة اللي سمحت بإشعارات تطبيق Android.</div>
+    <div class="ad-title">🔔 إرسال إشعار</div><div class="ad-sub">لأجهزة Android والويب اللي فعّلت الإشعارات.</div>
     <div class="ad-mini" id="push-stats"></div>
     <div class="ad-push-grid">
       <div class="ad-field"><label>عنوان الإشعار</label><input id="push-title" class="ad-input" maxlength="80" placeholder="قضية جديدة وصلت 🔎"></div>
@@ -117,7 +117,8 @@ async function sendPush(){
   try{
     const res=await fetch(SUPA_URL+'/functions/v1/send-push',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'x-admin-token':adminToken},body:JSON.stringify({title,body,url})});
     const out=await res.json().catch(()=>({}));if(res.status===401){clearToken();showGate('الجلسة انتهت. سجل دخول من جديد.',true);return}if(!res.ok)throw new Error(out.detail||out.error||'SEND_FAILED');
-    status.textContent='✅ الإشعار اتبعت.';status.classList.add('ok');
+    const webOk=Number(out.web_success)||0,webFail=Number(out.web_failure)||0;
+    status.textContent='✅ تم الإرسال'+(webOk||webFail?` — ويب: ${webOk} نجح${webFail?`، ${webFail} فشل`:''}`:'')+(out.android_sent?' + Android':'');status.classList.add('ok');
   }catch(e){const m=String(e.message||e);status.textContent=m.includes('Firebase is not configured')?'ناقص ربط Firebase عشان الإرسال يشتغل.':'تعذر الإرسال: '+m;status.classList.add('err')}finally{btn.disabled=false}
 }
 document.getElementById('login-form').addEventListener('submit',login);
