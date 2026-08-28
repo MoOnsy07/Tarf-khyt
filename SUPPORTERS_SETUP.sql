@@ -62,10 +62,10 @@ security definer
 set search_path = public
 stable
 as $$
-  select s.supporter_name, s.payment_method, coalesce(s.approved_at,s.created_at)
+  select s.supporter_name, s.payment_method, s.approved_at
   from public.supporters s
   where s.status='approved' and s.consent_public=true
-  order by coalesce(s.approved_at,s.created_at) desc
+  order by s.created_at asc, s.id asc
   limit greatest(1,least(coalesce(p_limit,100),200));
 $$;
 
