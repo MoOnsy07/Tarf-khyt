@@ -28,7 +28,7 @@
   .taraf-support-divider{height:1px;background:#292d36;margin:18px 0}.taraf-support-note{font-size:12px!important;color:#8f938f!important;margin-bottom:0!important}
   .taraf-support-form{display:none}.taraf-support-form.is-open{display:block}.taraf-support-field{display:block;margin:10px 0}.taraf-support-field span{display:block;font-size:12px;color:#aeb2b9;margin-bottom:5px}.taraf-support-field input,.taraf-support-field select{width:100%;box-sizing:border-box;background:#0d1016;color:#fff;border:1px solid #303642;border-radius:10px;padding:10px;font-family:Cairo,Tahoma,sans-serif}.taraf-support-check{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#bbb;margin-top:10px}
   .taraf-support-status{display:none;margin-top:10px;padding:10px;border-radius:10px;font-size:13px}.taraf-support-status.ok{display:block;background:#11251a;color:#9ce2b1;border:1px solid #245735}.taraf-support-status.err{display:block;background:#2a1515;color:#f0a8a8;border:1px solid #6b2c2c}
-  .taraf-wall{display:none}.taraf-wall.is-open{display:block}.taraf-wall-list{display:grid;gap:8px;margin-top:12px}.taraf-wall-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:10px 12px}.taraf-wall-name{font-weight:800}.taraf-wall-meta{font-size:11px;color:#8f949c}.taraf-wall-empty{text-align:center;color:#8f949c;padding:18px 8px}
+  .taraf-wall{display:none}.taraf-wall.is-open{display:block}.taraf-wall-list{display:grid;gap:8px;margin-top:12px}.taraf-wall-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #2b3039;background:#151820;border-radius:12px;padding:10px 12px}.taraf-wall-name{font-weight:800}.taraf-wall-thanks{font-size:12px;color:#d9b77e;margin-top:2px}.taraf-wall-meta{font-size:11px;color:#8f949c}.taraf-wall-empty{text-align:center;color:#8f949c;padding:18px 8px}
   @media(max-width:560px){.taraf-support-fab{right:12px;left:auto;bottom:12px;font-size:13px}.taraf-support-card{padding:20px 16px}}
   `;
   document.head.appendChild(styles);
@@ -97,7 +97,7 @@
     if(typeof fetchSupportersWall!=='function'){list.innerHTML='<div class="taraf-wall-empty">لوحة الشرف لسه محتاجة تفعيل قاعدة البيانات.</div>';return;}
     const rows=await fetchSupportersWall(100);
     if(!rows.length){list.innerHTML='<div class="taraf-wall-empty">أول اسم ممكن يكون اسمك ❤️</div>';return;}
-    list.innerHTML=rows.map(r=>`<div class="taraf-wall-item"><div><div class="taraf-wall-name">${esc(r.supporter_name)}</div><div class="taraf-wall-meta">${r.payment_method==='instapay'?'InstaPay':'Vodafone Cash'}</div></div><span>🏅</span></div>`).join('');
+    list.innerHTML=rows.map(r=>`<div class="taraf-wall-item"><div><div class="taraf-wall-name">${esc(r.supporter_name)}</div><div class="taraf-wall-thanks">شكرًا لدعمك لطرف خيط ❤️</div><div class="taraf-wall-meta">${r.payment_method==='instapay'?'InstaPay':r.payment_method==='paypal'?'PayPal':'Vodafone Cash'}</div></div><span>🏅</span></div>`).join('');
   }
   backdrop.querySelector('[data-open-wall]').addEventListener('click',async()=>{show('wall');track('supporters_wall_open');await loadWall();});
 
