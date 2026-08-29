@@ -8,7 +8,6 @@
   'use strict';
 
   const TELEGRAM_DONE_KEY = 'ca_telegram_cta_opened_v1';
-  const SHOWN_CASE_PREFIX = 'ca_ending_review_popup_shown_';
 
   const telegramUrl = (typeof TELEGRAM_CHANNEL_URL !== 'undefined' && TELEGRAM_CHANNEL_URL)
     ? TELEGRAM_CHANNEL_URL
@@ -78,7 +77,8 @@
       .ending-extra-card{margin-top:16px;padding:14px;border:1px solid #2f3440;border-radius:15px;background:#151820}.ending-extra-label{color:#858a94;font:700 10px Cairo,Tahoma,sans-serif;margin-bottom:4px}.ending-extra-card h4{margin:0 0 5px;color:#f1c786;font-size:15px}.ending-extra-card p{margin:0 0 11px;color:#aeb2b9;font-size:12px;line-height:1.75}.ending-extra-actions{display:flex;gap:8px;flex-wrap:wrap}.ending-extra-actions .ending-rotation-btn{flex:1;min-width:150px;min-height:40px;font-size:12px}
       .ending-support-method{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #2b3039;background:#11141b;border-radius:11px;padding:9px 10px;margin-top:8px}.ending-support-copy{min-width:0}.ending-support-copy strong{display:block;font-size:12px}.ending-support-copy span{display:block;direction:ltr;text-align:left;color:#aeb2b9;font:11px monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}.ending-support-actions{display:flex;gap:6px}.ending-mini-btn{border:1px solid #3a3f4b;background:#1b1f28;color:#f1c786;border-radius:9px;padding:6px 8px;font:700 11px Cairo,Tahoma,sans-serif;text-decoration:none;cursor:pointer}.ending-mini-btn.primary{background:#e0a458;color:#111;border-color:#e0a458}
       .ending-rotation-note{text-align:center;color:#777;font-size:10px;margin:9px 0 0;line-height:1.7}
-      @media(max-width:560px){.ending-rotation-modal{padding:19px 14px}.ending-support-method{align-items:flex-start}.ending-support-copy span{max-width:175px}.ending-extra-actions{display:block}.ending-extra-actions .ending-rotation-btn{margin-top:7px}}
+      .ending-review-ready{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:18px 0;padding:14px 16px;border:1px solid rgba(224,164,88,.3);border-radius:14px;background:rgba(224,164,88,.07)}.ending-review-ready-copy{min-width:0}.ending-review-ready-copy strong{display:block;color:#f1c786;font-size:14px;margin-bottom:3px}.ending-review-ready-copy span{display:block;color:#9da2ab;font-size:11px;line-height:1.65}.ending-review-ready-btn{flex:0 0 auto;border:1px solid #e0a458;background:#e0a458;color:#111;border-radius:10px;padding:9px 13px;font:800 12px Cairo,Tahoma,sans-serif;cursor:pointer;white-space:nowrap}
+      @media(max-width:560px){.ending-rotation-modal{padding:19px 14px}.ending-support-method{align-items:flex-start}.ending-support-copy span{max-width:175px}.ending-extra-actions{display:block}.ending-extra-actions .ending-rotation-btn{margin-top:7px}.ending-review-ready{align-items:stretch;flex-direction:column}.ending-review-ready-btn{width:100%}}
     `;
     document.head.appendChild(style);
   }
@@ -186,6 +186,7 @@
   }
 
   function showReviewPopup(count){
+    if(document.getElementById('endingRotationOverlay')) return;
     const {overlay, close} = createOverlay(`
       <div class="ending-rotation-head">
         <div class="ending-rotation-icon">⭐</div>
@@ -285,6 +286,8 @@
           }
         }
         track('ending_review_submit', {completed_cases:count, rating:String(rating), has_comment:comment ? '1' : '0'});
+        const readyPrompt = document.getElementById('endingReviewReady');
+        if(readyPrompt) readyPrompt.remove();
         submit.textContent = 'تم إرسال رأيك ✓';
         setTimeout(close, 650);
       }catch(err){
@@ -341,24 +344,56 @@
     }catch(_){ return false; }
   }
 
+  function hasSavedReviewForCase(caseId){
+    try{
+      if(typeof getSavedReview === 'function' && getSavedReview(caseId)) return true;
+    }catch(_){ }
+    return !!storageGet('ca_review_' + caseId);
+  }
+
   function showEndingReviewPopup(){
-    if(!shouldOpenEndingPopup() || document.getElementById('endingRotationOverlay')) return;
+    if(!shouldOpenEndingPopup()) return;
     const caseId = currentCaseId();
     if(!caseId) return;
 
-    const shownKey = SHOWN_CASE_PREFIX + caseId;
-    if(storageGet(shownKey) === '1') return;
-    storageSet(shownKey, '1');
+    const existingPrompt = document.getElementById('endingReviewReady');
+    if(hasSavedReviewForCase(caseId)){
+      if(existingPrompt) existingPrompt.remove();
+      return;
+    }
+    if(existingPrompt) return;
+
+    const leaderboard = document.querySelector('#panelBody .lb-box');
+    if(!leaderboard || !leaderboard.parentNode) return;
 
     const count = Math.max(1, completedCount());
-    const secondaryType = (count % 2 === 1 && !telegramWasOpened()) ? 'telegram' : 'support';
-    track('ending_review_popup_impression', {completed_cases:count, secondary_type:secondaryType});
-    showReviewPopup(count);
+    const prompt = document.createElement('div');
+    prompt.id = 'endingReviewReady';
+    prompt.className = 'ending-review-ready';
+    prompt.innerHTML = `
+      <div class="ending-review-ready-copy">
+        <strong>خلصت قراءة تحليل النتيجة؟</strong>
+        <span>افتح التقييم وقت ما تكون جاهز — مش هنقطع عليك القراءة.</span>
+      </div>
+      <button type="button" class="ending-review-ready-btn">قيّم القضية ⭐</button>
+    `;
+    leaderboard.parentNode.insertBefore(prompt, leaderboard);
+    track('ending_review_prompt_impression', {completed_cases:count});
+
+    prompt.querySelector('button').addEventListener('click', ()=>{
+      if(hasSavedReviewForCase(caseId)){
+        prompt.remove();
+        return;
+      }
+      const secondaryType = (count % 2 === 1 && !telegramWasOpened()) ? 'telegram' : 'support';
+      track('ending_review_popup_impression', {completed_cases:count, secondary_type:secondaryType});
+      showReviewPopup(count);
+    });
   }
 
   ensureStyles();
 
-  // engine.js بينادي الدالة دي بعد انتهاء القضية.
+  // engine.js بينادي الدالة دي بعد انتهاء القضية؛ هنا بنجهّز زر التقييم بعد التحليل بدل فتح نافذة بتايمر ثابت.
   try{
     window.showTelegramInvite = showEndingReviewPopup;
     showTelegramInvite = showEndingReviewPopup;

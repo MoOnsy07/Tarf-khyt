@@ -69,7 +69,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
     try{
       if(document.querySelector('script[data-ending-score]')) return;
       const s=document.createElement('script');
-      s.src='ending-score.js?v=20260827-2';
+      s.src='ending-score.js?v=20260829-1';
       s.setAttribute('data-ending-score','1');
       document.body.appendChild(s);
     }catch(e){}
@@ -79,7 +79,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
   else window.addEventListener('load', loadEndingScore, {once:true});
 })();
 
-// منظم نوافذ ما بعد القضية: تقييم، ثم تيليجرام، ثم دعم.
+// منظم ما بعد القضية: زر تقييم بعد التحليل، وداخل النافذة تيليجرام/دعم بالتناوب.
 // بنحمّله بعد اكتمال الصفحة عشان engine.js يكون عرّف دالة نهاية القضية الأول،
 // وبعدها الإضافة تستبدل الدعوة القديمة بالمنظم الجديد بأمان.
 (function(){
@@ -87,7 +87,7 @@ const DONATION_TITLE = 'ادعم طرف الخيط ❤️';
     try{
       if(document.querySelector('script[data-ending-community-popup]')) return;
       const s=document.createElement('script');
-      s.src='ending-community-popup.js?v=20260825-3';
+      s.src='ending-community-popup.js?v=20260829-1';
       s.setAttribute('data-ending-community-popup','1');
       document.body.appendChild(s);
     }catch(e){}

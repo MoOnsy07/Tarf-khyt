@@ -5,7 +5,8 @@
 (function(){
   'use strict';
 
-  const SCORE_ID = 'taraf-ending-score-card';
+  const SCORE_ID = 'taraf-ending-score-stamp';
+  const STYLE_ID = 'taraf-ending-score-styles';
 
   function isEnding(){
     try{
@@ -112,6 +113,28 @@
     return { earned, max, percent };
   }
 
+  function ensureStyles(){
+    if(document.getElementById(STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = `
+      #panelBody .score-final{display:none!important}
+      .ending-stamp-row{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px;direction:rtl}
+      .ending-stamp-row>.stamp{margin-bottom:0}
+      .ending-score-stamp{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:122px;min-height:68px;box-sizing:border-box;padding:8px 18px;border:3px double currentColor;border-radius:50%;color:var(--amber,#e0a458);background:rgba(224,164,88,.055);box-shadow:inset 0 0 0 2px rgba(224,164,88,.14),0 0 18px rgba(224,164,88,.08);transform:rotate(4deg);text-align:center;line-height:1}
+      .ending-score-stamp-label{font-size:9px;font-weight:800;letter-spacing:.04em;margin-bottom:4px;white-space:nowrap}
+      .ending-score-stamp-percent{font-size:24px;font-weight:900}
+      .ending-score-stamp-points{font-size:9px;font-weight:700;margin-top:4px;opacity:.82;direction:rtl}
+      @media(max-width:480px){
+        .ending-stamp-row{gap:10px}
+        .ending-stamp-row>.stamp{font-size:17px;padding:7px 14px}
+        .ending-score-stamp{min-width:106px;min-height:60px;padding:7px 13px}
+        .ending-score-stamp-percent{font-size:21px}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function renderEndingScore(){
     const old = document.getElementById(SCORE_ID);
     if(!isEnding()){
@@ -119,40 +142,38 @@
       return;
     }
 
-    const app = document.getElementById('app');
-    if(!app) return;
+    const verdictStamp = document.querySelector('#panelBody .stamp');
+    if(!verdictStamp) return;
 
+    ensureStyles();
     const result = finalResult();
+    let row = verdictStamp.closest('.ending-stamp-row');
+    if(!row){
+      row = document.createElement('div');
+      row.className = 'ending-stamp-row';
+      verdictStamp.parentNode.insertBefore(row, verdictStamp);
+      row.appendChild(verdictStamp);
+    }
+
     if(old){
       const points = old.querySelector('[data-ending-score-points]');
       const pct = old.querySelector('[data-ending-score-percent]');
       if(points) points.textContent = `${result.earned} من ${result.max}`;
       if(pct) pct.textContent = `${result.percent}%`;
+      if(old.parentNode !== row) row.appendChild(old);
       return;
     }
 
-    const card = document.createElement('section');
-    card.id = SCORE_ID;
-    card.setAttribute('aria-label', 'تقييم أداء التحقيق');
-    card.style.cssText = [
-      'max-width:760px',
-      'margin:18px auto',
-      'padding:20px',
-      'border:1px solid rgba(224,164,88,.45)',
-      'border-radius:16px',
-      'background:rgba(224,164,88,.08)',
-      'text-align:center',
-      'box-shadow:0 10px 30px rgba(0,0,0,.16)'
-    ].join(';');
-
-    card.innerHTML = `
-      <div class="mono" style="font-size:12px;opacity:.72;margin-bottom:8px;">تقييم أداء التحقيق</div>
-      <div data-ending-score-percent style="font-size:42px;font-weight:900;line-height:1;color:var(--amber,#e0a458);margin-bottom:8px;">${result.percent}%</div>
-      <div data-ending-score-points style="font-size:20px;font-weight:800;">${result.earned} من ${result.max}</div>
-      <div style="font-size:12px;opacity:.62;margin-top:7px;">التقييم حسب قراراتك وأدائك داخل القضية — الوقت لا يؤثر</div>
+    const seal = document.createElement('div');
+    seal.id = SCORE_ID;
+    seal.className = 'ending-score-stamp mono';
+    seal.setAttribute('aria-label', `التقييم الإجمالي ${result.percent}% — ${result.earned} من ${result.max}`);
+    seal.innerHTML = `
+      <span class="ending-score-stamp-label">التقييم الإجمالي</span>
+      <strong class="ending-score-stamp-percent" data-ending-score-percent>${result.percent}%</strong>
+      <span class="ending-score-stamp-points" data-ending-score-points>${result.earned} من ${result.max}</span>
     `;
-
-    app.appendChild(card);
+    row.appendChild(seal);
   }
 
   let queued = false;
