@@ -25,6 +25,28 @@ const READY_CASE_IDS = new Set([
   }catch(_){}
 })();
 
+// كود فتح CASE 061 داخل نافذة القضايا الحصرية.
+(function setupReturnFromDeathAccessCode(){
+  if(typeof document==='undefined') return;
+  document.addEventListener('click', function(e){
+    const btn=e.target&&e.target.closest?e.target.closest('#exclusiveAccessSubmit'):null;
+    if(!btn) return;
+    const overlay=btn.closest('#exclusiveAccessOverlay');
+    const input=overlay&&overlay.querySelector('#exclusiveAccessCode');
+    if(!input || String(input.value||'').trim().toUpperCase()!=='TARAF061') return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    try{ localStorage.setItem('ca_exclusive_access_return-from-death','1'); }catch(_){}
+    if(overlay) overlay.remove();
+    try{
+      if(typeof showToast==='function') showToast('✓ اتفتحت القضية على الجهاز ده.', 'amber');
+      const c=(typeof CASES_REGISTRY!=='undefined'&&CASES_REGISTRY.find)?CASES_REGISTRY.find(x=>x&&x.id==='return-from-death'):null;
+      if(c&&typeof enterCase==='function') enterCase(c);
+    }catch(_){}
+  }, true);
+})();
+
 (function loadTarafAuthStack(){
   if(typeof document==='undefined'||window.__tarafAuthStackLoading) return;
   window.__tarafAuthStackLoading=true;
