@@ -45,4 +45,20 @@
   }
 
   walk(CASE_RETURN_FROM_DEATH);
+
+  // القيم المطلوبة في تحدي المطابقة لازم تكون مكتوبة داخل الدليل نفسه.
+  const evidence = Array.isArray(CASE_RETURN_FROM_DEATH.evidence) ? CASE_RETURN_FROM_DEATH.evidence : [];
+  const fingerprintReda = evidence.find(e => e && e.id === 'fingerprint_reda');
+  if (fingerprintReda) {
+    fingerprintReda.matchValue = '41';
+    fingerprintReda.full = String(fingerprintReda.full || '').replace(/\s+$/,'') + '\n\nقيمة المطابقة: 41';
+    fingerprintReda.short = String(fingerprintReda.short || '').replace(/\s+$/,'') + ' — قيمة المطابقة: 41';
+  }
+
+  const deviceBlackout = evidence.find(e => e && e.id === 'device_blackout');
+  if (deviceBlackout) {
+    deviceBlackout.matchValue = '36';
+    deviceBlackout.full = String(deviceBlackout.full || '').replace(/\s+$/,'') + '\n\nقيمة المطابقة: 36';
+    deviceBlackout.short = String(deviceBlackout.short || '').replace(/\s+$/,'') + ' — قيمة المطابقة: 36';
+  }
 })();
