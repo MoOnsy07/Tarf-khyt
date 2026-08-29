@@ -46,19 +46,19 @@
 
   walk(CASE_RETURN_FROM_DEATH);
 
-  // القيم المطلوبة في تحدي المطابقة لازم تكون مكتوبة داخل الدليل نفسه.
+  // القيم المطلوبة في تحدي المطابقة هي أكواد/مراجع المستندات نفسها، مش أرقام داخل وصف الواقعة.
   const evidence = Array.isArray(CASE_RETURN_FROM_DEATH.evidence) ? CASE_RETURN_FROM_DEATH.evidence : [];
   const fingerprintReda = evidence.find(e => e && e.id === 'fingerprint_reda');
   if (fingerprintReda) {
-    fingerprintReda.matchValue = '41';
-    fingerprintReda.full = String(fingerprintReda.full || '').replace(/\s+$/,'') + '\n\nقيمة المطابقة: 41';
-    fingerprintReda.short = String(fingerprintReda.short || '').replace(/\s+$/,'') + ' — قيمة المطابقة: 41';
+    fingerprintReda.matchValue = '517';
+    fingerprintReda.full = String(fingerprintReda.full || '').replace(/\s+$/,'') + '\n\nمرجع الدليل: 517 (رقم القضية 2024/517)';
+    fingerprintReda.short = String(fingerprintReda.short || '').replace(/\s+$/,'') + ' — مرجع الدليل: 517';
   }
 
   const deviceBlackout = evidence.find(e => e && e.id === 'device_blackout');
   if (deviceBlackout) {
-    deviceBlackout.matchValue = '36';
-    deviceBlackout.full = String(deviceBlackout.full || '').replace(/\s+$/,'') + '\n\nقيمة المطابقة: 36';
-    deviceBlackout.short = String(deviceBlackout.short || '').replace(/\s+$/,'') + ' — قيمة المطابقة: 36';
+    deviceBlackout.matchValue = '0017';
+    deviceBlackout.full = String(deviceBlackout.full || '').replace(/\s+$/,'') + '\n\nمرجع الدليل: 0017 (رقم الملف 2025-0017)';
+    deviceBlackout.short = String(deviceBlackout.short || '').replace(/\s+$/,'') + ' — مرجع الدليل: 0017';
   }
 })();
