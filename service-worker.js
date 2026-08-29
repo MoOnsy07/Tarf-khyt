@@ -22,8 +22,8 @@ try {
   console.warn('[SW] Firebase Messaging unavailable; offline cache is still active.', error);
 }
 
-const SHELL_CACHE = 'tarf-shell-v3';
-const RUNTIME_CACHE = 'tarf-runtime-v3';
+const SHELL_CACHE = 'tarf-shell-v4';
+const RUNTIME_CACHE = 'tarf-runtime-v4';
 const CURRENT_CACHES = [SHELL_CACHE, RUNTIME_CACHE];
 
 // صفحات اللعبة وملفات المنطق والقضايا. الصور الكبيرة من GitHub بتتخزن
@@ -123,6 +123,7 @@ const SHELL_ASSETS = [
   'cases/case-recorded-voice.js',
   'cases/case-red-thread.js',
   'cases/case-return-from-death.js',
+  'cases/case-return-from-death-image-fallback.js',
   'cases/case-role-of-lifetime.js',
   'cases/case-room-307-discovery.js',
   'cases/case-room-307.js',
