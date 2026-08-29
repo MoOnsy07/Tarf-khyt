@@ -2,8 +2,28 @@
 // ملف مشترك بين engine.js وأي صفحة تانية محتاجة تعرف حالة الجاهزية
 // (زي profile.html) — عشان اللستة تتحدث في مكان واحد بس.
 const READY_CASE_IDS = new Set([
-  'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring',
+  'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring','return-from-death',
 ]);
+
+// CASE 061 تفضل مخفية من المكتبة العامة، لكن تقدر تتفتح من رابط المالك المباشر.
+(function setupReturnFromDeathOwnerPreview(){
+  if(typeof document==='undefined') return;
+  try{
+    const style=document.createElement('style');
+    style.textContent='.lib-card[data-case="return-from-death"]{display:none!important;}';
+    (document.head||document.documentElement).appendChild(style);
+  }catch(_){}
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.get('case')!=='return-from-death') return;
+    const token=String(q.get('owner')||'').trim().toUpperCase();
+    let h=0x811c9dc5;
+    for(let i=0;i<token.length;i++){ h^=token.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; }
+    if(h.toString(16).padStart(8,'0')==='24c43d8a'){
+      localStorage.setItem('ca_exclusive_access_return-from-death','1');
+    }
+  }catch(_){}
+})();
 
 (function loadTarafAuthStack(){
   if(typeof document==='undefined'||window.__tarafAuthStackLoading) return;
