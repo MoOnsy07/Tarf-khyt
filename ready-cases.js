@@ -2,7 +2,7 @@
 // ملف مشترك بين engine.js وأي صفحة تانية محتاجة تعرف حالة الجاهزية
 // (زي profile.html) — عشان اللستة تتحدث في مكان واحد بس.
 const READY_CASE_IDS = new Set([
-  'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring',
+  'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring','return-from-death',
 ]);
 
 (function loadTarafAuthStack(){
@@ -40,3 +40,33 @@ const READY_CASE_IDS = new Set([
 (function loadTarafTelegramInvitePolicy(){if(typeof document==='undefined'||document.querySelector('script[data-taraf-telegram-policy]'))return;const s=document.createElement('script');s.src='telegram-invite-policy.js?v=20260824-1';s.async=false;s.dataset.tarafTelegramPolicy='1';(document.head||document.documentElement).appendChild(s)})();
 (function loadTarafProfileScrollStability(){if(typeof document==='undefined'||document.querySelector('script[data-taraf-profile-scroll-stability]'))return;const s=document.createElement('script');s.src='profile-scroll-stability.js?v=20260825-5';s.async=false;s.dataset.tarafProfileScrollStability='1';(document.head||document.documentElement).appendChild(s)})();
 (function loadTarafDiscoveryDeductionPolicy(){if(typeof document==='undefined'||document.querySelector('script[data-taraf-discovery-deduction]'))return;const s=document.createElement('script');s.src='discovery-deduction-policy.js?v=20260824-3';s.async=false;s.dataset.tarafDiscoveryDeduction='1';(document.head||document.documentElement).appendChild(s)})();
+
+// CASE 061 — تحميل القضية قبل المحرك مع fallback لأي أصل بصري غير موجود على main.
+(function loadReturnFromDeathCase(){
+  if(typeof document==='undefined' || typeof CASES_REGISTRY==='undefined') return;
+  function register(){
+    try{
+      if(typeof CASE_RETURN_FROM_DEATH!=='undefined' && Array.isArray(CASES_REGISTRY) && !CASES_REGISTRY.some(c=>c&&c.id==='return-from-death')){
+        CASES_REGISTRY.push(CASE_RETURN_FROM_DEATH);
+      }
+    }catch(err){ console.warn('Return from Death registry:',err); }
+  }
+  if(typeof CASE_RETURN_FROM_DEATH!=='undefined'){ register(); return; }
+  if(document.readyState==='loading'){
+    document.write('<script src="cases/case-return-from-death.js?v=20260829-1"><\/script><script src="cases/case-return-from-death-image-fallback.js?v=20260829-1"><\/script><script>try{if(typeof CASE_RETURN_FROM_DEATH!=="undefined"&&Array.isArray(CASES_REGISTRY)&&!CASES_REGISTRY.some(function(c){return c&&c.id==="return-from-death";})){CASES_REGISTRY.push(CASE_RETURN_FROM_DEATH);}}catch(e){console.warn("Return from Death registry:",e);}<\/script>');
+    return;
+  }
+  const caseScript=document.createElement('script');
+  caseScript.src='cases/case-return-from-death.js?v=20260829-1';
+  caseScript.async=false;
+  caseScript.onload=()=>{
+    const fallback=document.createElement('script');
+    fallback.src='cases/case-return-from-death-image-fallback.js?v=20260829-1';
+    fallback.async=false;
+    fallback.onload=register;
+    fallback.onerror=register;
+    (document.head||document.documentElement).appendChild(fallback);
+  };
+  caseScript.onerror=()=>console.warn('تعذر تحميل قضية العودة من الموت');
+  (document.head||document.documentElement).appendChild(caseScript);
+})();
