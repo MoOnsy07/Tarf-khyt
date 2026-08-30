@@ -20,6 +20,7 @@ const LIBRARY_PAGE_SIZE = 18; // عدد الكروت المضافة في كل ض
 // WHATSAPP_NUMBER معرّفة أصلاً في config.js (بيتحمّل قبل engine.js) — هنا بس بنبني رابط منها
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 const TELEGRAM_CHANNEL_URL = 'https://t.me/taraf5eet';
+const INSTAGRAM_URL = 'https://www.instagram.com/tarafkheet?igsh=MWQ3Y2h2aHB0eDduYw==';
 
 // كارت التواصل — واتساب للدعم والاقتراحات، وتليجرام للقضايا والتحديثات
 function socialLinksHTML(context){
@@ -94,6 +95,7 @@ function showTelegramInvite(){
       <h3 id="telegramInviteTitle">متفوّتش القضية الجاية</h3>
       <p>إعلانات القضايا الجديدة، تحديثات اللعبة ونتائج المتصدرين هتلاقيها على قناة طرف الخيط.</p>
       <a href="${TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener" class="btn telegram-invite-primary" data-telegram-cta="first_free_case_ending">افتح قناة البلاغات ←</a>
+      <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener" class="btn ghost telegram-invite-instagram">تابعنا على إنستجرام</a>
       <button type="button" class="btn ghost telegram-invite-later">كمّل من غير انضمام</button>
     </div>
   `;
