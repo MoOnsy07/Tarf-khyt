@@ -283,6 +283,13 @@ function freshGameState(){
     matchSelections:{},
     investigationActionsDone:new Set(), // إجراءات فحص/تفتيش/تحريات ميدانية اتنفذت
     backgroundChecks:new Set(), // suspectId — صحائف الحالة الجنائية التي طلبها اللاعب
+
+    // === نظام نقاط القرار السردية (Decision Points) — تجريبي، بيبدأ بقضية حادثة الطريق ===
+    // قرارات اللاعب بتتسجل كـ flags نصية، وبتأثر على الخاتمة (epilogue) من غير ما تغيّر
+    // الجاني الحقيقي أو تكسر منطق الأدلة الحالي. كل decision بيتفتح مرة واحدة بس لكل قضية.
+    flags: new Set(),            // مجموعة flags نصية اتجمعت من قرارات اللاعب في نقاط القرار
+    decisionsShown: new Set(),   // IDs نقاط القرار اللي اتعرضت بالفعل، عشان ما تتكررش
+    epilogue: null,               // مقطع الخاتمة المتفرعة المختار (لو القضية بتدعم النظام ده)
   };
 }
 
@@ -1041,6 +1048,54 @@ function showNamePrompt(onDone, caseData){
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') confirmBtn.click(); });
 }
 
+/* ============================================================
+   DECISION POINTS — نظام قرارات سردية عام (تجريبي)
+   بيتفعّل بس لو CASE.decisionPoints موجودة. كل قرار بيتعرض مرة واحدة،
+   واختيار اللاعب بيتسجل كـ flag نصي في game.flags، وبيأثر بعدين على
+   الخاتمة (epilogue) في computeEnding/endingHTML من غير ما يغيّر
+   منطق تحديد الجاني أو الأدلة الحاسمة.
+   ============================================================ */
+function pendingDecisionPoint(trigger){
+  if(!CASE || !Array.isArray(CASE.decisionPoints)) return null;
+  return CASE.decisionPoints.find(dp => dp.trigger === trigger && !game.decisionsShown.has(dp.id)) || null;
+}
+
+function showDecisionPoint(dp, onDone){
+  gaTrack('decision_point_shown', { decision_id: String(dp.id || '') });
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="modal decision-modal" style="max-width:520px;">
+      <div class="tag" style="color:var(--signal);">🔀 قرار</div>
+      <h3>${dp.title}</h3>
+      <p class="dim" style="line-height:1.7;">${dp.text}</p>
+      <div class="q-grid" id="decisionOptions" style="margin-top:14px;">
+        ${(dp.options||[]).map((o,i)=>`<button class="btn ${i===0?'':'ghost'}" data-decision-opt="${o.id}" style="width:100%; margin-bottom:8px; text-align:right;">${o.label}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('[data-decision-opt]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const optId = btn.dataset.decisionOpt;
+      const opt = (dp.options||[]).find(o=>o.id===optId);
+      if(opt && opt.flag) game.flags.add(opt.flag);
+      game.decisionsShown.add(dp.id);
+      gaTrack('decision_point_chosen', { decision_id: String(dp.id||''), option_id: String(optId||''), flag: String((opt&&opt.flag)||'') });
+      persistProgress();
+      overlay.remove();
+      onDone();
+    });
+  });
+}
+
+/* بيحاول يعرض نقطة قرار معينة لو موجودة ولسه ما اتعرضتش، وإلا بيكمل على طول */
+function maybeShowDecisionPoint(trigger, onDone){
+  const dp = pendingDecisionPoint(trigger);
+  if(!dp){ onDone(); return; }
+  showDecisionPoint(dp, onDone);
+}
+
 function showPlayModePrompt(caseData, opts={}){
   if(document.getElementById('playModeOverlay')) return;
   const overlay = document.createElement('div');
@@ -1156,6 +1211,9 @@ function enterCase(caseData, opts={}){
     game.matchSelections = saved.matchSelections || {};
     game.investigationActionsDone = new Set(saved.investigationActionsDone || []);
     game.backgroundChecks = new Set(saved.backgroundChecks || []);
+    game.flags = new Set(saved.flags || []);
+    game.decisionsShown = new Set(saved.decisionsShown || []);
+    game.epilogue = saved.epilogue || null;
   } else {
     addUnlockedId(CASE.id); // قضية مجانية، تتسجل كمفتوحة أول ما تتلعب
     app.unlockedIds = getUnlockedIds();
@@ -1257,6 +1315,9 @@ function persistProgress(){
     matchSelections: game.matchSelections,
     investigationActionsDone: [...game.investigationActionsDone],
     backgroundChecks: [...game.backgroundChecks],
+    flags: [...game.flags],
+    decisionsShown: [...game.decisionsShown],
+    epilogue: game.epilogue || null,
   });
 }
 
@@ -1390,7 +1451,10 @@ function endPrologue(reason='complete'){
   const p = document.getElementById('prologue');
   if(!p) return;
   p.classList.add('hide');
-  setTimeout(()=>{ p.remove(); mountGameShell(); }, 500);
+  setTimeout(()=>{
+    p.remove();
+    maybeShowDecisionPoint('afterPrologue', mountGameShell);
+  }, 500);
 }
 
 /* ============================================================
@@ -1911,6 +1975,8 @@ function collect(id, opts={}){
     }
     persistProgress();
     checkEvidenceCombinations();
+    const dp = pendingDecisionPoint('afterEvidence:' + id);
+    if(dp) setTimeout(()=> showDecisionPoint(dp, ()=>{ render(); }), 700);
     return true;
   }
   return false;
@@ -3504,6 +3570,23 @@ function drawBoardConnections(){
 }
 window.addEventListener('resize', ()=>{ if(game && game.screen==='accusation') drawBoardConnections(); });
 
+// بيدور على مقطع خاتمة إضافي (epilogue) يطابق تركيبة الـ flags اللي اللاعب
+// جمعها من نقاط القرار، جوه شريحة النتيجة الحالية (good/partial/bad).
+// شكل CASE.epilogues[tier]: { 'flagA|flagB': {title, paragraphs}, default: {...} }
+// المفتاح بيتكوّن من flags القضية دي بس (بترتيب أبجدي) عشان يبقى ثابت.
+function resolveEpilogue(){
+  if(!CASE.epilogues) return null;
+  const tierMap = CASE.epilogues[game.ending];
+  if(!tierMap) return null;
+  const relevantFlags = [...game.flags].filter(f => Object.keys(tierMap).some(k => k.split('|').includes(f)));
+  const key = relevantFlags.sort().join('|');
+  return tierMap[key] || tierMap.default || null;
+}
+
+function computeEndingGated(){
+  maybeShowDecisionPoint('preAccusation', computeEnding);
+}
+
 function computeEnding(){
   const el = document.getElementById('panelBody');
   el.classList.remove('slide-r','slide-l');
@@ -3526,6 +3609,11 @@ function computeEnding(){
     if(correctSuspect && hits>=required && theory.passed) game.ending='good';
     else if(correctSuspect) game.ending='partial';
     else game.ending='bad';
+
+    // نظام الخاتمة المتفرعة (epilogue) — بيختار مقطع ختامي إضافي حسب قرارات
+    // اللاعب في نقاط القرار (game.flags)، فوق تقييم الأدلة الأساسي (good/partial/bad).
+    // بيرجع null بهدوء لو القضية مالهاش CASE.epilogues أصلاً (باقي القضايا زي ما هي).
+    game.epilogue = resolveEpilogue();
 
     // في القضايا المتوسطة والصعبة، معرفة الجاني لوحدها مش كفاية: نظرية الجريمة لازم تكون متماسكة.
     if(theory.enabled && theory.required>0){
@@ -3782,12 +3870,19 @@ function endingHTML(){
     : e.paragraphs.map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('');
   const hintText = game.ending === 'partial' ? normalizedEndingHint(e.hint) : e.hint;
   const hint = hintText ? `<p class="dim">${hintText}</p>` : '';
+  const epilogueHTML = game.epilogue ? `
+    <div class="divider"></div>
+    <div class="tag" style="color:var(--signal);">🔀 خاتمة القرارات</div>
+    <h3 style="margin-top:6px;">${game.epilogue.title}</h3>
+    ${(game.epilogue.paragraphs||[]).map(p=>`<p>${p.replace('{wrongName}', wrongName)}</p>`).join('')}
+  ` : '';
   return `
     <div class="stamp ${game.ending} mono">${e.stamp}</div>
     <div class="ending-badge ${game.ending} mono">${e.badgeLabel}</div>
     <div class="ending-title ${game.ending}">${e.title}</div>
     ${paragraphs}
     ${hint}
+    ${epilogueHTML}
     ${bonus}
     <div class="score-final mono">تقييم التحقيق النهائي: <strong>${game.score}</strong></div>
     <div class="lb-box">
@@ -4082,7 +4177,7 @@ function attachPanelEvents(){
     });
   });
   const submitTheoryBtn = document.getElementById('submitTheory');
-  if(submitTheoryBtn) submitTheoryBtn.addEventListener('click', computeEnding);
+  if(submitTheoryBtn) submitTheoryBtn.addEventListener('click', computeEndingGated);
 
   document.querySelectorAll('[data-contra]').forEach(chip=>{
     chip.addEventListener('click', ()=> handleContradictionClick(chip.dataset.contra));
@@ -4167,7 +4262,7 @@ function attachPanelEvents(){
       game.screen='theory';
       render();
     } else {
-      computeEnding();
+      computeEndingGated();
     }
   });
 
