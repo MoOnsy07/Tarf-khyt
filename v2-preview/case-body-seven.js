@@ -5,8 +5,8 @@ window.V2_CASE = {
     id: 'archive-room',
     title: 'غرفة الأرشيف — مستشفى النور',
     objective: 'افحص المكان وحدد هل هوية الجثمان محسومة فعلًا.',
-    image: '../images/closed-file/file-scene1.jpg',
-    imageAlt: 'غرفة أرشيف مظلمة بعد حادث حريق',
+    image: '../images/warehouse-fire/fire-scene3.jpg',
+    imageAlt: 'جثمان داخل موقع حريق بعد الإخماد',
     hotspots: [
       {
         id: 'body', title: 'الجثمان', area: { x: 44, y: 58, w: 34, h: 30 },
