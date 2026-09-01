@@ -5,8 +5,8 @@ window.V2_CASE = {
     id: 'archive-room',
     title: 'غرفة الأرشيف — مستشفى النور',
     objective: 'افحص المكان وحدد هل هوية الجثمان محسومة فعلًا.',
-    image: '../images/closed-file/file-scene1.jpg',
-    imageAlt: 'غرفة أرشيف مظلمة بعد حادث حريق',
+    image: '../images/warehouse-fire/fire-scene3.jpg',
+    imageAlt: 'جثمان داخل موقع حريق بعد الإخماد',
     hotspots: [
       {id:'body',title:'الجثمان',area:{x:44,y:58,w:34,h:30},description:'الجثمان متفحم بدرجة تمنع التعرف البصري. متعلقاته الشخصية موضوعة بجواره داخل كيس حفظ أولي.',details:['الوجه غير صالح للتعرف البصري.','اليدين متضررتان بشدة، وبالتالي البصمة المباشرة غير مضمونة.','الملابس تحمل آثار حريق أعلى من منطقة الساقين.'],actions:[{id:'inspect-wrist',label:'افحص المعصم والمتعلقات',result:'تجد ساعة رجالية محترقة جزئيًا، وعلى ظهرها نقش: «إلى نبيل — 2019».',evidence:'watch',set:{bodyWristInspected:true}},{id:'inspect-shoulder',label:'افحص الكتف',requires:['bodyWristInspected'],result:'رغم التلف، لا يظهر أثر معدني أو ندبة جراحية كبيرة في موضع الكتف الأيمن. الملاحظة وحدها لا تثبت شيئًا بعد.',evidence:'shoulder-note',set:{shoulderChecked:true}}]},
       {id:'desk',title:'المكتب',area:{x:25,y:52,w:35,h:27},description:'مكتب إداري قديم. سطحه عليه رماد خفيف لكن الدرج السفلي لم يتأثر تقريبًا.',details:['لا توجد آثار كسر واضحة على جسم الدرج.','مفتاح الدرج غير موجود في القفل.','هناك ورقة ممزقة محشورة أسفل وحدة الأدراج.'],actions:[{id:'take-paper',label:'اسحب الورقة الممزقة',result:'جزء من ورقة استلام سجلات أسنان. الاسم الظاهر جزئيًا: «... راضي».',evidence:'dental-slip',set:{dentalSlipFound:true}},{id:'open-drawer',label:'افتح الدرج',requires:['drawerKeyFound'],result:'داخل الدرج ملف صيانة قديم به صورة أشعة لكتف د. نبيل بعد عملية سابقة وتثبيت معدني واضح.',evidence:'nabil-shoulder-record',set:{medicalRecordFound:true}}]},
