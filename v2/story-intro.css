@@ -1,0 +1,31 @@
+/* Opening briefing before File 45 */
+body[data-node="case-intro"]{--scene-art:url('../images/last-seen/50_blank_surveillance_noise.webp')}
+body[data-node="case-briefing"]{--scene-art:url('../images/last-seen/47_apartment_hallway.webp')}
+
+body[data-node="case-intro"] .system-screen{
+  min-height:72vh;
+  background:linear-gradient(180deg,rgba(3,4,6,.12),rgba(3,4,6,.9));
+}
+body[data-node="case-intro"] .system-line:first-child{
+  letter-spacing:.12em;
+  opacity:.82;
+}
+body[data-node="case-intro"] .system-big{
+  margin:16px 0 10px;
+  font-size:clamp(44px,8vw,88px);
+}
+body[data-node="case-briefing"] .node-card{
+  background:linear-gradient(180deg,rgba(8,10,14,.58),rgba(5,7,10,.92));
+  backdrop-filter:blur(8px);
+}
+body[data-node="case-briefing"] .beat-wrap{
+  min-height:300px;
+}
+body[data-node="case-briefing"] .beat-text{
+  max-width:780px;
+}
+
+@media(max-width:760px){
+  body[data-node="case-intro"] .system-screen{min-height:78vh}
+  body[data-node="case-briefing"] .beat-wrap{min-height:250px}
+}

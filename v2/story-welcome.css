@@ -1,0 +1,67 @@
+/* Extended "أهلًا، [الاسم]" sequence — deliberately scoped to that one flash. */
+.story-stage,.story-header{transition:opacity .7s ease,filter .7s ease,transform .7s ease}
+body.welcome-sequence-active .story-stage{opacity:.12;filter:blur(2px) brightness(.32);transform:scale(.992);pointer-events:none}
+body.welcome-sequence-active .story-header{opacity:.18;filter:blur(1px);pointer-events:none}
+body.welcome-sequence-active .cinematic-layer.active{filter:saturate(.42) contrast(1.18) brightness(.28)}
+body.welcome-sequence-active .cinematic-scan{opacity:.62}
+
+.system-flash.welcome-flash{z-index:450;pointer-events:auto;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.22em;direction:rtl;background:rgba(1,2,4,.96);font-size:clamp(34px,7vw,84px);font-weight:800;letter-spacing:.015em;text-shadow:0 2px 28px rgba(0,0,0,.8)}
+.system-flash.welcome-flash.show{animation:welcomeCurtain 4.8s cubic-bezier(.22,.7,.18,1) both}
+.system-flash.welcome-flash::before{content:'';position:absolute;inset:-18%;z-index:-1;background:radial-gradient(circle at 50% 50%,rgba(199,179,127,.13) 0 5%,rgba(108,118,135,.055) 19%,rgba(0,0,0,0) 43%);animation:welcomePulseField 4.8s ease-out both}
+.system-flash.welcome-flash::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 0 47%,rgba(255,255,255,.025) 49%,transparent 51%),radial-gradient(circle at center,transparent 0 24%,rgba(0,0,0,.3) 57%,rgba(0,0,0,.82) 115%);mix-blend-mode:screen;animation:welcomeScan 4.8s linear both}
+.welcome-word,.welcome-name{position:relative;display:inline-block;will-change:opacity,transform,filter,letter-spacing}
+.welcome-word{color:#eeebe4;animation:welcomeWord 4.8s cubic-bezier(.2,.75,.2,1) both}
+.welcome-name{color:#d6c28e;animation:welcomeName 4.8s cubic-bezier(.2,.75,.2,1) both}
+
+@keyframes welcomeCurtain{
+  0%{opacity:0;background:rgba(0,0,0,0)}
+  8%{opacity:1;background:rgba(1,2,4,.88)}
+  16%,84%{opacity:1;background:rgba(1,2,4,.985)}
+  92%{opacity:1;background:rgba(1,2,4,.9)}
+  100%{opacity:0;background:rgba(0,0,0,0)}
+}
+@keyframes welcomeWord{
+  0%,15%{opacity:0;transform:translateY(9px) scale(.975);filter:blur(7px)}
+  24%{opacity:.95;transform:none;filter:blur(0)}
+  34%,78%{opacity:1;transform:none;filter:none}
+  86%{opacity:.72;transform:scale(1.015);filter:blur(.2px)}
+  100%{opacity:0;transform:translateY(-5px) scale(1.03);filter:blur(4px)}
+}
+@keyframes welcomeName{
+  0%,31%{opacity:0;transform:translateX(-10px) scale(.98);filter:blur(9px);letter-spacing:.05em}
+  43%{opacity:1;transform:none;filter:blur(0);letter-spacing:.015em}
+  51%,77%{opacity:1;transform:none;filter:none}
+  86%{opacity:.8;transform:scale(1.018)}
+  100%{opacity:0;transform:translateX(5px) scale(1.035);filter:blur(5px)}
+}
+@keyframes welcomePulseField{
+  0%{opacity:0;transform:scale(.82)}
+  12%{opacity:.18;transform:scale(.9)}
+  20%{opacity:.04;transform:scale(.98)}
+  29%{opacity:.24;transform:scale(1.02)}
+  37%{opacity:.06;transform:scale(1.07)}
+  46%{opacity:.3;transform:scale(1.1)}
+  54%{opacity:.08;transform:scale(1.15)}
+  62%{opacity:.36;transform:scale(1.19)}
+  69%{opacity:.1;transform:scale(1.24)}
+  75%{opacity:.42;transform:scale(1.28)}
+  81%{opacity:.12;transform:scale(1.33)}
+  86%{opacity:.48;transform:scale(1.38)}
+  100%{opacity:0;transform:scale(1.52)}
+}
+@keyframes welcomeScan{
+  0%{opacity:0;transform:translateY(-4%)}
+  18%{opacity:.25}
+  48%{opacity:.45;transform:translateY(0)}
+  80%{opacity:.55;transform:translateY(2%)}
+  100%{opacity:0;transform:translateY(4%)}
+}
+
+@media(max-width:760px){
+  .system-flash.welcome-flash{font-size:clamp(30px,11vw,58px);gap:.16em;padding:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  .system-flash.welcome-flash.show{animation-duration:3.3s}
+  .welcome-word,.welcome-name,.system-flash.welcome-flash::before,.system-flash.welcome-flash::after{animation-duration:3.3s}
+  body.welcome-sequence-active .story-stage{filter:brightness(.32);transform:none}
+}
