@@ -13,6 +13,13 @@
     apartmentHallway: BASE + '47_apartment_hallway.webp',
     policeCorridor: BASE + '48_police_corridor.webp',
     nightDriveIndustrial: BASE + '49_night_drive_industrial.webp',
-    blankSurveillanceNoise: BASE + '50_blank_surveillance_noise.webp'
+    blankSurveillanceNoise: BASE + '50_blank_surveillance_noise.webp',
+    apartmentInteriorDesk: BASE + '51_apartment_interior_desk.webp',
+    darkRoomCaptive: BASE + '52_dark_room_captive.webp',
+    oldPhotographTwins: BASE + '53_old_photograph_twins.webp',
+    industrialBuildingInterior: BASE + '54_industrial_building_interior.webp',
+    neutralMeetingRoom: BASE + '55_neutral_meeting_room.webp',
+    serverCoreRoom: BASE + '56_server_core_room.webp',
+    threeLiveFeeds: BASE + '57_three_live_feeds.webp'
   });
 })();

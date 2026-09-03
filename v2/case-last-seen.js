@@ -156,7 +156,7 @@ window.STORY_CASE = {
       id:'apartment-search', type:'investigation',
       kicker:'مسرح 01', title:'شقة آدم',
       caption:'قدامك أربع نقاط مهمة. مش هتلحق تفحصهم كلهم قبل وصول الفريق.',
-      image:'https://raw.githubusercontent.com/MoOnsy07/Tarf-khyt/main/images/missing-twin/twin-apartment.jpg',
+      image: LS.apartmentInteriorDesk,
       limit:3,
       timer:{seconds:150, timeoutMessage:'الفريق وصل. أي حاجة ما فحصتهاش دلوقتي خرجت من إيدك.'},
       hotspots:[
