@@ -34,6 +34,7 @@ jobs:
           node --check v2/story-engine.js
           node --check v2/story-cinematic.js
           node --check v2/story-welcome.js
+          node --check v2/story-clarity.js
           node --check v2/case-last-seen.js
           node --check v2/last-seen-assets.js
           node --check v2/validate-last-seen.js
@@ -44,9 +45,11 @@ jobs:
           grep -q './last-seen-scenes.css' v2/story.html
           grep -q './story-cinematic.css' v2/story.html
           grep -q './story-welcome.css' v2/story.html
+          grep -q './last-seen-clarity.css' v2/story.html
           grep -q './last-seen-assets.js' v2/story.html
           grep -q './case-last-seen.js' v2/story.html
           grep -q './story-engine.js' v2/story.html
           grep -q './story-cinematic.js' v2/story.html
           grep -q './story-welcome.js' v2/story.html
+          grep -q './story-clarity.js' v2/story.html
           grep -q './story.css' v2/story.html
