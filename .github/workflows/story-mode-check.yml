@@ -1,0 +1,36 @@
+name: Story Mode Check
+
+on:
+  push:
+    branches:
+      - story-mode-last-seen
+    paths:
+      - 'v2/story*.js'
+      - 'v2/case-last-seen.js'
+      - 'v2/story.html'
+      - 'v2/story.css'
+      - '.github/workflows/story-mode-check.yml'
+  pull_request:
+    paths:
+      - 'v2/story*.js'
+      - 'v2/case-last-seen.js'
+      - 'v2/story.html'
+      - 'v2/story.css'
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Story Mode JavaScript syntax
+        run: |
+          node --check v2/story-engine.js
+          node --check v2/case-last-seen.js
+      - name: Check Story Mode shell references
+        run: |
+          grep -q './case-last-seen.js' v2/story.html
+          grep -q './story-engine.js' v2/story.html
+          grep -q './story.css' v2/story.html
