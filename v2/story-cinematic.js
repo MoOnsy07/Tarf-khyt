@@ -53,6 +53,7 @@
     'half-truths': LS.neutralMeetingRoom,
     'mariam-epilogue': LS.policeCorridor,
     'profile-intro': LS.blankSurveillanceNoise,
+    'numbers-pattern-reveal': LS.blankSurveillanceNoise,
     'player-profile': LS.blankSurveillanceNoise,
     'trust-test-intro': LS.threeLiveFeeds,
     'trust-test': LS.threeLiveFeeds,
