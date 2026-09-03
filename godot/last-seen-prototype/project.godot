@@ -6,6 +6,9 @@ config_version=5
 config/name="Taraf Kheet - Last Seen Prototype"
 run/main_scene="res://main.tscn"
 
+[autoload]
+ArabicFontLoader="*res://scripts/font_loader.gd"
+
 [display]
 window/size/viewport_width=1280
 window/size/viewport_height=720
