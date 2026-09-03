@@ -321,7 +321,12 @@
     const pre=$('#debugState'); if(pre) pre.textContent=JSON.stringify(state,null,2);
   }
   function wireDebug(){
-    const panel=$('#debugPanel'); const enabled=new URLSearchParams(location.search).get('debug')==='1'; if(enabled)panel.classList.remove('hidden');
+    const panel=$('#debugPanel'); const enabled=new URLSearchParams(location.search).get('debug')==='1';
+    // من غير ?debug=1 في الرابط، لوحة المطورين مش بتتوصّل خالص — لا اختصار كيبورد،
+    // لا زرار قفل/انتقال/مسح. كده لاعب عادي (أو فضولي بيجرب Ctrl+Shift+D) ما يقدرش
+    // يشوف الحالة الداخلية أو يقفز لأي خاتمة قبل ما يوصلها فعليًا.
+    if(!enabled) return;
+    panel.classList.remove('hidden');
     $('#debugClose')?.addEventListener('click',()=>panel.classList.add('hidden'));
     $('#debugJumpBtn')?.addEventListener('click',()=>{const id=$('#debugJumpInput').value.trim(); if(CASE.nodes[id])navigate(id); else toast('المشهد ده مش موجود.');});
     $('#debugResetBtn')?.addEventListener('click',()=>{localStorage.removeItem(SAVE_KEY);location.reload();});
