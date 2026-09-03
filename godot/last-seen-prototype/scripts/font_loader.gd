@@ -1,17 +1,7 @@
-extends Node
+class_name ArabicFontLoader
+extends RefCounted
 
-var arabic_font: FontFile
-
-func _ready() -> void:
-    arabic_font = _load_embedded_font()
-    if arabic_font:
-        arabic_font.allow_system_fallback = false
-        ThemeDB.fallback_font = arabic_font
-
-func get_font() -> FontFile:
-    return arabic_font
-
-func _load_embedded_font() -> FontFile:
+static func get_font() -> FontFile:
     var encoded := ""
     for index in range(8):
         var path := "res://fonts/embedded/part_%02d.b64" % index
@@ -29,4 +19,5 @@ func _load_embedded_font() -> FontFile:
 
     var font := FontFile.new()
     font.data = bytes
+    font.allow_system_fallback = false
     return font
