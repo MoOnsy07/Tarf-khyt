@@ -727,11 +727,11 @@ window.STORY_CASE = {
       choices:[
         {
           id:'yara', label:'أصدق يارا', description:'أتعامل مع ملفها ضد آدم باعتباره المسار الأقوى.',
-          effect:{flags:{sidedYara:true},evidence:['yara-proof'],stats:{observerTrust:2,adamTrust:-1,influence:1}}, next:'profile-intro'
+          effect:{flags:{sidedYara:true},evidence:['yara-proof'],stats:{observerTrust:2,adamTrust:-1,influence:1}}, next:'mariam-epilogue'
         },
         {
           id:'adam', label:'أصدق آدم', description:'أتعامل مع ملفه ضد يارا باعتباره المسار الأقوى.',
-          effect:{flags:{sidedAdam:true},evidence:['adam-proof'],stats:{adamTrust:2,observerTrust:-1}}, next:'profile-intro'
+          effect:{flags:{sidedAdam:true},evidence:['adam-proof'],stats:{adamTrust:2,observerTrust:-1}}, next:'mariam-epilogue'
         },
         {
           id:'compare', label:'ما أصدقش حد فيهم وأقارن الملفين', description:'أدور على اللي الاتنين متفقين على إخفائه.',
@@ -756,6 +756,21 @@ window.STORY_CASE = {
         { text:'ملف آدم يثبت إن يارا عرفت بإعادة تشغيل النظام قبل ما تختفي من العلن.' },
         { text:'لكن لما تقارن التوقيتات، واضح إن ولا واحد فيهم يملك الصورة كاملة.' },
         { text:'الأهم: تلاقي مسار نسخة احتياطية منفصل عن الخادم الرئيسي.' }
+      ],
+      next:'mariam-epilogue'
+    },
+
+    'mariam-epilogue': {
+      id:'mariam-epilogue', type:'cutscene',
+      chapter:'الفصل السابع · المراقب 00',
+      kicker:'قبل ما تكمل', title:'مصير مريم',
+      beats:[
+        { when:{flag:'mariamInCustody'}, text:'مريم لسه محتجزة على ذمة التحقيق الرسمي. محاميها بيحاول يثبت إنها ضحية في القصة دي مش شريكة فيها، لكن الملف اتقفل عليها من غير ما تاخد فرصة تشرح نفسها لحد غير الشرطة.' },
+        { when:{flag:'mariamInCustody'}, speaker:'رسالة من المحامي', text:'"موكلتي غطت غياب أختها التوأم لسنين خوفًا على أبوها المريض. ده مش تواطؤ، ده خوف."' },
+        { when:{flag:'mariamExplained'}, text:'مريم لسه هنا، قاعدة في نفس الغرفة اللي سمعت فيها قصتها كاملة. الثقة اللي دّيتهالها لما سمعتها من غير حكم مسبق خلتها تفضل متعاونة لحد آخر لحظة.' },
+        { when:{flag:'mariamExplained'}, speaker:'مريم', text:'"إنت أول حد سألني ليه، مش بس إيه اللي عملته." ' },
+        { when:{flag:'coercedMariam'}, text:'مريم مش موجودة معاك دلوقتي. بعد الضغط اللي حطيته عليها، قفلت الباب وراها وامتنعت عن أي تعاون إضافي، حتى لما الصورة الكاملة بدأت تتوضح من غير حاجة منها.' },
+        { when:{flag:'coercedMariam'}, speaker:'محقق آخر', text:'"هي مش هتتكلم تاني. مهما حاولنا."' },
       ],
       next:'profile-intro'
     },

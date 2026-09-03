@@ -34,6 +34,7 @@
     'participant17': LS.industrialBuildingInterior,
     'yara-reveal': LS.neutralMeetingRoom,
     'yara-adam-choice': LS.neutralMeetingRoom,
+    'mariam-epilogue': LS.policeCorridor,
     'profile-intro': LS.blankSurveillanceNoise,
     'player-profile': LS.blankSurveillanceNoise,
     'trust-test-intro': LS.threeLiveFeeds,
