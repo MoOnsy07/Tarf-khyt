@@ -3,7 +3,7 @@
 config_version=5
 
 [application]
-config/name="Taraf Kheet - Last Seen Prototype"
+config/name="Taraf Kheet - Last Seen Clean Prototype"
 run/main_scene="res://main.tscn"
 
 [autoload]
