@@ -6,22 +6,20 @@ on:
       - story-mode-last-seen
     paths:
       - 'v2/story*.js'
+      - 'v2/story*.css'
       - 'v2/case-last-seen.js'
       - 'v2/last-seen-*.js'
       - 'v2/last-seen-*.css'
       - 'v2/story.html'
-      - 'v2/story.css'
-      - 'v2/story-cinematic.css'
       - '.github/workflows/story-mode-check.yml'
   pull_request:
     paths:
       - 'v2/story*.js'
+      - 'v2/story*.css'
       - 'v2/case-last-seen.js'
       - 'v2/last-seen-*.js'
       - 'v2/last-seen-*.css'
       - 'v2/story.html'
-      - 'v2/story.css'
-      - 'v2/story-cinematic.css'
 
 jobs:
   syntax:
@@ -35,6 +33,7 @@ jobs:
         run: |
           node --check v2/story-engine.js
           node --check v2/story-cinematic.js
+          node --check v2/story-welcome.js
           node --check v2/case-last-seen.js
           node --check v2/last-seen-assets.js
           node --check v2/validate-last-seen.js
@@ -44,8 +43,10 @@ jobs:
         run: |
           grep -q './last-seen-scenes.css' v2/story.html
           grep -q './story-cinematic.css' v2/story.html
+          grep -q './story-welcome.css' v2/story.html
           grep -q './last-seen-assets.js' v2/story.html
           grep -q './case-last-seen.js' v2/story.html
           grep -q './story-engine.js' v2/story.html
           grep -q './story-cinematic.js' v2/story.html
+          grep -q './story-welcome.js' v2/story.html
           grep -q './story.css' v2/story.html
