@@ -1,0 +1,48 @@
+name: Godot Last Seen Prototype
+
+on:
+  push:
+    branches:
+      - godot-last-seen-prototype
+    paths:
+      - 'godot/last-seen-prototype/**'
+      - '.github/workflows/godot-last-seen-check.yml'
+  pull_request:
+    paths:
+      - 'godot/last-seen-prototype/**'
+
+jobs:
+  godot-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Godot 4
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        working-directory: godot/last-seen-prototype
+        run: godot --headless --import
+
+      - name: Parse main script
+        working-directory: godot/last-seen-prototype
+        run: godot --headless --script res://scripts/main.gd --check-only
+
+      - name: Export Web build
+        working-directory: godot/last-seen-prototype
+        run: |
+          mkdir -p build/web
+          godot --headless --export-release Web build/web/index.html
+
+      - name: Upload Web prototype
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-seen-godot-web
+          path: godot/last-seen-prototype/build/web/
