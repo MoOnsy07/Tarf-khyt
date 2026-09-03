@@ -7,6 +7,8 @@ on:
     paths:
       - 'v2/story*.js'
       - 'v2/case-last-seen.js'
+      - 'v2/last-seen-*.js'
+      - 'v2/last-seen-*.css'
       - 'v2/story.html'
       - 'v2/story.css'
       - '.github/workflows/story-mode-check.yml'
@@ -14,6 +16,8 @@ on:
     paths:
       - 'v2/story*.js'
       - 'v2/case-last-seen.js'
+      - 'v2/last-seen-*.js'
+      - 'v2/last-seen-*.css'
       - 'v2/story.html'
       - 'v2/story.css'
 
@@ -29,8 +33,14 @@ jobs:
         run: |
           node --check v2/story-engine.js
           node --check v2/case-last-seen.js
+          node --check v2/last-seen-assets.js
+          node --check v2/validate-last-seen.js
+      - name: Validate Last Seen story graph
+        run: node v2/validate-last-seen.js
       - name: Check Story Mode shell references
         run: |
+          grep -q './last-seen-scenes.css' v2/story.html
+          grep -q './last-seen-assets.js' v2/story.html
           grep -q './case-last-seen.js' v2/story.html
           grep -q './story-engine.js' v2/story.html
           grep -q './story.css' v2/story.html
