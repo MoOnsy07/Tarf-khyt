@@ -41,11 +41,13 @@ if (!nodes[story.start]) missing.push(`start -> ${story.start}`);
 if (missing.length) throw new Error(`Broken story links:\n${missing.join('\n')}`);
 
 const decisions = Object.values(nodes).filter(n => n.type === 'decision').length;
+const investigations = Object.values(nodes).filter(n => n.type === 'investigation').length;
+const majorDecisionPoints = decisions + investigations;
 const endings = Object.values(nodes).filter(n => n.type === 'end').length;
 const timed = Object.values(nodes).filter(n => n.timer).length;
 const secretChoices = Object.values(nodes).flatMap(n => n.choices || []).filter(c => c.secret).length;
 
-if (decisions < 15) throw new Error(`Expected at least 15 decision nodes, got ${decisions}`);
+if (majorDecisionPoints < 15) throw new Error(`Expected at least 15 major decision points, got ${majorDecisionPoints}`);
 if (endings < 5) throw new Error(`Expected 5 endings, got ${endings}`);
 
-console.log(`LAST SEEN validated: ${Object.keys(nodes).length} nodes, ${decisions} decisions, ${timed} timed nodes, ${secretChoices} secret choices, ${endings} endings.`);
+console.log(`LAST SEEN validated: ${Object.keys(nodes).length} nodes, ${majorDecisionPoints} major decision points, ${timed} timed nodes, ${secretChoices} secret choices, ${endings} endings.`);
