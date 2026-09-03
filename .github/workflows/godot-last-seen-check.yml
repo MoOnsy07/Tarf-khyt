@@ -20,6 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Bake Arabic font into project
+        run: |
+          mkdir -p godot/last-seen-prototype/fonts
+          curl -L --fail --retry 3 \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf' \
+            -o godot/last-seen-prototype/fonts/NotoSansArabic.ttf
+          test "$(stat -c%s godot/last-seen-prototype/fonts/NotoSansArabic.ttf)" -gt 100000
+
       - name: Setup Godot 4
         uses: chickensoft-games/setup-godot@v2
         with:
