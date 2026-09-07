@@ -1,12 +1,21 @@
 package online.taraf5eet.nativeapp.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import online.taraf5eet.nativeapp.data.CaseRepository
+import online.taraf5eet.nativeapp.data.CaseSummary
 import online.taraf5eet.nativeapp.viewmodel.CaseViewModel
 
 private const val ROUTE_HOME = "home"
@@ -20,7 +29,40 @@ private const val ROUTE_ENDING = "ending/{caseId}"
 fun TarafNavGraph(repository: CaseRepository) {
     val navController: NavHostController = rememberNavController()
     val vm = remember { CaseViewModel(repository) }
-    val catalog = remember { repository.loadCatalog() }
+
+    // Loading the catalog must never leave the screen silently blank: any
+    // failure (missing/corrupt asset) is shown as visible text instead.
+    val catalogResult = remember {
+        runCatching { repository.loadCatalog() }
+    }
+
+    val catalog = catalogResult.getOrNull()
+    if (catalog == null) {
+        val error = catalogResult.exceptionOrNull()
+        Column(Modifier.fillMaxSize().padding(24.dp)) {
+            Text("مشكلة في تحميل الكتالوج", color = Color.White, style = MaterialTheme.typography.titleLarge)
+            Text(
+                error?.message ?: "خطأ غير معروف",
+                color = Color(0xFF9AA0AC),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+        return
+    }
+
+    if (catalog.isEmpty()) {
+        Column(Modifier.fillMaxSize().padding(24.dp)) {
+            Text("الكتالوج فاضي", color = Color.White, style = MaterialTheme.typography.titleLarge)
+            Text(
+                "catalog.json اتحمّل لكن معندوش أي قضايا جواه.",
+                color = Color(0xFF9AA0AC),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+        return
+    }
 
     NavHost(navController = navController, startDestination = ROUTE_HOME) {
         composable(ROUTE_HOME) {

@@ -13,7 +13,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="طرف الخيط"
-            android:theme="@style/Theme.App"
+            android:theme="@style/Theme.App.Starting"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

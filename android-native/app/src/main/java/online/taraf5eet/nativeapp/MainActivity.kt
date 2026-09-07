@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import online.taraf5eet.nativeapp.data.CaseRepository
 import online.taraf5eet.nativeapp.ui.TarafNavGraph
 import online.taraf5eet.nativeapp.ui.theme.TarafBackground
@@ -14,6 +15,7 @@ import online.taraf5eet.nativeapp.ui.theme.TarafKhytTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         val repository = CaseRepository(applicationContext)
         setContent {
