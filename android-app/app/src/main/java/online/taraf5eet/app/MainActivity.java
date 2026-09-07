@@ -1,8 +1,12 @@
 package online.taraf5eet.app;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,14 +14,20 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.core.splashscreen.SplashScreen;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -26,17 +36,29 @@ public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4107;
     private static final int NOTIFICATION_PERMISSION_REQUEST = 4108;
     private static final String START_URL = "https://taraf5eet.online/";
+    private static final String OFFLINE_URL = "file:///android_asset/offline.html";
 
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
+    private volatile boolean contentReady = false;
+    private boolean showingOffline = false;
+    private boolean splashDismissed = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+
+        // Keep the branded splash visible until the game has actually finished
+        // loading (or clearly failed), instead of handing off to a blank WebView.
+        splashScreen.setKeepOnScreenCondition(() -> !contentReady);
+        splashScreen.setOnExitAnimationListener(this::animateSplashExit);
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(10, 12, 18));
+        webView.setAlpha(0f);
+        webView.addJavascriptInterface(new NativeBridge(), "NativeBridge");
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
@@ -66,6 +88,26 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleUrl(Uri.parse(url));
             }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                if (request.isForMainFrame()) showOfflineScreen();
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if (OFFLINE_URL.equals(url)) {
+                    contentReady = true;
+                    fadeInWebView();
+                    return;
+                }
+                if (!showingOffline) {
+                    contentReady = true;
+                    fadeInWebView();
+                }
+            }
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
@@ -92,6 +134,10 @@ public class MainActivity extends Activity {
             String pushUrl = getPushUrl(getIntent());
             webView.loadUrl(pushUrl != null ? pushUrl : getStartUrl());
         }
+
+        // Safety net: never leave the splash on screen forever on a very slow
+        // or flaky connection — release it after 6s even if load hasn't fired.
+        webView.postDelayed(() -> contentReady = true, 6000);
 
         initPushNotifications();
     }
@@ -148,6 +194,58 @@ public class MainActivity extends Activity {
                 .toString();
     }
 
+    private void showOfflineScreen() {
+        if (showingOffline) return;
+        showingOffline = true;
+        webView.setAlpha(0f);
+        webView.loadUrl(OFFLINE_URL);
+    }
+
+    private void retryFromOffline() {
+        showingOffline = false;
+        webView.setAlpha(0f);
+        String pushUrl = getPushUrl(getIntent());
+        webView.loadUrl(pushUrl != null ? pushUrl : getStartUrl());
+    }
+
+    private void fadeInWebView() {
+        if (webView.getAlpha() >= 1f) return;
+        webView.animate().alpha(1f).setDuration(220).start();
+    }
+
+    private void animateSplashExit(androidx.core.splashscreen.SplashScreenViewProvider provider) {
+        if (splashDismissed) {
+            provider.remove();
+            return;
+        }
+        splashDismissed = true;
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(provider.getIconView(), View.SCALE_X, 1f, 0.85f, 1.1f, 0f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(provider.getIconView(), View.SCALE_Y, 1f, 0.85f, 1.1f, 0f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(provider.getView(), View.ALPHA, 1f, 0f);
+        scaleX.setInterpolator(new OvershootInterpolator());
+        scaleY.setInterpolator(new OvershootInterpolator());
+        scaleX.setDuration(420);
+        scaleY.setDuration(420);
+        alpha.setDuration(260);
+        alpha.setStartDelay(220);
+        alpha.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                provider.remove();
+            }
+        });
+        scaleX.start();
+        scaleY.start();
+        alpha.start();
+    }
+
+    private class NativeBridge {
+        @JavascriptInterface
+        public void retry() {
+            runOnUiThread(MainActivity.this::retryFromOffline);
+        }
+    }
+
     private boolean handleUrl(Uri uri) {
         if (uri == null) return false;
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
@@ -178,8 +276,24 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) webView.goBack();
-        else super.onBackPressed();
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            confirmExit();
+        }
+    }
+
+    private void confirmExit() {
+        new AlertDialog.Builder(this)
+                .setTitle("تقفل طرف الخيط؟")
+                .setMessage("متأكد إنك عايز تخرج من اللعبة دلوقتي؟")
+                .setPositiveButton("قفل", (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                })
+                .setNegativeButton("لأ، كمّل", (dialog, which) -> dialog.dismiss())
+                .setCancelable(true)
+                .show();
     }
 
     @Override
