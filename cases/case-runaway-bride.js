@@ -149,7 +149,20 @@ const CASE_RUNAWAY_BRIDE = {
       unlocked:false, order:9 },
   ],
 
-  contradictionPuzzle: { enabled:false },
+  contradictionPuzzle: {
+    enabled: true,
+    tabLabel: 'تناقضات',
+    introText: 'قارن إنكار وليد الأول لوجوده في الفرح بتصريحه اللاحق في نفس الاستجواب. فيه تراجع مريب من نفي قاطع لتبرير مهزوز.',
+    resultText: 'التناقض واضح: وليد أنكر وجوده في الفرح تمامًا في البداية، لكن لما واجهته بدليل العربية بدأ يبرر بدل ما يكرر النفي القاطع — وده سلوك شخص بيغطي على وجوده الفعلي، مش شخص بريء متأكد من مكانه.',
+    resultEvidenceIds: ['waleed_presence_denied'],
+    statements: [
+      { id:'st1', text:'"لأ، أنا ماكنتش موجود خالص، كنت في الإسكندرية في شغل. مالوش علاقة بيّا الموضوع ده."', source:'وليد — أول الاستجواب' },
+      { id:'st2', text:'"ممكن يكون حد استعار عربيتي، أنا فعلًا ماكنتش هناك بنفسي."', source:'وليد — بعد مواجهته بدليل العربية' },
+      { id:'st3', text:'"كنت مع أصحابي في صالة الرجال طول الوقت."', source:'كريم — في الاستجواب' },
+      { id:'st4', text:'"سمعتها تقول اسم \'وليد\' بصوت واطي قبل ما تقفل."', source:'دينا — في الاستجواب' },
+    ],
+    correctPair: ['st1','st2'],
+  },
   audioPuzzle: { enabled:false },
   timelinePuzzle: { enabled:false },
   codeLockPuzzle: { enabled:false },
