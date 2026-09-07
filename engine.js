@@ -23,6 +23,31 @@ const TELEGRAM_CHANNEL_URL = 'https://t.me/taraf5eet';
 const INSTAGRAM_URL = 'https://www.instagram.com/tarafkheet?igsh=MWQ3Y2h2aHB0eDduYw==';
 
 // كارت التواصل — واتساب للدعم والاقتراحات، وتليجرام للقضايا والتحديثات
+// ------- بانر تشويقي للقضايا الجديدة "قريبًا" في أول شاشة المكتبة -------
+function newCasesTeaserHTML(){
+  const upcoming = CASES_REGISTRY.filter(c => !isCaseReady(c) && c.id !== 'return-from-death');
+  if(!upcoming.length) return '';
+  const cards = upcoming.map(c => `
+    <div class="teaser-mini-card" data-preview-case="${c.id}">
+      <div class="teaser-mini-cover">
+        <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">
+        <span class="teaser-mini-badge mono">⏳ قريبًا</span>
+      </div>
+      <div class="teaser-mini-title">${c.title}</div>
+      <div class="teaser-mini-meta mono">${c.caseNo} · ${c.estMinutes} دقيقة</div>
+    </div>
+  `).join('');
+  return `
+    <div class="new-cases-teaser">
+      <div class="new-cases-teaser-head">
+        <span class="new-cases-teaser-eyebrow mono">🔥 جديد</span>
+        <h3>${upcoming.length} قضايا جديدة قريبًا</h3>
+      </div>
+      <div class="new-cases-teaser-scroll">${cards}</div>
+    </div>
+  `;
+}
+
 function socialLinksHTML(context){
   const telegramBlock = context === 'library' ? `
     <div class="telegram-intel-card">
@@ -801,6 +826,8 @@ function showLibrary(){
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
 
+    ${newCasesTeaserHTML()}
+
     <div class="lib-toolbar">
       <div class="lib-search-wrap">
         <span class="lib-search-icon mono">⌕</span>
@@ -884,6 +911,14 @@ function showLibrary(){
       showLibrary();
     });
   }
+
+  // ------- كروت البانر التشويقي (قضايا "قريبًا") -------
+  document.querySelectorAll('.teaser-mini-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const caseData = CASES_REGISTRY.find(c => c.id === card.dataset.previewCase);
+      if(caseData) openCasePreview(caseData, isCaseLocked(caseData));
+    });
+  });
 
   // ------- كروت القضايا -------
   document.querySelectorAll('.lib-card').forEach(card=>{
