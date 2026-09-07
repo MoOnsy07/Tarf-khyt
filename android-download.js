@@ -4,7 +4,7 @@
 
   const APK_READY = true;
   const APK_URL = 'https://github.com/MoOnsy07/Tarf-khyt/releases/download/android-latest/taraf-khyt.apk';
-  const LATEST_ANDROID_VERSION = '1.0.19';
+  const LATEST_ANDROID_VERSION = '1.0.20';
   const DOWNLOAD_ID_KEY = 'taraf_android_download_visitor_v1';
   const APP_VERSION_KEY = 'taraf_android_app_version_v1';
 
