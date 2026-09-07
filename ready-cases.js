@@ -112,3 +112,27 @@ const READY_CASE_IDS = new Set([
   caseScript.onerror=()=>console.warn('تعذر تحميل قضية العودة من الموت');
   (document.head||document.documentElement).appendChild(caseScript);
 })();
+/* ============================================================
+   وضع اختبار المالك (Owner Test Mode)
+   بيسمح لصاحب الموقع بس يدخل ويلعب أي قضية لسه "قريبًا" (مش
+   مسجّلة في READY_CASE_IDS) قبل ما تتفتح رسميًا للزوار. الزوار
+   العاديين بيفضلوا شايفين "⏳ قريبًا" ومحدش يقدر يدخل غير المالك.
+
+   طريقة التفعيل: افتح الموقع مرة واحدة بالرابط:
+   https://taraf5eet.online/?testmode=TARAF_TEST_2026
+   وبعدها هيفضل الوضع مفعّل على المتصفح ده لحد ما تمسح بيانات الموقع.
+   ============================================================ */
+(function setupOwnerTestMode(){
+  if (typeof document === 'undefined') return;
+  try {
+    const q = new URLSearchParams(location.search);
+    const token = String(q.get('testmode') || '').trim();
+    if (token === 'TARAF_TEST_2026') {
+      localStorage.setItem('ca_owner_test_mode', '1');
+    }
+  } catch(_) {}
+})();
+
+function isOwnerTestModeActive(){
+  try { return localStorage.getItem('ca_owner_test_mode') === '1'; } catch(_) { return false; }
+}

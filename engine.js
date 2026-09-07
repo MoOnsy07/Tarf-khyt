@@ -897,7 +897,8 @@ function showLibrary(){
         return;
       }
       // قضايا "قريبًا" — لسه مفيش صور كافية، امنع الدخول لحد ما تكتمل
-      if(card.dataset.ready === 'false'){
+      // إلا لو المالك مفعّل وضع الاختبار الخاص (owner test mode)
+      if(card.dataset.ready === 'false' && !(typeof isOwnerTestModeActive === 'function' && isOwnerTestModeActive())){
         return;
       }
       if(card.dataset.locked === 'true'){
