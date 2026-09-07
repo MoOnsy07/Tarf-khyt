@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'online.taraf5eet.native'
+    namespace 'online.taraf5eet.nativeapp'
     compileSdk 36
 
     defaultConfig {
-        applicationId 'online.taraf5eet.native'
+        applicationId 'online.taraf5eet.nativeapp'
         minSdk 26
         targetSdk 35
         versionCode 1
