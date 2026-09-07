@@ -88,7 +88,6 @@ const SHELL_ASSETS = [
   'cases/case-fake-audio.js',
   'cases/case-false-rumor-hotfix.js',
   'cases/case-false-rumor.js',
-  'cases/case-final-exit.js',
   'cases/case-final-testament.js',
   'cases/case-finish-line.js',
   'cases/case-flat-12b.js',

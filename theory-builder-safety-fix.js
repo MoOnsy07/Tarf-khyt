@@ -365,9 +365,6 @@
   if(typeof CASE_RETURN_FROM_DEATH !== 'undefined') registerReturnFromDeath();
   else loadCaseScript('cases/case-return-from-death.js?v=20260825-1', registerReturnFromDeath, 'return-from-death');
 
-  if(typeof CASE_FINAL_EXIT !== 'undefined') registerFinalExit();
-  else loadCaseScript('cases/case-final-exit.js?v=20260825-1', registerFinalExit, 'final-exit');
-
   window.TarafExclusiveCases = {
     hasExclusiveAccess,
     unlockExclusive,

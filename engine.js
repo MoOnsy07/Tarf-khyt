@@ -843,8 +843,6 @@ function showLibrary(){
       <a href="how-to-play.html" class="btn ghost mono lib-howtoplay-link" style="white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📖 إزاي تلعب</a>
     </div>
 
-    ${socialLinksHTML('library')}
-
     <div class="lib-filters-scroll" id="cases-list-start"><div class="lib-filters">${filterBar}</div></div>
 
     <div class="lib-results-count mono">${resultsCountLabel}</div>
