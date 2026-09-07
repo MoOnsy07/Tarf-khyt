@@ -14,6 +14,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.webkit.CookieManager;
@@ -39,6 +41,7 @@ public class MainActivity extends Activity {
     private static final String OFFLINE_URL = "file:///android_asset/offline.html";
 
     private WebView webView;
+    private Vibrator vibrator;
     private ValueCallback<Uri[]> fileCallback;
     private volatile boolean contentReady = false;
     private boolean showingOffline = false;
@@ -56,8 +59,10 @@ public class MainActivity extends Activity {
         splashScreen.setOnExitAnimationListener(this::animateSplashExit);
 
         webView = new WebView(this);
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         webView.setBackgroundColor(Color.rgb(10, 12, 18));
         webView.setAlpha(0f);
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.addJavascriptInterface(new NativeBridge(), "NativeBridge");
         setContentView(webView);
 
@@ -106,6 +111,8 @@ public class MainActivity extends Activity {
                 if (!showingOffline) {
                     contentReady = true;
                     fadeInWebView();
+                    view.evaluateJavascript(TAP_HAPTIC_JS, null);
+                    view.evaluateJavascript(NATIVE_SHARE_JS, null);
                 }
             }
         });
@@ -213,6 +220,59 @@ public class MainActivity extends Activity {
         webView.animate().alpha(1f).setDuration(220).start();
     }
 
+    private void hapticTick() {
+        if (vibrator == null || !vibrator.hasVibrator()) return;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(12);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void nativeShare(String dataJson) {
+        try {
+            org.json.JSONObject data = new org.json.JSONObject(dataJson);
+            String title = data.optString("title", "");
+            String text = data.optString("text", "");
+            String url = data.optString("url", "");
+            String combined = (text + (url.isEmpty() ? "" : (text.isEmpty() ? "" : "\n") + url)).trim();
+
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            if (!title.isEmpty()) share.putExtra(Intent.EXTRA_SUBJECT, title);
+            share.putExtra(Intent.EXTRA_TEXT, combined.isEmpty() ? getStartUrl() : combined);
+            startActivity(Intent.createChooser(share, "شارك"));
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static final String TAP_HAPTIC_JS =
+            "(function(){" +
+            "if(window.__hapticBound)return;" +
+            "window.__hapticBound=true;" +
+            "document.addEventListener('pointerdown',function(e){" +
+            "var t=e.target;" +
+            "var el=t&&t.closest?t.closest('button,a,[role=button],[onclick],.btn,input[type=button],input[type=submit]'):null;" +
+            "if(el&&window.NativeBridge&&window.NativeBridge.haptic){window.NativeBridge.haptic();}" +
+            "},true);" +
+            "})();";
+
+    private static final String NATIVE_SHARE_JS =
+            "(function(){" +
+            "if(window.__shareBound)return;" +
+            "window.__shareBound=true;" +
+            "if(!window.NativeBridge||!window.NativeBridge.share)return;" +
+            "navigator.share=function(data){" +
+            "try{window.NativeBridge.share(JSON.stringify(data||{}));}catch(e){}" +
+            "return Promise.resolve();" +
+            "};" +
+            "})();";
+
     private void animateSplashExit(androidx.core.splashscreen.SplashScreenViewProvider provider) {
         if (splashDismissed) {
             provider.remove();
@@ -243,6 +303,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void retry() {
             runOnUiThread(MainActivity.this::retryFromOffline);
+        }
+
+        @JavascriptInterface
+        public void haptic() {
+            hapticTick();
+        }
+
+        @JavascriptInterface
+        public void share(String dataJson) {
+            runOnUiThread(() -> nativeShare(dataJson));
         }
     }
 

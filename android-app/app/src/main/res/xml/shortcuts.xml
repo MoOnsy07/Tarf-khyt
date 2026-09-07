@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="cases"
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutShortLabel="@string/shortcut_cases_short"
+        android:shortcutLongLabel="@string/shortcut_cases_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="online.taraf5eet.app"
+            android:targetClass="online.taraf5eet.app.MainActivity">
+            <extra android:name="url" android:value="https://taraf5eet.online/" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="leaderboard"
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutShortLabel="@string/shortcut_leaderboard_short"
+        android:shortcutLongLabel="@string/shortcut_leaderboard_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="online.taraf5eet.app"
+            android:targetClass="online.taraf5eet.app.MainActivity">
+            <extra android:name="url" android:value="https://taraf5eet.online/leaderboard.html" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="profile"
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutShortLabel="@string/shortcut_profile_short"
+        android:shortcutLongLabel="@string/shortcut_profile_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="online.taraf5eet.app"
+            android:targetClass="online.taraf5eet.app.MainActivity">
+            <extra android:name="url" android:value="https://taraf5eet.online/profile.html" />
+        </intent>
+    </shortcut>
+</shortcuts>

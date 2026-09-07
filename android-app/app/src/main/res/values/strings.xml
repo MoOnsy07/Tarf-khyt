@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="asset_statements" translatable="false">[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"web","site":"https://taraf5eet.online"}}]</string>
+
+    <string name="shortcut_cases_short">القضايا</string>
+    <string name="shortcut_cases_long">القضايا الجديدة</string>
+    <string name="shortcut_leaderboard_short">لوحة الصدارة</string>
+    <string name="shortcut_leaderboard_long">لوحة الصدارة</string>
+    <string name="shortcut_profile_short">ملفي</string>
+    <string name="shortcut_profile_long">الملف الشخصي</string>
 </resources>
