@@ -185,18 +185,16 @@ const CASE_FINAL_SCENE = {
   cameraPuzzle: {
     enabled: true,
     tabLabel: 'تحليل الكاميرات',
-    introText: 'كاميرا مخزن معدات الاستوديو بتغطي من الساعة 6 الصبح لحد 9. دوّر على اللحظة اللي حد بيدخل فيها منطقة التحكم في الحبل من غير إذن — النافذة المشبوهة كانت قبل البروفة بعشرين دقيقة تقريبًا.',
-    resultText: 'وصلت للحظة الصح. الكاميرا بتوضح دخول كريم لمنطقة التحكم في المعدات الساعة الحادية عشر وعشرين، بعد ما ياسر سايب المكان بدقيقتين بالظبط، وقبل البروفة بعشرين دقيقة.',
+    introText: 'كاميرا مخزن معدات الاستوديو بتغطي من الساعة 6 الصبح لحد 10. دوّر على اللحظة اللي حد بيدخل فيها منطقة التحكم في الحبل من غير إذن — النافذة المشبوهة كانت قبل البروفة بعشرين دقيقة تقريبًا.',
+    resultText: 'وصلت للحظة الصح. الكاميرا بتوضح دخول كريم لمنطقة التحكم في المعدات حوالي الساعة 7:40 الصبح، بعد ما ياسر سايب المكان بدقيقتين بالظبط، وقبل البروفة بعشرين دقيقة.',
     startHour24: 6,
-    totalMinutes: 300,
-    targetMinutes: 320,
-    toleranceMinutes: 6,
+    totalMinutes: 240,
+    targetMinutes: 100,
+    toleranceMinutes: 8,
     resultEvidenceIds: ['camera_timestamp_verified'],
   },
 
-  evidenceCombinations: [
-    { parts:['rig_tamper_window','camera_timestamp_verified'], resultId:'camera_timestamp_verified' },
-  ],
+  evidenceCombinations: [],
 
   investigationActions: [
     {
