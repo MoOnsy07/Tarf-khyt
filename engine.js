@@ -56,10 +56,10 @@ function newlyReleasedCasesHTML(){
     .filter(c => c && isCaseReady(c));
   if(!released.length) return '';
   const cards = released.map(c => `
-    <div class="lib-card teaser-mini-card new-release-card" data-case="${c.id}" data-locked="false" data-ready="true">
+    <div class="lib-card teaser-mini-card new-release-card" data-case="${c.id}" data-locked="true" data-lock-reason="telegram-exclusive" data-ready="true">
       <div class="teaser-mini-cover">
         <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">
-        <span class="teaser-mini-badge new-release-badge mono">✨ جديدة</span>
+        <span class="teaser-mini-badge new-release-badge mono">🔐 حصرية</span>
       </div>
       <div class="teaser-mini-title">${c.title}</div>
       <div class="teaser-mini-meta mono">${c.caseNo} · ${c.estMinutes} دقيقة</div>
@@ -69,7 +69,7 @@ function newlyReleasedCasesHTML(){
     <div class="new-cases-teaser new-release-banner">
       <div class="new-cases-teaser-head">
         <span class="new-cases-teaser-eyebrow new-release-eyebrow mono">✨ قضايا جديدة</span>
-        <h3>${released.length} قضايا جديدة اتضافت للمكتبة — العبها دلوقتي</h3>
+        <h3>${released.length} قضايا جديدة حصرية — الكود في قناة تليجرام</h3>
       </div>
       <div class="new-cases-teaser-scroll">${cards}</div>
     </div>

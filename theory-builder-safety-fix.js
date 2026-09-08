@@ -177,6 +177,11 @@
   const EXCLUSIVE_CASES = {
     'return-from-death': { expectedHash:'4045aa5c' },
     'final-exit': { expectedHash:'00771648' },
+    'final-scene': { expectedHash:'acc24db9' },
+    'last-column': { expectedHash:'acc24db9' },
+    'runaway-bride': { expectedHash:'acc24db9' },
+    'blueprint-leak': { expectedHash:'acc24db9' },
+    'archive-fire': { expectedHash:'acc24db9' },
   };
 
   function codeHash(value){

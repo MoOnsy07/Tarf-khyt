@@ -3,6 +3,7 @@
 // (زي profile.html) — عشان اللستة تتحدث في مكان واحد بس.
 const READY_CASE_IDS = new Set([
   'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring','return-from-death',
+  'final-scene','last-column','runaway-bride','blueprint-leak','archive-fire',
 ]);
 
 // CASE 061 تفضل مخفية من المكتبة العامة، لكن تقدر تتفتح من رابط المالك المباشر.
@@ -139,33 +140,4 @@ const OWNER_TEST_CASE_IDS = ['last-injection','blind-trust','forged-signature','
 
 function isOwnerTestModeActive(){
   try { return localStorage.getItem('ca_owner_test_mode') === '1'; } catch(_) { return false; }
-}
-
-/* ============================================================
-   كود دخول مشترك (Beta Access Code)
-   خمس قضايا جاهزة تمامًا ومراجَعة، لكن مش عايزها تفتح للعامة
-   لسه — أي حد معاه الرمز التالي يقدر يفتحهم من غير ما يبقى
-   "مالك" الموقع. الرمز واحد لكل الخمسة مع بعض.
-
-   طريقة التفعيل: افتح الموقع مرة واحدة بالرابط:
-   https://taraf5eet.online/?access=TARAF_BETA_2026
-   وبعدها هيفضل الوضع مفعّل على المتصفح ده.
-   ============================================================ */
-const BETA_ACCESS_CASE_IDS = ['final-scene','last-column','runaway-bride','blueprint-leak','archive-fire'];
-(function setupBetaAccessCode(){
-  if (typeof document === 'undefined') return;
-  try {
-    const q = new URLSearchParams(location.search);
-    const code = String(q.get('access') || '').trim();
-    if (code === 'TARAF_BETA_2026') {
-      localStorage.setItem('ca_beta_access', '1');
-    }
-    if (localStorage.getItem('ca_beta_access') === '1') {
-      BETA_ACCESS_CASE_IDS.forEach(id => READY_CASE_IDS.add(id));
-    }
-  } catch(_) {}
-})();
-
-function isBetaAccessActive(){
-  try { return localStorage.getItem('ca_beta_access') === '1'; } catch(_) { return false; }
 }
