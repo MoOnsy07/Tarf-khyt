@@ -88,6 +88,11 @@
   const OCCUPATION_OVERRIDES = {
     'buffalo-case': { nabawiya:'ربة منزل', rizq:'مزارع وصاحب أرض زراعية' },
     'buffalo': { nabawiya:'ربة منزل', rizq:'مزارع وصاحب أرض زراعية' },
+    'final-scene': { kareem_stunt:'إخراج وإنتاج فني' },
+    'last-column': { selma_editor:'صحافة وتحرير', adel_source:'موظف إداري' },
+    'runaway-bride': { kareem_groom:'إدارة أعمال', nour_friend_dina:'موظفة إدارية', father_hassan:'صاحب نشاط خاص' },
+    'blueprint-leak': { sara_competitor:'إدارة أعمال' },
+    'archive-fire': { nabila_descendant:'موظفة إدارية' },
   };
 
   function roleText(s){
