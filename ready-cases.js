@@ -122,6 +122,7 @@ const READY_CASE_IDS = new Set([
    https://taraf5eet.online/?testmode=TARAF_TEST_2026
    وبعدها هيفضل الوضع مفعّل على المتصفح ده لحد ما تمسح بيانات الموقع.
    ============================================================ */
+const OWNER_TEST_CASE_IDS = ['final-scene','last-column','runaway-bride','blueprint-leak','archive-fire'];
 (function setupOwnerTestMode(){
   if (typeof document === 'undefined') return;
   try {
@@ -129,6 +130,9 @@ const READY_CASE_IDS = new Set([
     const token = String(q.get('testmode') || '').trim();
     if (token === 'TARAF_TEST_2026') {
       localStorage.setItem('ca_owner_test_mode', '1');
+    }
+    if (localStorage.getItem('ca_owner_test_mode') === '1') {
+      OWNER_TEST_CASE_IDS.forEach(id => READY_CASE_IDS.add(id));
     }
   } catch(_) {}
 })();
