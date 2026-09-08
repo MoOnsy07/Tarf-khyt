@@ -30,7 +30,7 @@ function newCasesTeaserHTML(){
   const cards = upcoming.map(c => `
     <div class="teaser-mini-card" data-preview-case="${c.id}">
       <div class="teaser-mini-cover">
-        <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">
+        <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy" onerror="this.remove(); this.parentElement.classList.add('cover-pending');">
         <span class="teaser-mini-badge mono">⏳ قريبًا</span>
       </div>
       <div class="teaser-mini-title">${c.title}</div>
@@ -810,7 +810,7 @@ function showLibrary(){
       <div class="lib-card ${!ready ? 'coming-soon' : ''}" data-case="${c.id}" data-locked="${lock.locked}" data-lock-reason="${lock.reason||''}" data-ready="${ready}">
         ${badges.join('')}
         <button class="lib-preview-btn mono" data-preview-case="${c.id}" aria-label="معاينة سريعة" title="معاينة سريعة">ⓘ</button>
-        <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">${!ready ? comingSoonOverlay : lockOverlay}</div>
+        <div class="cover"><img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy" onerror="this.remove(); this.parentElement.classList.add('cover-pending');">${!ready ? comingSoonOverlay : lockOverlay}</div>
         <div class="body">
           <h4>${c.title}</h4>
           <div class="meta">${c.caseNo} · ${c.estMinutes} دقيقة · ${c.difficulty}</div>

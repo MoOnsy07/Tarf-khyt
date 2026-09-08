@@ -1032,3 +1032,23 @@ body{
 }
 .new-release-card{ cursor:pointer; }
 .new-release-card .teaser-mini-cover img{ opacity:1; }
+
+/* ============================================================
+   علامة تحميل بديلة لأي غلاف قضية لسه مش موجود (بدل الصورة المكسورة)
+   ============================================================ */
+.teaser-mini-cover.cover-pending,
+.lib-card .cover.cover-pending{
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, var(--panel) 0%, rgba(224,164,88,.08) 100%);
+}
+.teaser-mini-cover.cover-pending::before,
+.lib-card .cover.cover-pending::before{
+  content:'⏳';
+  font-size:28px;
+  opacity:.5;
+  animation:coverPendingPulse 1.6s ease-in-out infinite;
+}
+@keyframes coverPendingPulse{
+  0%,100%{ opacity:.35; transform:scale(1); }
+  50%{ opacity:.65; transform:scale(1.08); }
+}
