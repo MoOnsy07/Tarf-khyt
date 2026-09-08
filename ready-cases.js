@@ -3,6 +3,7 @@
 // (زي profile.html) — عشان اللستة تتحدث في مكان واحد بس.
 const READY_CASE_IDS = new Set([
   'dark-testimony','final-testament','last-episode','leaked-video','missing-bride','hit-and-run','last-dish','last-rehearsal','lost-wallet','illusion-startup','last-call','no-witness-night','number-19','role-of-lifetime','room-307','shifting-painting','fake-audio','false-rumor','forged-canvas','ghost-author','exam-leak','dawn-call','finish-line','flat-12b','last-bell','last-update','mud-print','old-estate','postponed-engagement','recorded-voice','red-thread','vault-key','warehouse-fire','closed-file','forged-will','missing-twin','var-conspiracy','coded-message','behind-scenes','vanished-wife','last-laugh','nile-cruise','old-photo','one-comment','secret-clinic','secret-recipe','opening-night','suspicious-transfer','second-face','buffalo-case','93rd-minute','bribery','broken-faucet','dating-app','dawn-club','deleted-scene','overbilled','wedding-gold','charity-funds','grandma-ring','return-from-death',
+  'final-scene','last-column','runaway-bride','blueprint-leak','archive-fire',
 ]);
 
 // CASE 061 تفضل مخفية من المكتبة العامة، لكن تقدر تتفتح من رابط المالك المباشر.
@@ -122,7 +123,7 @@ const READY_CASE_IDS = new Set([
    https://taraf5eet.online/?testmode=TARAF_TEST_2026
    وبعدها هيفضل الوضع مفعّل على المتصفح ده لحد ما تمسح بيانات الموقع.
    ============================================================ */
-const OWNER_TEST_CASE_IDS = ['final-scene','last-column','runaway-bride','blueprint-leak','archive-fire'];
+const OWNER_TEST_CASE_IDS = ['last-injection','blind-trust','forged-signature','distant-witness','charity-ledger','name-game','blast-minutes','whisper-dark','stolen-gallery','forbidden-floor'];
 (function setupOwnerTestMode(){
   if (typeof document === 'undefined') return;
   try {

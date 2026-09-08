@@ -48,6 +48,34 @@ function newCasesTeaserHTML(){
   `;
 }
 
+// ------- بانر "قضايا جديدة" — القضايا الجديدة المتاحة فعليًا للعب -------
+function newlyReleasedCasesHTML(){
+  const NEW_RELEASE_IDS = ['final-scene','last-column','runaway-bride','blueprint-leak','archive-fire'];
+  const released = NEW_RELEASE_IDS
+    .map(id => CASES_REGISTRY.find(c => c.id === id))
+    .filter(c => c && isCaseReady(c));
+  if(!released.length) return '';
+  const cards = released.map(c => `
+    <div class="lib-card teaser-mini-card new-release-card" data-case="${c.id}" data-locked="false" data-ready="true">
+      <div class="teaser-mini-cover">
+        <img src="${c.coverImg}" class="photo-tone" alt="${c.title}" loading="lazy">
+        <span class="teaser-mini-badge new-release-badge mono">✨ جديدة</span>
+      </div>
+      <div class="teaser-mini-title">${c.title}</div>
+      <div class="teaser-mini-meta mono">${c.caseNo} · ${c.estMinutes} دقيقة</div>
+    </div>
+  `).join('');
+  return `
+    <div class="new-cases-teaser new-release-banner">
+      <div class="new-cases-teaser-head">
+        <span class="new-cases-teaser-eyebrow new-release-eyebrow mono">✨ قضايا جديدة</span>
+        <h3>${released.length} قضايا جديدة اتضافت للمكتبة — العبها دلوقتي</h3>
+      </div>
+      <div class="new-cases-teaser-scroll">${cards}</div>
+    </div>
+  `;
+}
+
 function socialLinksHTML(context){
   const telegramBlock = context === 'library' ? `
     <div class="telegram-intel-card">
@@ -825,6 +853,8 @@ function showLibrary(){
       </svg>
       <div class="lib-hero-sub">اختار قضيتك وابدأ التحقيق</div>
     </div>
+
+    ${newlyReleasedCasesHTML()}
 
     ${newCasesTeaserHTML()}
 

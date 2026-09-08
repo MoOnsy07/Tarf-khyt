@@ -1016,3 +1016,19 @@ body{
 .teaser-mini-meta{
   font-size:10px; color:var(--ink-dim); margin-top:2px;
 }
+
+/* ============================================================
+   بانر "قضايا جديدة" — نسخة مميزة (أخضر) عن بانر "قريبًا" (كهرماني)
+   ============================================================ */
+.new-release-banner{
+  border-top-color: rgba(88,199,120,.35);
+  border-bottom-color: rgba(88,199,120,.35);
+}
+.new-release-eyebrow{
+  color:#58c778; background:rgba(88,199,120,.14); border-color:rgba(88,199,120,.4);
+}
+.new-release-badge{
+  color:#58c778; border-color:rgba(88,199,120,.5);
+}
+.new-release-card{ cursor:pointer; }
+.new-release-card .teaser-mini-cover img{ opacity:1; }
