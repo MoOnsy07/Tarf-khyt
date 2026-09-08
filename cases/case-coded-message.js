@@ -213,14 +213,14 @@ const CASE_CODED_MESSAGE = {
     partial: {
       stamp:'جزئي', badgeLabel:'القضية اتقفلت — أدلة غير كافية', title:'الشك في مكانه، الإثبات ناقص',
       paragraphs:[
-        'التحقيق بيتجه صح ناحية يارا، بس الأدلة اللي جمعتها لسه مش كفاية تقفل القضية رسميًا قدام النيابة.',
+        'نور اتأنقذت بعد الوصول للمخزن، لكن الأدلة اللي جمعتها على هوية المسؤول لسه مش كفاية تقفل القضية رسميًا.',
       ],
       hint:'اجمع على الأقل 4 أدلة من: شهادة سعاد، أسئلتها المتكررة، وديونها المالية، قبل ما تتهم.'
     },
     bad: {
       stamp:'لغز بلا حل', badgeLabel:'القضية اتقفلت — اتهام ظالم', title:'القضية اتقفلت غلط',
       paragraphs:[
-        'اتهمت {wrongName}، ونور فضلت في خطر حقيقي والفاعلة الحقيقية فضلت طليقة. الأدلة كانت بتشاور بوضوح على اتجاه تاني من البداية.',
+        'نور اتأنقذت، لكن اتهام {wrongName} ما اتسندش بسلسلة الأدلة الصحيحة. الوصول للمخزن أثبت مكان الاحتجاز، مش هوية الخاطف بمفرده.',
       ]
     }
   }
@@ -305,7 +305,7 @@ const CASE_CODED_MESSAGE = {
 /* ENDING CONSISTENCY PATCH */
 (() => {
   const c=CASE_CODED_MESSAGE;
-  c.evidence.push({id:'noor_found_old_villa',tag:'نتيجة فك الشفرة والمداهمة',crit:true,title:'العثور على نور في الفيلا',img:null,short:'الشفرة قادت لمخزن الفيلا القديمة',full:'فك الرسالة حدد مخزن الفيلا القديمة. المداهمة عثرت على نور حيّة، وأكدت إن يارا احتجزتها ولقنتها تعليمات الرسالة.',unlocked:false,order:99});
-  c.investigationActions=[...(c.investigationActions||[]),{id:'raid_coded_villa',kind:'تتبع ومداهمة',label:'استخدم حل الشفرة وداهم الفيلا',requires:['ransom_note','yara_c_seen_villa'],resultEvidenceIds:['noor_found_old_villa'],successText:'تم العثور على نور وإنقاذها داخل مخزن الفيلا.'}];
+  c.evidence.push({id:'noor_found_old_villa',tag:'نتيجة فك الشفرة والمداهمة',crit:true,title:'العثور على نور داخل مخزن الفيلا',img:null,short:'المداهمة عثرت على نور حيّة داخل المخزن المحدد من الشفرة',full:'فك الرسالة وتحديد مخزن B-12 قادا للمكان الصحيح، وتم العثور على نور حيّة داخله. أكدت إنها نُقلت للمكان بعد المدرسة وإن الشخص اللي احتجزها كان يعرف روتينها ومواعيدها، لكنها لم تستطع تحديد هويته بشكل قاطع وقت الإنقاذ. المداهمة تثبت صحة الموقع ومسار الخطف، لا اسم المسؤول وحده.',unlocked:false,order:99});
+  c.investigationActions=[...(c.investigationActions||[]),{id:'raid_coded_villa',kind:'تتبع ومداهمة',label:'استخدم حل الشفرة وداهم الفيلا',requires:['ransom_note','yara_c_seen_villa'],resultEvidenceIds:['noor_found_old_villa'],successText:'تم العثور على نور وإنقاذها داخل مخزن B-12. موقع الاحتجاز اتثبت، لكن هوية المسؤول لسه محتاجة ربط باقي الأدلة.'}];
   c.conclusiveEvidenceIds=['yara_c_seen_villa','atef_c_questioned','noor_found_old_villa']; c.conclusiveRequired=3;
 })();

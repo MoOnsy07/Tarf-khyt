@@ -143,6 +143,11 @@ const CASE_BRIBERY = {
       full:'مراجعة حسابات الكلية ما لقتش أي تبرع باسم رأفت. إيصال التحويل اللي قدمه بعد المواجهة رايح لمكتب استشارات خاص، وسجلات الشركة بتوضح إن د. أمين شريك غير معلن في إدارته.',
       unlocked:false, order:7 },
 
+    { id:'exclusive_access_confirmed', tag:'من مراجعة صلاحيات النظام', crit:true, title:'د. أمين الوحيد اللي معاه صلاحية التعديل', img:null,
+      short:'مراجعة صلاحيات النظام تؤكد إن د. أمين وحده يقدر يعدّل بعد إغلاق اللجنة',
+      full:'مراجعة صلاحيات نظام القبول أكدت إن التعديل بعد إغلاق اجتماع اللجنة محصور بحساب رئيس اللجنة بس، ومحدش تاني (بما فيهم هبة) عنده صلاحية زي دي — وده بيستبعد احتمال إن حد استخدم حسابه من غير علمه.',
+      unlocked:false, order:8 },
+
     { id:'contradiction_noted_bribery', tag:'من تحليل التناقضات', crit:true, title:'تناقض بين ادعاء رأفت وحسابات الكلية', img:null,
       short:'قال إن المبلغ تبرع للكلية، لكن التحويل راح لجهة مرتبطة بأمين',
       full:'رأفت وصف المبلغ كتبرع رسمي للكلية، لكن الحسابات ما فيهاش أي تبرع باسمه، وإيصال التحويل بيروح لجهة مرتبطة بد. أمين. كده ادعاء التبرع الرسمي مايركبش مع مسار الفلوس.',
@@ -201,8 +206,17 @@ const CASE_BRIBERY = {
   ],
 
   correctSuspectId: 'dr_amin',
-  conclusiveEvidenceIds: ['system_entry_log', 'donation_missing', 'contradiction_noted_bribery', 'father_connection'],
+  conclusiveEvidenceIds: ['system_entry_log', 'donation_missing', 'exclusive_access_confirmed', 'father_connection'],
   conclusiveRequired: 4,
+
+  investigationActions: [
+    {
+      id:'audit_system_permissions', kind:'مراجعة صلاحيات', label:'راجع صلاحيات نظام القبول الإلكتروني',
+      description:'بما إن التعديل حصل بعد إغلاق اللجنة، تأكد مين بالظبط عنده صلاحية يعدّل في الوقت ده.',
+      requires:['system_entry_log'], resultEvidenceIds:['exclusive_access_confirmed'],
+      successText:'مراجعة الصلاحيات أكدت إن رئيس اللجنة وحده كان يقدر يعمل التعديل ده.'
+    },
+  ],
 
   theoryBuilder: {
     enabled: true,
